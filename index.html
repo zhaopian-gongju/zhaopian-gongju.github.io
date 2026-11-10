@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>报名照片太大传不上去？在线压缩到指定KB、改一寸二寸像素（不上传，免费）</title>
+<meta name="description" content="考试报名、网上办事上传照片提示“照片大小超过限制”“尺寸不符合要求”？选好要求的KB和像素，一键处理成合格的JPG。照片只在你自己的浏览器里处理，不会上传到任何服务器。">
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--fg:#1c2330;--sub:#5b6676;--line:#dfe3ea;--main:#1769e0;--mainfg:#fff;--warn:#b45309}
+@media (prefers-color-scheme:dark){:root{--bg:#12151b;--card:#1b2029;--fg:#e8ecf2;--sub:#9aa5b5;--line:#2c3441;--main:#4c8ff5;--mainfg:#0b1220;--warn:#f0b35a}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 -apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+main{max-width:720px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:24px;line-height:1.35;margin:8px 0 6px}
+h2{font-size:18px;margin:0 0 10px}
+p{margin:6px 0}
+.sub{color:var(--sub);font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:14px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips button{border:1px solid var(--line);background:transparent;color:var(--fg);border-radius:999px;padding:7px 14px;font-size:15px;cursor:pointer}
+.chips button.on{background:var(--main);border-color:var(--main);color:var(--mainfg)}
+.row{display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap}
+input[type=number]{width:110px;padding:8px;border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--fg);font-size:16px}
+.big{display:block;width:100%;padding:13px;border:0;border-radius:10px;background:var(--main);color:var(--mainfg);font-size:17px;font-weight:600;cursor:pointer;text-align:center;text-decoration:none}
+.big[disabled]{opacity:.5;cursor:default}
+.ghost{background:transparent;border:1px dashed var(--main);color:var(--main)}
+.note{color:var(--warn);font-size:14px}
+img.pv{max-width:100%;max-height:320px;display:block;margin:10px auto;border:1px solid var(--line)}
+[hidden]{display:none!important}
+footer{margin-top:28px;color:var(--sub);font-size:13px;text-align:center}
+</style>
+</head>
+<body>
+<main>
+<h1>报名照片太大传不上去？压到要求的大小和尺寸</h1>
+<p class="sub">照片只在你自己的浏览器里处理，不上传、不保存。电脑和手机都能用。</p>
+
+<div class="card">
+  <h2>① 选照片</h2>
+  <input id="file" type="file" accept="image/*" hidden>
+  <button id="pick" class="big ghost">点这里选一张照片（也可以把照片拖进来）</button>
+  <p id="srcInfo" class="sub" hidden></p>
+</div>
+
+<div class="card">
+  <h2>② 报名系统要求文件不超过多大？</h2>
+  <div id="kbChips" class="chips"></div>
+  <div id="kbCustom" class="row" hidden><input id="customKb" type="number" min="5" placeholder="例如 40"> KB</div>
+</div>
+
+<div class="card">
+  <h2>③ 对像素尺寸有要求吗？</h2>
+  <div id="sizeChips" class="chips"></div>
+  <div id="sizeCustom" class="row" hidden>宽 <input id="customW" type="number" min="20" placeholder="例如 358"> × 高 <input id="customH" type="number" min="20" placeholder="例如 441"> 像素</div>
+  <p class="sub">选了尺寸会按比例居中裁剪。不确定就选“不改尺寸”。</p>
+</div>
+
+<div class="card">
+  <button id="run" class="big" disabled>开始处理</button>
+  <div id="out" hidden>
+    <img id="outImg" class="pv" alt="处理后的照片">
+    <p id="outInfo"></p>
+    <p id="outNote" class="note" hidden></p>
+    <a id="dl" class="big" download="报名照片.jpg">保存照片</a>
+    <p class="sub">手机上如果点了没反应，长按上面的照片选“保存图片”。</p>
+  </div>
+</div>
+
+<div class="card">
+  <h2>常见问题</h2>
+  <p><b>提示“照片大小超过限制”怎么办？</b><br>看报名页面写的上限（比如“不超过200K”），在第②步选同样的数字，处理后再上传。</p>
+  <p><b>提示“照片尺寸不符合要求”怎么办？</b><br>看页面要求的像素（比如 295×413），在第③步选一寸/二寸，或者选“自己填”照着填。</p>
+  <p><b>一寸、二寸是多少像素？</b><br>常见的是一寸 295×413、小二寸 413×531、二寸 413×579。各考试要求不一样，以报名页面写的为准。</p>
+  <p><b>要求“大于20K小于100K”怎么办？</b><br>选上限 100K 即可，处理结果会尽量贴近上限，一般不会低于下限。结果下面会显示实际大小，可以核对。</p>
+  <p><b>照片会被传到网上吗？</b><br>不会。处理全部在你的设备上完成，断网也能用。</p>
+</div>
+
+<footer>本页由 AI 自主制作和运营 · 免费使用 · 处理结果请以报名系统实际校验为准</footer>
+</main>
+
+<canvas id="work" hidden></canvas>
+<script>
+const KB_PRESETS=[['20K',20],['30K',30],['50K',50],['100K',100],['200K',200],['500K',500],['1M',1024],['自己填',-1]]
+const SIZE_PRESETS=[['不改尺寸',0,0],['一寸 295×413',295,413],['小二寸 413×531',413,531],['二寸 413×579',413,579],['自己填',-1,-1]]
+const MAX_SIDE=3000,MIN_Q=0.05,MAX_Q=0.92
+let kbIdx=4,sizeIdx=0,img=null,outUrl=''
+const $=id=>document.getElementById(id)
+const kbText=b=>{const kb=b/1024;return kb>=1024?(kb/1024).toFixed(2)+' MB':kb.toFixed(1)+' KB'}
+
+function chips(box,list,get,set,customEl){
+  box.innerHTML=''
+  list.forEach((p,i)=>{
+    const b=document.createElement('button')
+    b.type='button';b.textContent=p[0];if(i===get())b.className='on'
+    b.onclick=()=>{set(i);chips(box,list,get,set,customEl);customEl.hidden=list[i][1]!==-1}
+    box.appendChild(b)
+  })
+}
+chips($('kbChips'),KB_PRESETS,()=>kbIdx,i=>kbIdx=i,$('kbCustom'))
+chips($('sizeChips'),SIZE_PRESETS,()=>sizeIdx,i=>sizeIdx=i,$('sizeCustom'))
+
+function load(file){
+  if(!file||!file.type.startsWith('image/')){alert('请选择图片文件');return}
+  const url=URL.createObjectURL(file),im=new Image()
+  im.onload=()=>{img=im;$('srcInfo').hidden=false
+    $('srcInfo').textContent='已选：'+im.naturalWidth+'×'+im.naturalHeight+' 像素，'+kbText(file.size)
+    $('run').disabled=false;$('out').hidden=true}
+  im.onerror=()=>alert('这张照片读不了，换一张试试（苹果手机的 HEIC 格式请先在相册里转成 JPG）')
+  im.src=url
+}
+$('pick').onclick=()=>$('file').click()
+$('file').onchange=e=>load(e.target.files[0])
+document.addEventListener('dragover',e=>e.preventDefault())
+document.addEventListener('drop',e=>{e.preventDefault();load(e.dataTransfer.files[0])})
+
+function draw(c,w,h){
+  c.width=w;c.height=h
+  const ctx=c.getContext('2d')
+  ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h)
+  const iw=img.naturalWidth,ih=img.naturalHeight,sr=iw/ih,tr=w/h
+  let sx=0,sy=0,sw=iw,sh=ih
+  if(sr>tr){sw=ih*tr;sx=(iw-sw)/2}else{sh=iw/tr;sy=(ih-sh)/2}
+  ctx.imageSmoothingQuality='high'
+  ctx.drawImage(img,sx,sy,sw,sh,0,0,w,h)
+}
+const exportAt=(c,q)=>new Promise((res,rej)=>c.toBlob(b=>b?res({blob:b,size:b.size,q}):rej(new Error('toBlob')),'image/jpeg',q))
+
+// 找不超过 target 的最高画质；最低画质仍超标时返回 fail
+async function searchQuality(c,target){
+  const top=await exportAt(c,MAX_Q)
+  if(top.size<=target)return top
+  const low=await exportAt(c,MIN_Q)
+  if(low.size>target)return Object.assign(low,{fail:true})
+  let lo=MIN_Q,hi=MAX_Q,best=low
+  for(let i=0;i<7;i++){
+    const mid=(lo+hi)/2,r=await exportAt(c,mid)
+    if(r.size<=target){best=r;lo=mid}else hi=mid
+  }
+  return best
+}
+
+function readTarget(){
+  let kb=KB_PRESETS[kbIdx][1]
+  if(kb===-1)kb=Number($('customKb').value)
+  if(!kb||kb<5)return{error:'文件大小请填 5 以上的数字'}
+  let [,w,h]=SIZE_PRESETS[sizeIdx]
+  if(w===-1){
+    w=Math.round(Number($('customW').value));h=Math.round(Number($('customH').value))
+    if(!w||!h||w<20||h<20||w>MAX_SIDE||h>MAX_SIDE)return{error:'宽和高请填 20 到 '+MAX_SIDE+' 之间的数字'}
+  }
+  return{bytes:kb*1024,w,h,fixed:w>0}
+}
+
+$('run').onclick=async()=>{
+  const t=readTarget()
+  if(t.error){alert(t.error);return}
+  const btn=$('run');btn.disabled=true;btn.textContent='处理中…'
+  try{
+    const c=$('work'),iw=img.naturalWidth,ih=img.naturalHeight
+    let w=t.w,h=t.h
+    if(!t.fixed){const k=Math.min(1,MAX_SIDE/Math.max(iw,ih));w=Math.round(iw*k);h=Math.round(ih*k)}
+    let r=null,note=''
+    for(let round=0;round<6;round++){
+      draw(c,w,h)
+      r=await searchQuality(c,t.bytes)
+      if(!r.fail)break
+      if(t.fixed){note='这个尺寸下最小只能压到 '+kbText(r.size)+'，达不到要求的大小。';break}
+      const k=Math.max(0.5,Math.sqrt(t.bytes/r.size)*0.95)
+      w=Math.max(20,Math.round(w*k));h=Math.max(20,Math.round(h*k))
+      if(round===5)note='已尽量压缩，仍略大于要求的大小。'
+    }
+    if(!t.fixed&&(w!==iw||h!==ih)&&!note)note='为了压到要求的大小，像素缩小了。如果报名系统对像素有要求，请在第③步选尺寸后重试。'
+    if(outUrl)URL.revokeObjectURL(outUrl)
+    outUrl=URL.createObjectURL(r.blob)
+    $('outImg').src=outUrl;$('dl').href=outUrl
+    $('outInfo').textContent='处理结果：'+w+'×'+h+' 像素，'+kbText(r.size)+'，JPG 格式'
+    $('outNote').hidden=!note;$('outNote').textContent=note
+    $('out').hidden=false
+    $('out').scrollIntoView({behavior:'smooth',block:'nearest'})
+  }catch(e){console.error(e);alert('处理失败，换一张照片试试')}
+  finally{btn.disabled=false;btn.textContent='开始处理'}
+}
+</script>
+</body>
+</html>
