@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>上传的照片是横的、倒的？报名系统里照片方向不对，在线把照片转正（不上传，免费）</title>
+<meta name="description" content="手机里看照片是正的，传到报名系统、网上办事平台就变成横的或倒的？把照片的像素真正转正，不再依赖手机的“旋转标记”，还能手动左转、右转、翻转。照片只在你自己的浏览器里处理，不会上传。">
+<link rel="canonical" href="https://zhaopian-gongju.github.io/rotate/">
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--fg:#1c2330;--sub:#5b6676;--line:#dfe3ea;--main:#1769e0;--mainfg:#fff;--warn:#b45309}
+@media (prefers-color-scheme:dark){:root{--bg:#12151b;--card:#1b2029;--fg:#e8ecf2;--sub:#9aa5b5;--line:#2c3441;--main:#4c8ff5;--mainfg:#0b1220;--warn:#f0b35a}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 -apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+main{max-width:720px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:24px;line-height:1.35;margin:8px 0 6px}
+h2{font-size:18px;margin:0 0 10px}
+p{margin:6px 0}
+a{color:var(--main)}
+.sub{color:var(--sub);font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:14px}
+.tools{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:8px}
+.tools button{border:1px solid var(--line);background:transparent;color:var(--fg);border-radius:999px;padding:8px 16px;font-size:15px;cursor:pointer}
+.big{display:block;width:100%;padding:13px;border:0;border-radius:10px;background:var(--main);color:var(--mainfg);font-size:17px;font-weight:600;cursor:pointer;text-align:center;text-decoration:none}
+.big[disabled]{opacity:.5;cursor:default}
+.ghost{background:transparent;border:1px dashed var(--main);color:var(--main)}
+.note{color:var(--warn);font-size:14px}
+canvas.pv,img.pv{max-width:100%;max-height:360px;display:block;margin:10px auto;border:1px solid var(--line)}
+.links{margin:0;padding-left:20px}
+.links li{margin:4px 0}
+[hidden]{display:none!important}
+footer{margin-top:28px;color:var(--sub);font-size:13px;text-align:center}
+</style>
+</head>
+<body>
+<main>
+<h1>上传的照片是横的、倒的？把照片方向真正转正</h1>
+<p class="sub">手机里看是正的、传上去就歪了，或者照片本来就拍歪了，都能在这里转正。照片只在你自己的浏览器里处理，不上传、不保存。</p>
+
+<div class="card">
+  <h2>① 选照片</h2>
+  <input id="file" type="file" accept="image/*" hidden>
+  <button id="pick" class="big ghost">点这里选一张照片（也可以把照片拖进来）</button>
+  <p id="srcInfo" class="sub" hidden></p>
+  <p id="srcNote" class="note" hidden></p>
+</div>
+
+<div class="card" id="editCard" hidden>
+  <h2>② 看看方向对不对</h2>
+  <canvas id="pv" class="pv"></canvas>
+  <div class="tools">
+    <button id="rl" type="button">↺ 向左转</button>
+    <button id="rr" type="button">↻ 向右转</button>
+    <button id="fl" type="button">⇋ 左右翻转</button>
+    <button id="rs" type="button">还原</button>
+  </div>
+  <p class="sub" style="text-align:center">上面就是保存后的样子。人像是正的就直接点下面的按钮。</p>
+</div>
+
+<div class="card">
+  <button id="run" class="big" disabled>保存转正后的照片</button>
+  <div id="out" hidden>
+    <img id="outImg" class="pv" alt="转正后的照片">
+    <p id="outInfo"></p>
+    <p id="outNote" class="note" hidden></p>
+    <a id="dl" class="big" download="照片.jpg">保存照片</a>
+    <p class="sub">手机上如果点了没反应，长按上面的照片选“保存图片”。如果报名系统还限制文件大小或像素，保存后再去<a href="/">压缩照片</a>。</p>
+  </div>
+</div>
+
+<div class="card">
+  <h2>为什么手机里看是正的，传上去就歪了？</h2>
+  <p>手机拍照时，不管你怎么拿手机，照片里的像素常常是按“横着拿”的方向存的。手机只是在照片文件里另外记了一个“旋转标记”，意思是“看的时候请转 90 度”。手机相册、微信认这个标记，所以你看到的是正的。</p>
+  <p>可有些报名系统、网上办事平台、老软件不认这个标记，或者在处理照片时把标记弄丢了，照片就按像素原来的方向显示，变成横的或倒的。</p>
+  <p>这里的做法是：先按标记把照片摆正，再把像素真正转过来重新保存成 JPG，同时去掉这个标记。这样不管对方认不认标记，看到的都是同一个方向。</p>
+</div>
+
+<div class="card">
+  <h2>常见问题</h2>
+  <p><b>报名照片上传后是横的（躺着的）怎么办？</b><br>在这里选那张照片，看上面的预览是不是正的；不正就点“向左转”或“向右转”，然后保存，上传保存下来的那张。</p>
+  <p><b>上传后照片是倒的（上下颠倒）？</b><br>同样处理，点两次“向右转”就是转 180 度。</p>
+  <p><b>为什么我在电脑上已经转正了，传上去还是歪的？</b><br>有的看图软件转正时只改了那个“旋转标记”，像素没动，对方不认标记就又歪了。这里保存出来的照片像素是转好的，不带旋转标记。</p>
+  <p><b>转正会让照片变模糊吗？</b><br>转 90 度、180 度和翻转不会损失像素，但会重新保存成 JPG（画质 92%），文件大小可能和原来不一样，肉眼一般看不出区别。</p>
+  <p><b>照片会被传到网上吗？</b><br>不会。转正全部在你的设备上完成。另外，保存出来的新照片不带原照片里的拍摄信息（比如拍摄地点）。</p>
+</div>
+
+<div class="card">
+  <h2>其他常见问题</h2>
+  <ul class="links">
+    <li><a href="/">照片太大传不上去（压到指定KB、改一寸二寸像素）</a></li>
+    <li><a href="/to-jpg/">提示“只支持JPG格式”“图片格式不正确”</a></li>
+    <li><a href="/too-small/">提示“照片不能小于XXK”“文件太小”</a></li>
+    <li><a href="/dpi/">提示“分辨率不符合要求”“要求300dpi”</a></li>
+    <li><a href="/to-pdf/">要求上传PDF格式，可只有照片（多张合成一个PDF）</a></li>
+    <li><a href="/idcard-a4/">身份证正反面放在一张纸上（合并成一张图、A4打印）</a></li>
+    <li><a href="/signature/">要求上传手写签名，签名要白底黑字</a></li>
+  </ul>
+</div>
+
+<footer>本页由 AI 自主制作和运营 · 免费使用 · 处理结果请以报名系统实际校验为准<br>本站只统计访问次数（不涉及照片内容）</footer>
+</main>
+
+<canvas id="base" hidden></canvas>
+<canvas id="work" hidden></canvas>
+<script>
+const MAX_AREA=36e6,Q=0.92
+const ORI_TEXT={2:'左右镜像',3:'转 180°',4:'上下镜像',5:'转 90° 并镜像',6:'顺时针转 90°',7:'逆时针转 90° 并镜像',8:'逆时针转 90°'}
+let img=null,srcName='照片',outUrl='',rot=0,flip=false
+const $=id=>document.getElementById(id)
+const kbText=b=>{const kb=b/1024;return kb>=1024?(kb/1024).toFixed(2)+' MB':kb.toFixed(1)+' KB'}
+
+// 读 JPG 里的旋转标记（EXIF Orientation）和像素实际存储的宽高
+function parseJpeg(u){
+  if(!(u[0]===0xFF&&u[1]===0xD8))return null
+  let p=2,ori=1,rw=0,rh=0
+  while(p+4<u.length){
+    if(u[p]!==0xFF){p++;continue}
+    const m=u[p+1];if(m===0xFF){p++;continue}
+    if(m===0xD9||m===0xDA)break
+    if(m===0x01||(m>=0xD0&&m<=0xD7)){p+=2;continue}
+    const len=(u[p+2]<<8)|u[p+3],d=p+4
+    if(m===0xE1&&u[d]===0x45&&u[d+1]===0x78&&u[d+2]===0x69&&u[d+3]===0x66&&u[d+4]===0&&u[d+5]===0){
+      const t=d+6,le=u[t]===0x49
+      const r16=o=>le?u[o]|(u[o+1]<<8):(u[o]<<8)|u[o+1]
+      const r32=o=>le?(u[o]|(u[o+1]<<8)|(u[o+2]<<16))+u[o+3]*16777216:u[o]*16777216+((u[o+1]<<16)|(u[o+2]<<8)|u[o+3])
+      const ifd=t+r32(t+4),cnt=r16(ifd)
+      for(let i=0;i<cnt&&ifd+2+i*12+12<=u.length;i++){const e=ifd+2+i*12;if(r16(e)===0x0112){const v=r16(e+8);if(v>=1&&v<=8)ori=v}}
+    }
+    if(m>=0xC0&&m<=0xCF&&m!==0xC4&&m!==0xC8&&m!==0xCC){rh=(u[d+1]<<8)|u[d+2];rw=(u[d+3]<<8)|u[d+4]}
+    p=d+len-2
+  }
+  return{ori,rw,rh}
+}
+
+// 按旋转标记把未转过的像素画正（浏览器不会自动转时才用）
+function drawOriented(ctx,src,w,h,ori){
+  const T={2:[-1,0,0,1,w,0],3:[-1,0,0,-1,w,h],4:[1,0,0,-1,0,h],5:[0,1,1,0,0,0],6:[0,1,-1,0,h,0],7:[0,-1,-1,0,h,w],8:[0,-1,1,0,0,w]}[ori]
+  ctx.save();if(T)ctx.transform(...T);ctx.drawImage(src,0,0,w,h);ctx.restore()
+}
+
+// 第一步：得到“按标记摆正”的底图（存在 base 画布里）
+function makeBase(im,info){
+  const b=$('base'),ctx=b.getContext('2d')
+  let ori=info?info.ori:1,auto=true
+  if(ori>1){
+    if(ori>=5&&info.rw&&info.rw!==info.rh)auto=im.naturalWidth===info.rh&&im.naturalHeight===info.rw
+    else auto=!!(window.CSS&&CSS.supports&&CSS.supports('image-orientation','from-image'))
+  }
+  let w=im.naturalWidth,h=im.naturalHeight
+  const fix=auto?1:ori
+  if(!auto&&ori>=5){w=im.naturalHeight;h=im.naturalWidth}
+  const k=Math.min(1,Math.sqrt(MAX_AREA/(w*h)))
+  b.width=Math.max(1,Math.round(w*k));b.height=Math.max(1,Math.round(h*k))
+  ctx.fillStyle='#fff';ctx.fillRect(0,0,b.width,b.height)
+  ctx.imageSmoothingQuality='high'
+  const sw=fix>=5?b.height:b.width,sh=fix>=5?b.width:b.height
+  drawOriented(ctx,im,sw,sh,fix)
+  return{ori,auto,scaled:k<1}
+}
+
+// 第二步：在底图上套用手动的旋转/翻转，画到目标画布
+function drawFinal(c){
+  const b=$('base'),q=rot%180!==0,w=q?b.height:b.width,h=q?b.width:b.height
+  c.width=w;c.height=h
+  const ctx=c.getContext('2d')
+  // 显示效果 = 先转 rot，再（如需要）左右翻转
+  ctx.save();ctx.translate(w/2,h/2);if(flip)ctx.scale(-1,1);ctx.rotate(rot*Math.PI/180)
+  ctx.drawImage(b,-b.width/2,-b.height/2);ctx.restore()
+}
+function preview(){
+  const b=$('base'),k=Math.min(1,900/Math.max(b.width,b.height)),c=$('pv')
+  drawFinal($('work'))
+  const w=$('work');c.width=Math.max(1,Math.round(w.width*k));c.height=Math.max(1,Math.round(w.height*k))
+  const ctx=c.getContext('2d');ctx.imageSmoothingQuality='high';ctx.drawImage(w,0,0,c.width,c.height)
+  $('out').hidden=true
+}
+
+async function load(file){
+  if(!file)return
+  $('out').hidden=true;$('run').disabled=true;$('editCard').hidden=true;$('srcNote').hidden=true;img=null
+  let info=null
+  try{info=parseJpeg(new Uint8Array(await file.arrayBuffer()))}catch(e){}
+  srcName=(file.name||'照片').replace(/\.[^.]*$/,'')||'照片'
+  const url=URL.createObjectURL(file),im=new Image()
+  im.onload=()=>{img=im;rot=0;flip=false
+    const r=makeBase(im,info)
+    $('srcInfo').hidden=false
+    $('srcInfo').textContent='已选：'+$('base').width+'×'+$('base').height+' 像素（摆正后），'+kbText(file.size)
+    let t
+    if(r.ori>1)t='这张照片带“旋转标记”（'+ORI_TEXT[r.ori]+'），像素本身是歪着存的——这正是传上去会变歪的原因。下面已经按标记摆正，保存后像素就是正的。'
+    else t='这张照片没有旋转标记。如果下面的预览方向不对，用按钮转一下。'
+    if(r.scaled)t+=' 原图像素太多，为了能在浏览器里处理会缩小一些。'
+    $('srcNote').hidden=false;$('srcNote').textContent=t
+    $('editCard').hidden=false;preview();$('run').disabled=false}
+  im.onerror=()=>{URL.revokeObjectURL(url);$('srcNote').hidden=false
+    $('srcNote').textContent='这张照片读不了，换一张试试（苹果手机的 HEIC 照片请用手机直接打开本页选）。'}
+  im.src=url
+}
+$('pick').onclick=()=>$('file').click()
+$('file').onchange=e=>load(e.target.files[0])
+document.addEventListener('dragover',e=>e.preventDefault())
+document.addEventListener('drop',e=>{e.preventDefault();load(e.dataTransfer.files[0])})
+// 翻转后再转，看到的方向要和按钮一致，所以翻转状态下角度反着加
+$('rl').onclick=()=>{rot=(rot+(flip?90:270))%360;preview()}
+$('rr').onclick=()=>{rot=(rot+(flip?270:90))%360;preview()}
+$('fl').onclick=()=>{flip=!flip;preview()}
+$('rs').onclick=()=>{rot=0;flip=false;preview()}
+
+$('run').onclick=async()=>{
+  if(!img)return
+  const btn=$('run');btn.disabled=true;btn.textContent='处理中…'
+  try{
+    const c=$('work');drawFinal(c)
+    const blob=await new Promise((res,rej)=>c.toBlob(b=>b?res(b):rej(new Error('toBlob')),'image/jpeg',Q))
+    if(outUrl)URL.revokeObjectURL(outUrl)
+    outUrl=URL.createObjectURL(blob)
+    $('outImg').src=outUrl;$('dl').href=outUrl;$('dl').download=srcName+'_转正.jpg'
+    $('outInfo').textContent='结果：'+c.width+'×'+c.height+' 像素，'+kbText(blob.size)+'，JPG 格式，像素已转正、不带旋转标记'
+    $('outNote').hidden=true
+    $('out').hidden=false
+    $('out').scrollIntoView({behavior:'smooth',block:'nearest'})
+  }catch(e){console.error(e);alert('处理失败，换一张照片试试')}
+  finally{btn.disabled=false;btn.textContent='保存转正后的照片'}
+}
+</script>
+<script>
+// 访问计数：只发送本页网址，不读取、不发送照片；失败不影响使用
+setTimeout(function(){try{
+  if(!/^https?:$/.test(location.protocol))return
+  var u=location.origin+location.pathname,k='vercount_uv_'+location.host.replace(/[^a-zA-Z0-9_-]/g,'_'),nu=document.cookie.indexOf(k+'=1')<0
+  if(nu)document.cookie=k+'=1; path=/; max-age=31536000; samesite=lax'
+  if(window.fetch)fetch('https://events.vercount.one/api/v2/log',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:u,isNewUv:nu})}).catch(function(){})
+  var b=new Image();b.referrerPolicy='no-referrer-when-downgrade';b.src='https://busuanzi.ibruce.info/busuanzi?jsonpCallback=BusuanziCallback_0'
+}catch(e){}},800)
+</script>
+</body>
+</html>

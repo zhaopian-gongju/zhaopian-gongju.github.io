@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>要求上传手写签名照片？签名背景发灰，在线转成白底黑字电子签名（不上传，免费）</title>
+<meta name="description" content="要求上传“手写签名照片”“白底黑字电子签名”，可拍出来的签名背景发灰、有阴影？自动把纸上签名的照片变成干净的白底黑字，可裁掉多余空白、调整宽度，保存为白底JPG或透明底PNG。照片只在你自己的浏览器里处理，不会上传。">
+<link rel="canonical" href="https://zhaopian-gongju.github.io/signature/">
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--fg:#1c2330;--sub:#5b6676;--line:#dfe3ea;--main:#1769e0;--mainfg:#fff;--warn:#b45309}
+@media (prefers-color-scheme:dark){:root{--bg:#12151b;--card:#1b2029;--fg:#e8ecf2;--sub:#9aa5b5;--line:#2c3441;--main:#4c8ff5;--mainfg:#0b1220;--warn:#f0b35a}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 -apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+main{max-width:720px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:24px;line-height:1.35;margin:8px 0 6px}
+h2{font-size:18px;margin:0 0 10px}
+p{margin:6px 0}
+a{color:var(--main)}
+.sub{color:var(--sub);font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:14px}
+.row{display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap}
+input[type=number]{width:110px;padding:8px;border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--fg);font-size:16px}
+input[type=range]{flex:1;min-width:160px}
+label{cursor:pointer}
+.big{display:block;width:100%;padding:13px;border:0;border-radius:10px;background:var(--main);color:var(--mainfg);font-size:17px;font-weight:600;cursor:pointer;text-align:center;text-decoration:none}
+.big[disabled]{opacity:.5;cursor:default}
+.ghost{background:transparent;border:1px dashed var(--main);color:var(--main)}
+.note{color:var(--warn);font-size:14px}
+.pv{max-width:100%;max-height:300px;display:block;margin:10px auto;border:1px solid var(--line);background-color:#fff}
+.checker{background-image:linear-gradient(45deg,#ddd 25%,transparent 25%,transparent 75%,#ddd 75%),linear-gradient(45deg,#ddd 25%,transparent 25%,transparent 75%,#ddd 75%);background-size:16px 16px;background-position:0 0,8px 8px}
+.links{margin:0;padding-left:20px}
+.links li{margin:4px 0}
+[hidden]{display:none!important}
+footer{margin-top:28px;color:var(--sub);font-size:13px;text-align:center}
+</style>
+</head>
+<body>
+<main>
+<h1>要求上传手写签名？把签名照片变成白底黑字</h1>
+<p class="sub">在白纸上用黑笔签好名，拍下来，选进来就会自动去掉灰背景和阴影，只留下黑色笔迹。照片只在你自己的浏览器里处理，不上传、不保存。</p>
+
+<div class="card">
+  <h2>① 选签名照片</h2>
+  <input id="file" type="file" accept="image/*" hidden>
+  <button id="pick" class="big ghost">点这里选一张照片（也可以把照片拖进来）</button>
+  <p id="srcInfo" class="sub" hidden></p>
+  <p class="sub">拍的时候：白纸、黑色或深蓝色的笔，光线均匀，签名尽量占满画面，别拍到桌子边。</p>
+</div>
+
+<div class="card" id="adj" hidden>
+  <h2>② 调整</h2>
+  <canvas id="pv" class="pv"></canvas>
+  <div class="row"><span>笔迹深浅</span><input id="th" type="range" min="60" max="250" value="180"><span id="thv" class="sub"></span></div>
+  <p class="sub">笔迹断断续续、太淡：往右拉。背景上有黑点、脏印：往左拉。</p>
+  <p><label><input id="crop" type="checkbox" checked> 裁掉四周空白（只留签名，四边留一点白）</label></p>
+  <p><label><input type="radio" name="fmt" value="jpg" checked> 白底 JPG（大多数系统要的“白底黑字”）</label></p>
+  <p><label><input type="radio" name="fmt" value="png"> 透明底 PNG（要把签名叠到别的文件上时用）</label></p>
+  <div class="row">输出宽度 <input id="ow" type="number" min="50" max="4000" placeholder="不改"> 像素 <span class="sub">（系统规定了宽度才填，高度按比例变）</span></div>
+</div>
+
+<div class="card">
+  <button id="run" class="big" disabled>保存签名图片</button>
+  <div id="out" hidden>
+    <img id="outImg" class="pv" alt="处理后的签名">
+    <p id="outInfo"></p>
+    <p id="outNote" class="note" hidden></p>
+    <a id="dl" class="big" download="签名.jpg">保存图片</a>
+    <p class="sub">手机上如果点了没反应，长按上面的图片选“保存图片”。如果系统还限制文件大小，保存后再去<a href="/">压缩照片</a>（压缩会转成 JPG）。</p>
+  </div>
+</div>
+
+<div class="card">
+  <h2>常见问题</h2>
+  <p><b>要求“上传手写签名照片，白底黑字”怎么弄？</b><br>在白纸上用黑笔签名，用手机拍下来，在这里选照片，保存白底 JPG，上传保存下来的那张。</p>
+  <p><b>拍出来的签名背景发灰、有阴影怎么办？</b><br>这里会按照片各处的明暗分别判断哪里是纸、哪里是笔迹，灰底和不太重的阴影会变成纯白。阴影特别重、或者纸上有格子线时可能去不干净，换个光线均匀的地方重拍效果最好。</p>
+  <p><b>用蓝色笔签的，结果是什么颜色？</b><br>都会变成黑色。如果系统要求保留蓝色笔迹，这个工具做不到。</p>
+  <p><b>透明底 PNG 和白底 JPG 选哪个？</b><br>系统只说“白底黑字”就选 JPG；要把签名放到 Word、PDF 等文件里盖在别的内容上，选透明底 PNG。有的系统只收 JPG，以页面写的为准。</p>
+  <p><b>照片会被传到网上吗？</b><br>不会。处理全部在你的设备上完成，断网也能用。</p>
+</div>
+
+<div class="card">
+  <h2>其他常见问题</h2>
+  <ul class="links">
+    <li><a href="/">照片太大传不上去（压到指定KB、改一寸二寸像素）</a></li>
+    <li><a href="/to-jpg/">提示“只支持JPG格式”“图片格式不正确”</a></li>
+    <li><a href="/too-small/">提示“照片不能小于XXK”“文件太小”</a></li>
+    <li><a href="/dpi/">提示“分辨率不符合要求”“要求300dpi”</a></li>
+    <li><a href="/rotate/">照片传上去是横的、倒的（方向不对）</a></li>
+    <li><a href="/to-pdf/">要求上传PDF格式，可只有照片（多张合成一个PDF）</a></li>
+    <li><a href="/idcard-a4/">身份证正反面放在一张纸上（合并成一张图、A4打印）</a></li>
+  </ul>
+</div>
+
+<footer>本页由 AI 自主制作和运营 · 免费使用 · 处理结果请以报名系统实际校验为准<br>本站只统计访问次数（不涉及照片内容）</footer>
+</main>
+
+<canvas id="work" hidden></canvas>
+<script>
+const MAX_SIDE=2000,SOFT=12,Q=0.92
+let W=0,H=0,norm=null,srcName='签名',outUrl='',ready=false,timer=0
+const $=id=>document.getElementById(id)
+const kbText=b=>{const kb=b/1024;return kb>=1024?(kb/1024).toFixed(2)+' MB':kb.toFixed(1)+' KB'}
+
+// 灰度 ÷ 附近一大片区域的平均亮度 → 去掉不均匀的灰底和阴影（0 黑 ~ 255 白）
+function normalize(d,w,h){
+  const g=new Float32Array(w*h)
+  for(let i=0,j=0;i<g.length;i++,j+=4){const a=d[j+3]/255;g[i]=(0.299*d[j]+0.587*d[j+1]+0.114*d[j+2])*a+255*(1-a)}
+  const W1=w+1,S=new Float64Array(W1*(h+1))
+  for(let y=0;y<h;y++){let row=0;for(let x=0;x<w;x++){row+=g[y*w+x];S[(y+1)*W1+x+1]=S[y*W1+x+1]+row}}
+  const r=Math.max(10,Math.round(Math.min(w,h)/6)),n=new Uint8ClampedArray(w*h)
+  for(let y=0;y<h;y++){const y0=Math.max(0,y-r),y1=Math.min(h,y+r+1)
+    for(let x=0;x<w;x++){const x0=Math.max(0,x-r),x1=Math.min(w,x+r+1)
+      const m=(S[y1*W1+x1]-S[y0*W1+x1]-S[y1*W1+x0]+S[y0*W1+x0])/((x1-x0)*(y1-y0))
+      n[y*w+x]=g[y*w+x]*255/Math.max(1,m)}}
+  return n
+}
+// 大津法：自动找一个分开“纸”和“笔迹”的默认值
+function otsu(n){
+  const hist=new Float64Array(256);for(const v of n)hist[v]++
+  let sum=0;for(let i=0;i<256;i++)sum+=i*hist[i]
+  let sB=0,wB=0,best=0,t=180
+  for(let i=0;i<256;i++){wB+=hist[i];if(!wB)continue;const wF=n.length-wB;if(!wF)break
+    sB+=i*hist[i];const mB=sB/wB,mF=(sum-sB)/wF,v=wB*wF*(mB-mF)*(mB-mF);if(v>best){best=v;t=i}}
+  return t
+}
+
+// 按当前阈值算出每个像素的“墨量”（0 无 ~ 255 全黑），边缘做一点柔化
+function inkMap(t){
+  const a=new Uint8ClampedArray(W*H)
+  for(let i=0;i<a.length;i++){const v=norm[i];a[i]=v<=t-SOFT?255:v>=t+SOFT?0:Math.round((t+SOFT-v)*255/(2*SOFT))}
+  return a
+}
+// 签名所在范围：忽略孤立的小黑点
+function bbox(a){
+  let x0=W,y0=H,x1=-1,y1=-1
+  for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++){const i=y*W+x;if(a[i]<128)continue
+    let nb=0;for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++)if((dx||dy)&&a[i+dy*W+dx]>=128)nb++
+    if(nb<2)continue
+    if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y}
+  if(x1<0)return null
+  const pad=Math.max(8,Math.round(Math.max(x1-x0,y1-y0)*0.05))
+  x0=Math.max(0,x0-pad);y0=Math.max(0,y0-pad);x1=Math.min(W-1,x1+pad);y1=Math.min(H-1,y1+pad)
+  return{x:x0,y:y0,w:x1-x0+1,h:y1-y0+1}
+}
+// 生成结果画布：png=true 时透明底黑字，否则白底黑字
+function render(png){
+  const t=+$('th').value,a=inkMap(t),box=$('crop').checked?bbox(a):null
+  const r=box||{x:0,y:0,w:W,h:H}
+  const c=document.createElement('canvas');c.width=r.w;c.height=r.h
+  const ctx=c.getContext('2d'),id=ctx.createImageData(r.w,r.h),d=id.data
+  for(let y=0;y<r.h;y++)for(let x=0;x<r.w;x++){const v=a[(y+r.y)*W+x+r.x],j=(y*r.w+x)*4
+    if(png){d[j]=d[j+1]=d[j+2]=0;d[j+3]=v}else{d[j]=d[j+1]=d[j+2]=255-v;d[j+3]=255}}
+  ctx.putImageData(id,0,0)
+  return{c,empty:!!$('crop').checked&&!box}
+}
+function preview(){
+  if(!ready)return
+  $('thv').textContent=$('th').value
+  const png=document.querySelector('input[name=fmt]:checked').value==='png'
+  const {c}=render(png),p=$('pv'),k=Math.min(1,900/Math.max(c.width,c.height))
+  p.width=Math.max(1,Math.round(c.width*k));p.height=Math.max(1,Math.round(c.height*k))
+  p.className='pv'+(png?' checker':'')
+  const ctx=p.getContext('2d');ctx.clearRect(0,0,p.width,p.height);ctx.imageSmoothingQuality='high';ctx.drawImage(c,0,0,p.width,p.height)
+  $('out').hidden=true
+}
+const later=()=>{clearTimeout(timer);timer=setTimeout(preview,60)}
+
+function load(file){
+  if(!file)return
+  const url=URL.createObjectURL(file),im=new Image()
+  im.onload=()=>{
+    const k=Math.min(1,MAX_SIDE/Math.max(im.naturalWidth,im.naturalHeight))
+    W=Math.max(1,Math.round(im.naturalWidth*k));H=Math.max(1,Math.round(im.naturalHeight*k))
+    const c=$('work');c.width=W;c.height=H
+    const ctx=c.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);ctx.imageSmoothingQuality='high';ctx.drawImage(im,0,0,W,H)
+    norm=normalize(ctx.getImageData(0,0,W,H).data,W,H)
+    $('th').value=Math.min(235,Math.max(120,otsu(norm)+10))
+    srcName=(file.name||'签名').replace(/\.[^.]*$/,'')||'签名'
+    $('srcInfo').hidden=false
+    $('srcInfo').textContent='已选：'+im.naturalWidth+'×'+im.naturalHeight+' 像素，'+kbText(file.size)+(k<1?'（处理时按 '+W+'×'+H+' 计算）':'')
+    ready=true;$('adj').hidden=false;$('run').disabled=false;preview()
+    URL.revokeObjectURL(url)}
+  im.onerror=()=>{URL.revokeObjectURL(url);alert('这张照片读不了，换一张试试（苹果手机的 HEIC 照片请用手机直接打开本页选）')}
+  im.src=url
+}
+$('pick').onclick=()=>$('file').click()
+$('file').onchange=e=>load(e.target.files[0])
+document.addEventListener('dragover',e=>e.preventDefault())
+document.addEventListener('drop',e=>{e.preventDefault();load(e.dataTransfer.files[0])})
+$('th').oninput=later;$('crop').onchange=later
+document.querySelectorAll('input[name=fmt]').forEach(r=>r.onchange=later)
+$('ow').oninput=()=>{$('out').hidden=true}
+
+$('run').onclick=async()=>{
+  if(!ready)return
+  const btn=$('run');btn.disabled=true;btn.textContent='处理中…'
+  try{
+    const png=document.querySelector('input[name=fmt]:checked').value==='png'
+    let {c,empty}=render(png),note=''
+    if(empty)note='没找到明显的笔迹，没有裁边。可以把“笔迹深浅”往右拉一点再试。'
+    const want=Math.round(Number($('ow').value))
+    if(want){
+      if(want<50||want>4000){alert('输出宽度请填 50 到 4000 之间的数字，或者留空');return}
+      const h=Math.max(1,Math.round(c.height*want/c.width)),o=document.createElement('canvas');o.width=want;o.height=h
+      const ctx=o.getContext('2d');if(!png){ctx.fillStyle='#fff';ctx.fillRect(0,0,want,h)}
+      ctx.imageSmoothingQuality='high';ctx.drawImage(c,0,0,want,h);c=o
+      if(want>W)note+=(note?' ':'')+'输出宽度比原照片还大，是放大出来的，笔迹边缘会软一些。'
+    }
+    const blob=await new Promise((res,rej)=>c.toBlob(b=>b?res(b):rej(new Error('toBlob')),png?'image/png':'image/jpeg',Q))
+    if(outUrl)URL.revokeObjectURL(outUrl)
+    outUrl=URL.createObjectURL(blob)
+    $('outImg').src=outUrl;$('outImg').className='pv'+(png?' checker':'')
+    $('dl').href=outUrl;$('dl').download=srcName+'_签名.'+(png?'png':'jpg')
+    $('outInfo').textContent='结果：'+c.width+'×'+c.height+' 像素，'+kbText(blob.size)+'，'+(png?'透明底 PNG':'白底 JPG')
+    $('outNote').hidden=!note;$('outNote').textContent=note
+    $('out').hidden=false
+    $('out').scrollIntoView({behavior:'smooth',block:'nearest'})
+  }catch(e){console.error(e);alert('处理失败，换一张照片试试')}
+  finally{btn.disabled=false;btn.textContent='保存签名图片'}
+}
+</script>
+<script>
+// 访问计数：只发送本页网址，不读取、不发送照片；失败不影响使用
+setTimeout(function(){try{
+  if(!/^https?:$/.test(location.protocol))return
+  var u=location.origin+location.pathname,k='vercount_uv_'+location.host.replace(/[^a-zA-Z0-9_-]/g,'_'),nu=document.cookie.indexOf(k+'=1')<0
+  if(nu)document.cookie=k+'=1; path=/; max-age=31536000; samesite=lax'
+  if(window.fetch)fetch('https://events.vercount.one/api/v2/log',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:u,isNewUv:nu})}).catch(function(){})
+  var b=new Image();b.referrerPolicy='no-referrer-when-downgrade';b.src='https://busuanzi.ibruce.info/busuanzi?jsonpCallback=BusuanziCallback_0'
+}catch(e){}},800)
+</script>
+</body>
+</html>

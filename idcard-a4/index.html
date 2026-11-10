@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>身份证正反面怎么放在一张纸上？在线合并成一张图、A4打印（不上传，免费）</title>
+<meta name="description" content="要求上传“身份证正反面合并成一张图”，或要把身份证正反面复印在一张A4纸上？选人像面、国徽面两张照片，按身份证实际大小排到一张A4白底图上，可直接打印或保存JPG。照片只在你自己的浏览器里处理，不上传、不保存。">
+<link rel="canonical" href="https://zhaopian-gongju.github.io/idcard-a4/">
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--fg:#1c2330;--sub:#5b6676;--line:#dfe3ea;--main:#1769e0;--mainfg:#fff;--warn:#b45309;--ok:#15803d}
+@media (prefers-color-scheme:dark){:root{--bg:#12151b;--card:#1b2029;--fg:#e8ecf2;--sub:#9aa5b5;--line:#2c3441;--main:#4c8ff5;--mainfg:#0b1220;--warn:#f0b35a;--ok:#4ade80}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 -apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+main{max-width:720px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:24px;line-height:1.35;margin:8px 0 6px}
+h2{font-size:18px;margin:0 0 10px}
+p{margin:6px 0}
+a{color:var(--main)}
+.sub{color:var(--sub);font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:14px}
+.safe{border:1px solid var(--ok);border-radius:10px;padding:10px 12px;margin-top:10px;font-size:15px}
+.safe b{color:var(--ok)}
+.row{display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:520px){.two{grid-template-columns:1fr}}
+.side{border:1px solid var(--line);border-radius:10px;padding:10px}
+.side canvas{width:100%;display:block;border:1px solid var(--line);background:#fff;margin-top:8px}
+.sbtn{border:1px solid var(--line);background:transparent;color:var(--fg);border-radius:8px;padding:6px 10px;font-size:14px;cursor:pointer}
+input[type=text]{width:100%;padding:9px;border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--fg);font-size:16px}
+input[type=range]{flex:1;min-width:120px}
+label{cursor:pointer}
+.big{display:block;width:100%;padding:13px;border:0;border-radius:10px;background:var(--main);color:var(--mainfg);font-size:17px;font-weight:600;cursor:pointer;text-align:center;text-decoration:none;margin-top:8px}
+.big[disabled]{opacity:.5;cursor:default}
+.ghost{background:transparent;border:1px dashed var(--main);color:var(--main)}
+.note{color:var(--warn);font-size:14px}
+img.pv{max-width:100%;max-height:480px;display:block;margin:10px auto;border:1px solid var(--line);background:#fff}
+.links{margin:0;padding-left:20px}
+.links li{margin:4px 0}
+[hidden]{display:none!important}
+footer{margin-top:28px;color:var(--sub);font-size:13px;text-align:center}
+#printArea{display:none}
+@media print{
+  @page{size:A4 portrait;margin:0}
+  html,body{margin:0;padding:0;background:#fff}
+  body>*{display:none!important}
+  body>#printArea{display:block!important}
+  #printArea img{display:block;width:auto;height:296mm;margin:0 auto}
+}
+</style>
+</head>
+<body>
+<main>
+<h1>身份证正反面怎么放在一张纸上？合并成一张图 / A4纸打印</h1>
+<p class="sub">选好人像面和国徽面两张照片，按身份证实际大小（85.6×54 毫米）上下排在一张白底图上，可以保存成 JPG 上传，也可以直接打印。</p>
+<div class="safe"><b>照片只在你自己的手机或电脑上处理：</b>不上传、不保存、不记录照片内容。页面打开后断网也能用。关掉页面，照片就不在这里了。</div>
+
+<div class="card">
+  <h2>① 选身份证两面的照片</h2>
+  <div class="two">
+    <div class="side">
+      <b>人像面（有头像那面）</b>
+      <input id="f0" type="file" accept="image/*" hidden>
+      <button id="p0" class="big ghost">选照片</button>
+      <canvas id="c0" width="428" height="270" hidden></canvas>
+      <div id="t0" hidden>
+        <div class="row"><button id="r0" class="sbtn" type="button">转 90°</button><span class="sub">放大</span><input id="z0" type="range" min="100" max="250" value="100"></div>
+      </div>
+    </div>
+    <div class="side">
+      <b>国徽面</b>
+      <input id="f1" type="file" accept="image/*" hidden>
+      <button id="p1" class="big ghost">选照片</button>
+      <canvas id="c1" width="428" height="270" hidden></canvas>
+      <div id="t1" hidden>
+        <div class="row"><button id="r1" class="sbtn" type="button">转 90°</button><span class="sub">放大</span><input id="z1" type="range" min="100" max="250" value="100"></div>
+      </div>
+    </div>
+  </div>
+  <p class="sub">小框里就是最终会放到纸上的样子。照片里证件四周有桌面等背景时，拖“放大”让证件填满小框（从中间放大）；照片是横躺着的就点“转 90°”。</p>
+</div>
+
+<div class="card">
+  <h2>② 做成什么样</h2>
+  <p><label><input type="radio" name="mode" value="a4" checked> A4 纸大小（打印、或系统要求“A4复印件”时用）</label></p>
+  <p><label><input type="radio" name="mode" value="tight"> 只把两面拼在一起（上传“正反面合成一张图”时用，没有大片白边）</label></p>
+  <p style="margin-top:10px">加水印文字（可不填）：</p>
+  <input id="wm" type="text" maxlength="30" placeholder="例如：仅供办理XX业务使用，他用无效">
+  <p class="sub">填了会用灰色斜着写在两面证件上。不填就不加。</p>
+</div>
+
+<div class="card">
+  <button id="run" class="big" disabled>生成</button>
+  <div id="out" hidden>
+    <img id="outImg" class="pv" alt="合并后的身份证正反面">
+    <p id="outInfo"></p>
+    <a id="dl" class="big" download="身份证正反面.jpg">保存图片（JPG）</a>
+    <button id="prt" class="big ghost" type="button">直接打印</button>
+    <p class="sub">手机上如果点了没反应，长按上面的图片选“保存图片”。打印时“缩放”请选 100% 或“实际大小”，不要选“适合页面”，证件才和真身份证差不多大；打印机都有边距，大小会有零点几毫米的偏差。如果上传还限制文件大小，保存后再去<a href="/">压缩照片</a>。</p>
+  </div>
+</div>
+
+<div class="card">
+  <h2>常见问题</h2>
+  <p><b>要求“上传身份证正反面，合并成一张图片”怎么弄？</b><br>第①步分别选两面的照片，第②步选“只把两面拼在一起”，点“生成”后保存，上传保存下来的那张。</p>
+  <p><b>身份证正反面怎么复印（打印）在同一张 A4 纸上？</b><br>第②步选“A4 纸大小”，生成后点“直接打印”。两面会按身份证实际尺寸 85.6×54 毫米上下排在纸的中间。没有电脑连打印机的话，保存图片发到打印店也行。</p>
+  <p><b>为什么打印出来证件比真身份证小？</b><br>多半是照片里证件四周带了背景：这里是把整个小框按身份证大小打印的，背景也占了位置。用“放大”把证件撑满小框再生成。另外打印时缩放要选 100%。</p>
+  <p><b>要不要写“仅供XX使用”？</b><br>不是硬性规定，但在身份证复印件上写明用途是常见的防挪用做法。在第②步填上就会加在两面证件上。</p>
+  <p><b>身份证照片会被传到网上吗？</b><br>不会。照片读取、拼图、加水印全部在你的设备上完成，这个网站没有接收照片的服务器。本站只统计页面被打开的次数，不涉及照片。</p>
+</div>
+
+<div class="card">
+  <h2>其他常见问题</h2>
+  <ul class="links">
+    <li><a href="/">照片太大传不上去（压到指定KB、改一寸二寸像素）</a></li>
+    <li><a href="/to-jpg/">提示“只支持JPG格式”“图片格式不正确”</a></li>
+    <li><a href="/too-small/">提示“照片不能小于XXK”“文件太小”</a></li>
+    <li><a href="/dpi/">提示“分辨率不符合要求”“要求300dpi”</a></li>
+    <li><a href="/rotate/">照片传上去是横的、倒的（方向不对）</a></li>
+    <li><a href="/to-pdf/">要求上传PDF格式，可只有照片（多张合成一个PDF）</a></li>
+    <li><a href="/signature/">要求上传手写签名，签名要白底黑字</a></li>
+  </ul>
+</div>
+
+<footer>本页由 AI 自主制作和运营 · 免费使用 · 处理结果请以报名系统实际校验为准<br>本站只统计访问次数（不涉及照片内容）</footer>
+</main>
+<div id="printArea"><img id="printImg" alt=""></div>
+
+<canvas id="work" hidden></canvas>
+<script>
+// 300dpi 下：A4 2480×3508，身份证 85.6×54mm ≈ 1011×638
+const DPI=300,MM=DPI/25.4,A4W=Math.round(210*MM),A4H=Math.round(297*MM),CW=Math.round(85.6*MM),CH=Math.round(54*MM),GAP=Math.round(20*MM),Q=0.9
+const S=[{img:null,rot:0,zoom:1},{img:null,rot:0,zoom:1}]
+let outUrl=''
+const $=id=>document.getElementById(id)
+const kbText=b=>{const kb=b/1024;return kb>=1024?(kb/1024).toFixed(2)+' MB':kb.toFixed(1)+' KB'}
+
+// 把第 i 面画进 w×h 的框：先旋转，再按“铺满”居中裁切，再按放大倍数从中间放大
+function drawSide(ctx,i,x,y,w,h){
+  const s=S[i],im=s.img
+  ctx.save();ctx.beginPath();ctx.rect(x,y,w,h);ctx.clip()
+  ctx.fillStyle='#fff';ctx.fillRect(x,y,w,h)
+  const rw=s.rot%180?im.naturalHeight:im.naturalWidth,rh=s.rot%180?im.naturalWidth:im.naturalHeight
+  const k=Math.max(w/rw,h/rh)*s.zoom
+  ctx.translate(x+w/2,y+h/2);ctx.rotate(s.rot*Math.PI/180)
+  ctx.imageSmoothingQuality='high'
+  ctx.drawImage(im,-im.naturalWidth*k/2,-im.naturalHeight*k/2,im.naturalWidth*k,im.naturalHeight*k)
+  ctx.restore()
+}
+function drawMark(ctx,x,y,w,h,text){
+  if(!text)return
+  ctx.save();ctx.beginPath();ctx.rect(x,y,w,h);ctx.clip()
+  ctx.translate(x+w/2,y+h/2);ctx.rotate(-Math.atan2(h,w)*0.8)
+  let fs=Math.round(h/7);ctx.font=fs+'px "Microsoft YaHei","PingFang SC",sans-serif'
+  while(fs>12&&ctx.measureText(text).width>w*0.95){fs-=2;ctx.font=fs+'px "Microsoft YaHei","PingFang SC",sans-serif'}
+  ctx.fillStyle='rgba(90,90,90,0.55)';ctx.textAlign='center';ctx.textBaseline='middle'
+  for(const dy of [-1.3,0,1.3])ctx.fillText(text,0,dy*fs*1.6)
+  ctx.restore()
+}
+function preview(i){
+  const c=$('c'+i),ctx=c.getContext('2d')
+  if(!S[i].img)return
+  c.hidden=false;$('t'+i).hidden=false
+  drawSide(ctx,i,0,0,c.width,c.height)
+  drawMark(ctx,0,0,c.width,c.height,$('wm').value.trim())
+}
+function load(i,file){
+  if(!file)return
+  const url=URL.createObjectURL(file),im=new Image()
+  im.onload=()=>{S[i].img=im;S[i].rot=0;S[i].zoom=1;$('z'+i).value=100
+    $('p'+i).textContent='换一张';preview(i)
+    $('run').disabled=!(S[0].img&&S[1].img);$('out').hidden=true}
+  im.onerror=()=>{URL.revokeObjectURL(url);alert('这张照片读不了，换一张试试（苹果手机的 HEIC 照片请用手机直接打开本页选）')}
+  im.src=url
+}
+for(const i of [0,1]){
+  $('p'+i).onclick=()=>$('f'+i).click()
+  $('f'+i).onchange=e=>load(i,e.target.files[0])
+  $('r'+i).onclick=()=>{S[i].rot=(S[i].rot+90)%360;preview(i);$('out').hidden=true}
+  $('z'+i).oninput=e=>{S[i].zoom=e.target.value/100;preview(i);$('out').hidden=true}
+}
+$('wm').oninput=()=>{preview(0);preview(1);$('out').hidden=true}
+document.querySelectorAll('input[name=mode]').forEach(r=>r.onchange=()=>$('out').hidden=true)
+
+// 浏览器生成的 JPG 带 JFIF 头但不写 dpi，这里标成 300dpi（不改像素）
+function setDpi(u8){
+  if(u8[2]===0xFF&&u8[3]===0xE0&&u8[6]===0x4A&&u8[7]===0x46&&u8[8]===0x49&&u8[9]===0x46&&u8[10]===0){
+    u8[13]=1;u8[14]=DPI>>8;u8[15]=DPI&255;u8[16]=DPI>>8;u8[17]=DPI&255}
+  return u8
+}
+
+$('run').onclick=async()=>{
+  if(!S[0].img||!S[1].img)return
+  const btn=$('run');btn.disabled=true;btn.textContent='处理中…'
+  try{
+    const a4=document.querySelector('input[name=mode]:checked').value==='a4'
+    const c=$('work'),M=Math.round(6*MM)
+    const W=a4?A4W:CW+2*M,H=a4?A4H:2*CH+GAP/2+2*M
+    c.width=W;c.height=H
+    const ctx=c.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H)
+    const x=Math.round((W-CW)/2),gap=a4?GAP:Math.round(GAP/2),y0=Math.round((H-2*CH-gap)/2),wm=$('wm').value.trim()
+    for(const i of [0,1]){
+      const y=y0+i*(CH+gap)
+      drawSide(ctx,i,x,y,CW,CH);drawMark(ctx,x,y,CW,CH,wm)
+      ctx.strokeStyle='#c8c8c8';ctx.lineWidth=2;ctx.strokeRect(x-1,y-1,CW+2,CH+2)
+    }
+    const blob0=await new Promise((res,rej)=>c.toBlob(b=>b?res(b):rej(new Error('toBlob')),'image/jpeg',Q))
+    const blob=new Blob([setDpi(new Uint8Array(await blob0.arrayBuffer()))],{type:'image/jpeg'})
+    if(outUrl)URL.revokeObjectURL(outUrl)
+    outUrl=URL.createObjectURL(blob)
+    $('outImg').src=outUrl;$('printImg').src=outUrl;$('dl').href=outUrl
+    $('dl').download=a4?'身份证正反面_A4.jpg':'身份证正反面.jpg'
+    $('prt').hidden=!a4
+    $('outInfo').textContent='结果：'+W+'×'+H+' 像素，'+kbText(blob.size)+'，JPG 格式'+(a4?'（A4 纸，300dpi）':'')
+    $('out').hidden=false
+    $('out').scrollIntoView({behavior:'smooth',block:'nearest'})
+  }catch(e){console.error(e);alert('生成失败，换照片试试')}
+  finally{btn.disabled=false;btn.textContent='生成'}
+}
+$('prt').onclick=()=>{const im=$('printImg');if(im.complete)window.print();else im.onload=()=>{im.onload=null;window.print()}}
+</script>
+<script>
+// 访问计数：只发送本页网址，不读取、不发送照片；失败不影响使用
+setTimeout(function(){try{
+  if(!/^https?:$/.test(location.protocol))return
+  var u=location.origin+location.pathname,k='vercount_uv_'+location.host.replace(/[^a-zA-Z0-9_-]/g,'_'),nu=document.cookie.indexOf(k+'=1')<0
+  if(nu)document.cookie=k+'=1; path=/; max-age=31536000; samesite=lax'
+  if(window.fetch)fetch('https://events.vercount.one/api/v2/log',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:u,isNewUv:nu})}).catch(function(){})
+  var b=new Image();b.referrerPolicy='no-referrer-when-downgrade';b.src='https://busuanzi.ibruce.info/busuanzi?jsonpCallback=BusuanziCallback_0'
+}catch(e){}},800)
+</script>
+</body>
+</html>

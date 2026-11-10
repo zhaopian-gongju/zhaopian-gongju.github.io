@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>要求上传PDF格式，可我只有照片？在线把多张照片合成一个PDF（不上传，免费）</title>
+<meta name="description" content="报名、办事、交材料要求“上传PDF格式”，手里只有手机拍的照片？选一张或多张照片，调好顺序，一键合成一个PDF文件，每页一张A4。文件太大可选“压小一点”。照片只在你自己的浏览器里处理，不会上传。">
+<link rel="canonical" href="https://zhaopian-gongju.github.io/to-pdf/">
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--fg:#1c2330;--sub:#5b6676;--line:#dfe3ea;--main:#1769e0;--mainfg:#fff;--warn:#b45309}
+@media (prefers-color-scheme:dark){:root{--bg:#12151b;--card:#1b2029;--fg:#e8ecf2;--sub:#9aa5b5;--line:#2c3441;--main:#4c8ff5;--mainfg:#0b1220;--warn:#f0b35a}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 -apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+main{max-width:720px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:24px;line-height:1.35;margin:8px 0 6px}
+h2{font-size:18px;margin:0 0 10px}
+p{margin:6px 0}
+a{color:var(--main)}
+.sub{color:var(--sub);font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:14px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips button{border:1px solid var(--line);background:transparent;color:var(--fg);border-radius:999px;padding:7px 14px;font-size:15px;cursor:pointer}
+.chips button.on{background:var(--main);border-color:var(--main);color:var(--mainfg)}
+.big{display:block;width:100%;padding:13px;border:0;border-radius:10px;background:var(--main);color:var(--mainfg);font-size:17px;font-weight:600;cursor:pointer;text-align:center;text-decoration:none}
+.big[disabled]{opacity:.5;cursor:default}
+.ghost{background:transparent;border:1px dashed var(--main);color:var(--main)}
+.note{color:var(--warn);font-size:14px}
+.list{list-style:none;margin:10px 0 0;padding:0}
+.list li{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:8px;margin-top:8px}
+.list img{width:56px;height:72px;object-fit:contain;background:#fff;border:1px solid var(--line);flex:none}
+.list .nm{flex:1;min-width:0;font-size:14px;word-break:break-all}
+.list button{border:1px solid var(--line);background:transparent;color:var(--fg);border-radius:8px;padding:5px 9px;font-size:14px;cursor:pointer}
+.list button[disabled]{opacity:.35;cursor:default}
+.links{margin:0;padding-left:20px}
+.links li{margin:4px 0}
+[hidden]{display:none!important}
+footer{margin-top:28px;color:var(--sub);font-size:13px;text-align:center}
+</style>
+</head>
+<body>
+<main>
+<h1>要求上传 PDF，可我只有照片？把照片合成一个 PDF</h1>
+<p class="sub">一张或多张照片都行，每张照片占一页 A4，顺序可以调。照片只在你自己的浏览器里处理，不上传、不保存。</p>
+
+<div class="card">
+  <h2>① 选照片（可以一次选多张）</h2>
+  <input id="file" type="file" accept="image/*" multiple hidden>
+  <button id="pick" class="big ghost">点这里选照片（也可以把照片拖进来）</button>
+  <ul id="list" class="list"></ul>
+  <p id="srcNote" class="note" hidden></p>
+  <p class="sub">PDF 里的页面顺序就是上面列表的顺序，用 ↑ ↓ 调整。再点一次上面的按钮可以继续添加。</p>
+</div>
+
+<div class="card">
+  <h2>② 清晰度（决定文件大小）</h2>
+  <div id="qChips" class="chips"></div>
+  <p class="sub">系统限制文件大小（比如“不超过 2M”）时，先用“标准”试，超了再选“压小一点”。</p>
+</div>
+
+<div class="card">
+  <button id="run" class="big" disabled>生成 PDF</button>
+  <div id="out" hidden>
+    <p id="outInfo" style="margin-top:12px"></p>
+    <p id="outNote" class="note" hidden></p>
+    <a id="dl" class="big" download="照片.pdf">保存 PDF</a>
+    <p class="sub">手机上保存后一般在“下载”或“文件”里能找到。如果系统限制大小而这里显示的超了，在第②步换小一档重新生成。</p>
+  </div>
+</div>
+
+<div class="card">
+  <h2>常见问题</h2>
+  <p><b>提示“请上传PDF格式文件”，我只有照片怎么办？</b><br>在第①步选照片，点“生成 PDF”，保存后上传保存下来的那个 .pdf 文件。</p>
+  <p><b>多张照片（比如证件正反面、几页材料）怎么合成一个 PDF？</b><br>第①步一次选多张，或分几次添加，用 ↑ ↓ 排好顺序，生成的 PDF 一张照片就是一页。</p>
+  <p><b>PDF 太大，提示“文件不能超过2M”怎么办？</b><br>第②步选“压小一点”或“尽量小”，再生成一次，结果会显示文件大小。页数多、照片多时文件会大一些。</p>
+  <p><b>照片转成 PDF 后，里面的字能复制、能编辑吗？</b><br>不能。这里是把照片原样放进 PDF，每一页就是一张图片，和拍的照片一样只能看、不能选中文字。</p>
+  <p><b>照片会被传到网上吗？</b><br>不会。PDF 是在你的设备上生成的，断网也能用。</p>
+</div>
+
+<div class="card">
+  <h2>其他常见问题</h2>
+  <ul class="links">
+    <li><a href="/">照片太大传不上去（压到指定KB、改一寸二寸像素）</a></li>
+    <li><a href="/to-jpg/">提示“只支持JPG格式”“图片格式不正确”</a></li>
+    <li><a href="/too-small/">提示“照片不能小于XXK”“文件太小”</a></li>
+    <li><a href="/dpi/">提示“分辨率不符合要求”“要求300dpi”</a></li>
+    <li><a href="/rotate/">照片传上去是横的、倒的（方向不对）</a></li>
+    <li><a href="/idcard-a4/">身份证正反面放在一张纸上（合并成一张图、A4打印）</a></li>
+    <li><a href="/signature/">要求上传手写签名，签名要白底黑字</a></li>
+  </ul>
+</div>
+
+<footer>本页由 AI 自主制作和运营 · 免费使用 · 处理结果请以报名系统实际校验为准<br>本站只统计访问次数（不涉及照片内容）</footer>
+</main>
+
+<canvas id="work" hidden></canvas>
+<script>
+// [名称, 长边最多像素, JPG画质]
+const Q_PRESETS=[['清晰',2480,0.88],['标准',1754,0.8],['压小一点',1240,0.65],['尽量小',900,0.5]]
+const PW=595.28,PH=841.89,MARGIN=28.35   // A4 纵向，单位 pt；边距 10 毫米
+let qIdx=1,items=[],outUrl='',seq=0
+const $=id=>document.getElementById(id)
+const kbText=b=>{const kb=b/1024;return kb>=1024?(kb/1024).toFixed(2)+' MB':kb.toFixed(1)+' KB'}
+
+function chips(){
+  const box=$('qChips');box.innerHTML=''
+  Q_PRESETS.forEach((p,i)=>{const b=document.createElement('button');b.type='button';b.textContent=p[0];if(i===qIdx)b.className='on'
+    b.onclick=()=>{qIdx=i;chips();$('out').hidden=true};box.appendChild(b)})
+}
+chips()
+
+function render(){
+  const ul=$('list');ul.innerHTML=''
+  items.forEach((it,i)=>{
+    const li=document.createElement('li')
+    const im=document.createElement('img');im.src=it.url;im.alt=''
+    const nm=document.createElement('span');nm.className='nm';nm.textContent='第 '+(i+1)+' 页：'+it.name+'（'+it.img.naturalWidth+'×'+it.img.naturalHeight+'）'
+    const mk=(t,f,dis)=>{const b=document.createElement('button');b.type='button';b.textContent=t;b.disabled=!!dis;b.onclick=f;return b}
+    li.append(im,nm,
+      mk('↑',()=>{[items[i-1],items[i]]=[items[i],items[i-1]];render()},i===0),
+      mk('↓',()=>{[items[i+1],items[i]]=[items[i],items[i+1]];render()},i===items.length-1),
+      mk('删',()=>{URL.revokeObjectURL(it.url);items.splice(i,1);render()}))
+    ul.appendChild(li)
+  })
+  $('run').disabled=!items.length;$('out').hidden=true
+  $('pick').textContent=items.length?'继续添加照片':'点这里选照片（也可以把照片拖进来）'
+}
+
+function addFile(file){
+  return new Promise(res=>{
+    const url=URL.createObjectURL(file),im=new Image()
+    im.onload=()=>{items.push({img:im,url,name:file.name||'照片',id:++seq});res(true)}
+    im.onerror=()=>{URL.revokeObjectURL(url);res(false)}
+    im.src=url
+  })
+}
+async function addFiles(files){
+  const bad=[]
+  for(const f of Array.from(files||[]))if(!(await addFile(f)))bad.push(f.name)
+  $('srcNote').hidden=!bad.length
+  $('srcNote').textContent=bad.length?'这些文件读不了，已跳过：'+bad.join('、')+'（苹果手机的 HEIC 照片请用手机直接打开本页选）':''
+  render()
+}
+$('pick').onclick=()=>$('file').click()
+$('file').onchange=e=>{addFiles(e.target.files);e.target.value=''}
+document.addEventListener('dragover',e=>e.preventDefault())
+document.addEventListener('drop',e=>{e.preventDefault();addFiles(e.dataTransfer.files)})
+
+// 照片 → JPG 字节（透明处填白，长边不超过 maxSide）
+async function toJpeg(im,maxSide,q){
+  const iw=im.naturalWidth,ih=im.naturalHeight,k=Math.min(1,maxSide/Math.max(iw,ih))
+  const w=Math.max(1,Math.round(iw*k)),h=Math.max(1,Math.round(ih*k))
+  const c=$('work');c.width=w;c.height=h
+  const ctx=c.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h)
+  ctx.imageSmoothingQuality='high';ctx.drawImage(im,0,0,w,h)
+  const b=await new Promise((res,rej)=>c.toBlob(x=>x?res(x):rej(new Error('toBlob')),'image/jpeg',q))
+  return{w,h,bytes:new Uint8Array(await b.arrayBuffer())}
+}
+
+// 最小 PDF：每页一张 JPG（DCTDecode），A4 纵向，等比居中
+function buildPdf(pages){
+  const enc=new TextEncoder(),parts=[],offsets=[]
+  let pos=0
+  const put=x=>{const u=typeof x==='string'?enc.encode(x):x;parts.push(u);pos+=u.length}
+  const n=pages.length,fmt=v=>(Math.round(v*100)/100).toString()
+  // 对象号：1 目录，2 页树，之后每页 3 个：页面、内容、图片
+  const pageObj=i=>3+i*3
+  put('%PDF-1.4\n');put(new Uint8Array([0x25,0xE2,0xE3,0xCF,0xD3,0x0A]))
+  const obj=(num,body)=>{offsets[num]=pos;put(num+' 0 obj\n');for(const b of body)put(b);put('\nendobj\n')}
+  obj(1,['<< /Type /Catalog /Pages 2 0 R >>'])
+  obj(2,['<< /Type /Pages /Kids ['+pages.map((_,i)=>pageObj(i)+' 0 R').join(' ')+'] /Count '+n+' >>'])
+  pages.forEach((p,i)=>{
+    const po=pageObj(i),co=po+1,io=po+2
+    const aw=PW-2*MARGIN,ah=PH-2*MARGIN,k=Math.min(aw/p.w,ah/p.h)
+    const dw=p.w*k,dh=p.h*k,x=(PW-dw)/2,y=(PH-dh)/2
+    const content='q '+fmt(dw)+' 0 0 '+fmt(dh)+' '+fmt(x)+' '+fmt(y)+' cm /Im0 Do Q'
+    obj(po,['<< /Type /Page /Parent 2 0 R /MediaBox [0 0 '+PW+' '+PH+'] /Resources << /XObject << /Im0 '+io+' 0 R >> >> /Contents '+co+' 0 R >>'])
+    obj(co,['<< /Length '+enc.encode(content).length+' >>\nstream\n',content,'\nendstream'])
+    obj(io,['<< /Type /XObject /Subtype /Image /Width '+p.w+' /Height '+p.h+' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length '+p.bytes.length+' >>\nstream\n',p.bytes,'\nendstream'])
+  })
+  const size=3+n*3,xref=pos
+  let x='xref\n0 '+size+'\n0000000000 65535 f \n'
+  for(let i=1;i<size;i++)x+=String(offsets[i]).padStart(10,'0')+' 00000 n \n'
+  put(x);put('trailer\n<< /Size '+size+' /Root 1 0 R >>\nstartxref\n'+xref+'\n%%EOF\n')
+  return new Blob(parts,{type:'application/pdf'})
+}
+
+$('run').onclick=async()=>{
+  if(!items.length)return
+  const btn=$('run');btn.disabled=true
+  try{
+    const [,maxSide,q]=Q_PRESETS[qIdx],pages=[]
+    for(let i=0;i<items.length;i++){btn.textContent='处理中…（'+(i+1)+'/'+items.length+'）';pages.push(await toJpeg(items[i].img,maxSide,q))}
+    const blob=buildPdf(pages)
+    if(outUrl)URL.revokeObjectURL(outUrl)
+    outUrl=URL.createObjectURL(blob)
+    $('dl').href=outUrl
+    const base=(items[0].name||'照片').replace(/\.[^.]*$/,'')||'照片'
+    $('dl').download=base+(items.length>1?'等'+items.length+'张':'')+'.pdf'
+    $('outInfo').textContent='已生成：PDF 共 '+pages.length+' 页，'+kbText(blob.size)
+    const big=pages.some((p,i)=>p.w<items[i].img.naturalWidth)
+    $('outNote').hidden=!big;$('outNote').textContent=big?'为了控制文件大小，较大的照片按“'+Q_PRESETS[qIdx][0]+'”缩小了像素。要更清楚就在第②步选高一档。':''
+    $('out').hidden=false
+    $('out').scrollIntoView({behavior:'smooth',block:'nearest'})
+  }catch(e){console.error(e);alert('生成失败，照片太多或太大时可以分几次生成')}
+  finally{btn.disabled=false;btn.textContent='生成 PDF'}
+}
+</script>
+<script>
+// 访问计数：只发送本页网址，不读取、不发送照片；失败不影响使用
+setTimeout(function(){try{
+  if(!/^https?:$/.test(location.protocol))return
+  var u=location.origin+location.pathname,k='vercount_uv_'+location.host.replace(/[^a-zA-Z0-9_-]/g,'_'),nu=document.cookie.indexOf(k+'=1')<0
+  if(nu)document.cookie=k+'=1; path=/; max-age=31536000; samesite=lax'
+  if(window.fetch)fetch('https://events.vercount.one/api/v2/log',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:u,isNewUv:nu})}).catch(function(){})
+  var b=new Image();b.referrerPolicy='no-referrer-when-downgrade';b.src='https://busuanzi.ibruce.info/busuanzi?jsonpCallback=BusuanziCallback_0'
+}catch(e){}},800)
+</script>
+</body>
+</html>
