@@ -163,6 +163,8 @@ $('run').onclick=async()=>{
     for(let round=0;round<6;round++){
       draw(c,w,h)
       r=await searchQuality(c,t.bytes)
+      // 不限尺寸时，画质太低不如缩小像素换清晰度
+      if(!r.fail&&!t.fixed&&r.q<0.4&&round<5&&Math.max(w,h)>400){w=Math.round(w*0.75);h=Math.round(h*0.75);continue}
       if(!r.fail)break
       if(t.fixed){note='这个尺寸下最小只能压到 '+kbText(r.size)+'，达不到要求的大小。';break}
       const k=Math.max(0.5,Math.sqrt(t.bytes/r.size)*0.95)
