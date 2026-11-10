@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>报名照片太大传不上去？在线压缩到指定KB、改一寸二寸像素（不上传，免费）</title>
 <meta name="description" content="考试报名、网上办事上传照片提示“照片大小超过限制”“尺寸不符合要求”？选好要求的KB和像素，一键处理成合格的JPG。照片只在你自己的浏览器里处理，不会上传到任何服务器。">
+<link rel="canonical" href="https://zhaopian-gongju.github.io/">
 <style>
 :root{--bg:#f6f7f9;--card:#fff;--fg:#1c2330;--sub:#5b6676;--line:#dfe3ea;--main:#1769e0;--mainfg:#fff;--warn:#b45309}
 @media (prefers-color-scheme:dark){:root{--bg:#12151b;--card:#1b2029;--fg:#e8ecf2;--sub:#9aa5b5;--line:#2c3441;--main:#4c8ff5;--mainfg:#0b1220;--warn:#f0b35a}}
@@ -28,6 +29,9 @@ input[type=number]{width:110px;padding:8px;border:1px solid var(--line);border-r
 img.pv{max-width:100%;max-height:320px;display:block;margin:10px auto;border:1px solid var(--line)}
 [hidden]{display:none!important}
 footer{margin-top:28px;color:var(--sub);font-size:13px;text-align:center}
+a{color:var(--main)}
+.links{margin:0;padding-left:20px}
+.links li{margin:4px 0}
 </style>
 </head>
 <body>
@@ -71,16 +75,25 @@ footer{margin-top:28px;color:var(--sub);font-size:13px;text-align:center}
   <p><b>提示“照片大小超过限制”怎么办？</b><br>看报名页面写的上限（比如“不超过200K”），在第②步选同样的数字，处理后再上传。</p>
   <p><b>提示“照片尺寸不符合要求”怎么办？</b><br>看页面要求的像素（比如 295×413），在第③步选一寸/二寸，或者选“自己填”照着填。</p>
   <p><b>一寸、二寸是多少像素？</b><br>常见的是一寸 295×413、小二寸 413×531、二寸 413×579。各考试要求不一样，以报名页面写的为准。</p>
-  <p><b>要求“大于20K小于100K”怎么办？</b><br>选上限 100K 即可，处理结果会尽量贴近上限，一般不会低于下限。结果下面会显示实际大小，可以核对。</p>
+  <p><b>要求“大于20K小于100K”怎么办？</b><br>选上限 100K 即可，处理结果会尽量贴近上限。结果下面会显示实际大小，可以核对；如果低于下限，用<a href="/too-small/">照片太小变大</a>那一页处理。</p>
   <p><b>照片会被传到网上吗？</b><br>不会。处理全部在你的设备上完成，断网也能用。</p>
 </div>
 
-<footer>本页由 AI 自主制作和运营 · 免费使用 · 处理结果请以报名系统实际校验为准</footer>
+<div class="card">
+  <h2>其他常见问题</h2>
+  <ul class="links">
+    <li><a href="/to-jpg/">提示“只支持JPG格式”“图片格式不正确”</a></li>
+    <li><a href="/too-small/">提示“照片不能小于XXK”“文件太小”</a></li>
+    <li><a href="/dpi/">提示“分辨率不符合要求”“要求300dpi”</a></li>
+  </ul>
+</div>
+
+<footer>本页由 AI 自主制作和运营 · 免费使用 · 处理结果请以报名系统实际校验为准<br>本站只统计访问次数（不涉及照片内容）</footer>
 </main>
 
 <canvas id="work" hidden></canvas>
 <script>
-const KB_PRESETS=[['20K',20],['30K',30],['50K',50],['100K',100],['200K',200],['500K',500],['1M',1024],['自己填',-1]]
+const KB_PRESETS=[['20K',20],['30K',30],['50K',50],['100K',100],['200K',200],['500K',500],['1M',1000],['自己填',-1]]
 const SIZE_PRESETS=[['不改尺寸',0,0],['一寸 295×413',295,413],['小二寸 413×531',413,531],['二寸 413×579',413,579],['自己填',-1,-1]]
 const MAX_SIDE=3000,MIN_Q=0.05,MAX_Q=0.92
 let kbIdx=4,sizeIdx=0,img=null,outUrl=''
@@ -148,7 +161,8 @@ function readTarget(){
     w=Math.round(Number($('customW').value));h=Math.round(Number($('customH').value))
     if(!w||!h||w<20||h<20||w>MAX_SIDE||h>MAX_SIDE)return{error:'宽和高请填 20 到 '+MAX_SIDE+' 之间的数字'}
   }
-  return{bytes:kb*1024,w,h,fixed:w>0}
+  // 上限按 1K=1000 字节算：无论系统按 1000 还是 1024 算都不会超
+  return{bytes:kb*1000,w,h,fixed:w>0}
 }
 
 $('run').onclick=async()=>{
@@ -182,6 +196,16 @@ $('run').onclick=async()=>{
   }catch(e){console.error(e);alert('处理失败，换一张照片试试')}
   finally{btn.disabled=false;btn.textContent='开始处理'}
 }
+</script>
+<script>
+// 访问计数：只发送本页网址，不读取、不发送照片；失败不影响使用
+setTimeout(function(){try{
+  if(!/^https?:$/.test(location.protocol))return
+  var u=location.origin+location.pathname,k='vercount_uv_'+location.host.replace(/[^a-zA-Z0-9_-]/g,'_'),nu=document.cookie.indexOf(k+'=1')<0
+  if(nu)document.cookie=k+'=1; path=/; max-age=31536000; samesite=lax'
+  if(window.fetch)fetch('https://events.vercount.one/api/v2/log',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:u,isNewUv:nu})}).catch(function(){})
+  var b=new Image();b.referrerPolicy='no-referrer-when-downgrade';b.src='https://busuanzi.ibruce.info/busuanzi?jsonpCallback=BusuanziCallback_0'
+}catch(e){}},800)
 </script>
 </body>
 </html>

@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>报名照片提示“分辨率不符合要求”“要求300dpi”？在线修改照片DPI（不上传，免费）</title>
+<meta name="description" content="上传照片提示“分辨率不符合要求”“照片需为300dpi/350dpi”？把JPG照片的DPI改成要求的数值，像素和画面都不变。照片只在你自己的浏览器里处理，不会上传。">
+<link rel="canonical" href="https://zhaopian-gongju.github.io/dpi/">
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--fg:#1c2330;--sub:#5b6676;--line:#dfe3ea;--main:#1769e0;--mainfg:#fff;--warn:#b45309}
+@media (prefers-color-scheme:dark){:root{--bg:#12151b;--card:#1b2029;--fg:#e8ecf2;--sub:#9aa5b5;--line:#2c3441;--main:#4c8ff5;--mainfg:#0b1220;--warn:#f0b35a}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 -apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+main{max-width:720px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:24px;line-height:1.35;margin:8px 0 6px}
+h2{font-size:18px;margin:0 0 10px}
+p{margin:6px 0}
+a{color:var(--main)}
+.sub{color:var(--sub);font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:14px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips button{border:1px solid var(--line);background:transparent;color:var(--fg);border-radius:999px;padding:7px 14px;font-size:15px;cursor:pointer}
+.chips button.on{background:var(--main);border-color:var(--main);color:var(--mainfg)}
+.row{display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap}
+input[type=number]{width:110px;padding:8px;border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--fg);font-size:16px}
+.big{display:block;width:100%;padding:13px;border:0;border-radius:10px;background:var(--main);color:var(--mainfg);font-size:17px;font-weight:600;cursor:pointer;text-align:center;text-decoration:none}
+.big[disabled]{opacity:.5;cursor:default}
+.ghost{background:transparent;border:1px dashed var(--main);color:var(--main)}
+.note{color:var(--warn);font-size:14px}
+img.pv{max-width:100%;max-height:320px;display:block;margin:10px auto;border:1px solid var(--line)}
+.links{margin:0;padding-left:20px}
+.links li{margin:4px 0}
+[hidden]{display:none!important}
+footer{margin-top:28px;color:var(--sub);font-size:13px;text-align:center}
+</style>
+</head>
+<body>
+<main>
+<h1>提示“分辨率不符合要求”“要求300dpi”？把照片的DPI改成要求的数值</h1>
+<p class="sub">只改照片里记录的 DPI 数值，像素和画面一点不动。照片只在你自己的浏览器里处理，不上传、不保存。</p>
+
+<div class="card">
+  <h2>DPI 和像素有什么区别？</h2>
+  <p><b>像素</b>是照片实际有多少个点，比如 295×413，决定照片清不清楚。<b>DPI</b> 只是照片里记的一个数字，意思是“打印时每英寸放几个点”，不改变照片本身。</p>
+  <p class="sub">所以报名系统要求“300dpi”时，通常只要把这个数字改成 300 就行；如果同时要求像素（比如 295×413），像素要另外去<a href="/">首页</a>改。</p>
+</div>
+
+<div class="card">
+  <h2>① 选照片（JPG 格式）</h2>
+  <input id="file" type="file" accept="image/jpeg,.jpg,.jpeg" hidden>
+  <button id="pick" class="big ghost">点这里选一张 JPG 照片（也可以把照片拖进来）</button>
+  <p id="srcInfo" class="sub" hidden></p>
+  <p id="srcNote" class="note" hidden></p>
+</div>
+
+<div class="card">
+  <h2>② 要求多少 DPI？</h2>
+  <div id="dpiChips" class="chips"></div>
+  <div id="dpiCustom" class="row" hidden><input id="customDpi" type="number" min="1" max="65535" placeholder="例如 200"> dpi</div>
+</div>
+
+<div class="card">
+  <button id="run" class="big" disabled>修改 DPI</button>
+  <div id="out" hidden>
+    <img id="outImg" class="pv" alt="修改后的照片">
+    <p id="outInfo"></p>
+    <p id="outNote" class="sub" hidden></p>
+    <a id="dl" class="big" download="照片.jpg">保存照片</a>
+    <p class="sub">手机上请点“保存照片”按钮保存；长按图片保存时，有的手机会重新存一遍，DPI 可能又变回去。</p>
+  </div>
+</div>
+
+<div class="card">
+  <h2>常见问题</h2>
+  <p><b>提示“分辨率不符合要求”“照片分辨率需为300dpi”怎么办？</b><br>选照片，第②步选 300（或者报名页面写的数），点“修改 DPI”，保存后上传。</p>
+  <p><b>要求“350dpi”“不低于300dpi”怎么办？</b><br>第②步选 350；“不低于300”选 300 或 350 都可以。</p>
+  <p><b>怎么查一张照片现在是多少 DPI？</b><br>在这里选照片后，第①步下面就会显示。电脑上也可以右键照片 → 属性 → 详细信息，看“水平分辨率”。</p>
+  <p><b>改了 DPI 照片会变清楚或变大吗？</b><br>不会。像素、画面、文件大小基本不变（文件可能多十几个字节）。如果系统嫌照片像素不够，要用<a href="/">首页</a>改像素尺寸。</p>
+  <p><b>我的照片是 PNG，能改吗？</b><br>这里只处理 JPG。先用<a href="/to-jpg/">转成 JPG</a>，再回来改 DPI。</p>
+  <p><b>照片会被传到网上吗？</b><br>不会。处理全部在你的设备上完成。</p>
+</div>
+
+<div class="card">
+  <h2>其他常见问题</h2>
+  <ul class="links">
+    <li><a href="/">照片太大传不上去（压到指定KB、改一寸二寸像素）</a></li>
+    <li><a href="/to-jpg/">提示“只支持JPG格式”“图片格式不正确”</a></li>
+    <li><a href="/too-small/">提示“照片不能小于XXK”“文件太小”</a></li>
+  </ul>
+</div>
+
+<footer>本页由 AI 自主制作和运营 · 免费使用 · 处理结果请以报名系统实际校验为准<br>本站只统计访问次数（不涉及照片内容）</footer>
+</main>
+
+<script>
+const DPI_PRESETS=[['72',72],['96',96],['150',150],['200',200],['300',300],['350',350],['600',600],['自己填',-1]]
+let dpiIdx=4,src=null,srcName='照片',dims='',outUrl=''
+const $=id=>document.getElementById(id)
+const kbText=b=>{const kb=b/1024;return kb>=1024?(kb/1024).toFixed(2)+' MB':kb.toFixed(1)+' KB'}
+
+function chips(box,list,get,set,customEl){
+  box.innerHTML=''
+  list.forEach((p,i)=>{
+    const b=document.createElement('button')
+    b.type='button';b.textContent=p[0];if(i===get())b.className='on'
+    b.onclick=()=>{set(i);chips(box,list,get,set,customEl);customEl.hidden=list[i][1]!==-1}
+    box.appendChild(b)
+  })
+}
+chips($('dpiChips'),DPI_PRESETS,()=>dpiIdx,i=>dpiIdx=i,$('dpiCustom'))
+
+// 读 JPG 开头的各个段，找 JFIF(APP0) 和 Exif(APP1)
+function segments(u8){
+  if(!(u8[0]===0xFF&&u8[1]===0xD8))return null
+  const list=[];let p=2
+  while(p+4<=u8.length){
+    if(u8[p]!==0xFF)return null
+    const m=u8[p+1]
+    if(m===0xFF){p++;continue}
+    if(m===0xDA||m===0xD9)break           // 到图像数据了
+    if(m===0x01||(m>=0xD0&&m<=0xD7)){p+=2;continue}
+    const len=(u8[p+2]<<8)|u8[p+3]
+    if(len<2||p+2+len>u8.length)return null
+    list.push({m,start:p,data:p+4,len})
+    p+=2+len
+  }
+  return list
+}
+const isJfif=(u8,s)=>s.m===0xE0&&s.len>=16&&String.fromCharCode(...u8.slice(s.data,s.data+5))==='JFIF\0'
+const isExif=(u8,s)=>s.m===0xE1&&s.len>=16&&String.fromCharCode(...u8.slice(s.data,s.data+6))==='Exif\0\0'
+
+// 在 Exif 的 IFD0 里找分辨率标签；fn(entryOffset,tag,type,valueOffset,le) 可读可写
+function exifRes(u8,s,fn){
+  const t=s.data+6,le=u8[t]===0x49
+  const r16=o=>le?u8[o]|(u8[o+1]<<8):(u8[o]<<8)|u8[o+1]
+  const r32=o=>(le?(u8[o]|(u8[o+1]<<8)|(u8[o+2]<<16)|(u8[o+3]<<24)):((u8[o]<<24)|(u8[o+1]<<16)|(u8[o+2]<<8)|u8[o+3]))>>>0
+  const end=s.start+2+s.len,ifd=t+r32(t+4)
+  if(ifd+2>end)return
+  const n=r16(ifd)
+  for(let i=0;i<n;i++){
+    const e=ifd+2+i*12;if(e+12>end)return
+    const tag=r16(e),type=r16(e+2)
+    if(tag===0x011A||tag===0x011B||tag===0x0128){
+      const vo=type===5?t+r32(e+8):e+8
+      if(type===5&&vo+8>end)continue
+      fn(tag,type,vo,le,r16,r32)
+    }
+  }
+}
+
+function readDpi(u8){
+  const segs=segments(u8);if(!segs)return null
+  const out={}
+  const j=segs.find(s=>isJfif(u8,s))
+  if(j){const u=u8[j.data+7],x=(u8[j.data+8]<<8)|u8[j.data+9]
+    out.jfif=u===1?x+' dpi':u===2?Math.round(x*2.54)+' dpi（按厘米记录）':''}
+  const e=segs.find(s=>isExif(u8,s))
+  if(e)exifRes(u8,e,(tag,type,vo,le,r16,r32)=>{if(tag===0x011A&&type===5){const d=r32(vo+4);if(d)out.exif=Math.round(r32(vo)/d)}})
+  return out
+}
+
+function setDpi(u8,dpi){
+  const segs=segments(u8);if(!segs)throw new Error('notjpeg')
+  let res=u8,inserted=false
+  const j=segs.find(s=>isJfif(u8,s))
+  if(j){
+    res=u8.slice()
+    res[j.data+7]=1                          // 单位：每英寸
+    res[j.data+8]=dpi>>8;res[j.data+9]=dpi&255
+    res[j.data+10]=dpi>>8;res[j.data+11]=dpi&255
+  }else{
+    // 没有 JFIF 段：紧跟在文件开头插入一个标准 JFIF 段（16 字节内容，无缩略图）
+    const seg=new Uint8Array([0xFF,0xE0,0x00,0x10,0x4A,0x46,0x49,0x46,0x00,0x01,0x01,0x01,dpi>>8,dpi&255,dpi>>8,dpi&255,0x00,0x00])
+    res=new Uint8Array(u8.length+seg.length)
+    res.set(u8.subarray(0,2),0);res.set(seg,2);res.set(u8.subarray(2),2+seg.length)
+    inserted=true
+  }
+  // Exif 里如果也记了分辨率，一并改掉（有的电脑看的是这里）
+  const shift=inserted?18:0
+  const e=segs.find(s=>isExif(u8,s))
+  if(e){
+    const s2={m:e.m,start:e.start+shift,data:e.data+shift,len:e.len}
+    exifRes(res,s2,(tag,type,vo,le)=>{
+      const w32=(o,v)=>{if(le){res[o]=v&255;res[o+1]=(v>>8)&255;res[o+2]=(v>>16)&255;res[o+3]=(v>>>24)&255}else{res[o]=(v>>>24)&255;res[o+1]=(v>>16)&255;res[o+2]=(v>>8)&255;res[o+3]=v&255}}
+      if((tag===0x011A||tag===0x011B)&&type===5){w32(vo,dpi);w32(vo+4,1)}
+      if(tag===0x0128&&type===3){if(le){res[vo]=2;res[vo+1]=0}else{res[vo]=0;res[vo+1]=2}}
+    })
+  }
+  return{bytes:res,inserted}
+}
+
+async function load(file){
+  if(!file)return
+  $('out').hidden=true;$('run').disabled=true;src=null
+  $('srcNote').hidden=true;$('srcInfo').hidden=true
+  const u8=new Uint8Array(await file.arrayBuffer())
+  if(!segments(u8)){
+    $('srcNote').hidden=false
+    $('srcNote').innerHTML=(u8[0]===0xFF&&u8[1]===0xD8)?'这张 JPG 文件结构有问题，读不了。可以先用<a href="/to-jpg/">转成 JPG</a>重新保存一次再来。':'这张照片不是 JPG 格式（只是名字可能叫 .jpg）。请先用<a href="/to-jpg/">转成 JPG</a>，再回来改 DPI。'
+    return
+  }
+  src=u8;srcName=(file.name||'照片').replace(/\.[^.]*$/,'')||'照片'
+  const d=readDpi(u8)||{}
+  const now=d.jfif||(d.exif?d.exif+' dpi':'没有记录（一般会被当成 72 或 96）')
+  dims=''
+  const url=URL.createObjectURL(file),im=new Image()
+  const show=()=>{$('srcInfo').hidden=false
+    $('srcInfo').textContent='已选：'+(dims?dims+' 像素，':'')+kbText(file.size)+'，现在的 DPI：'+now
+    $('run').disabled=false}
+  im.onload=()=>{dims=im.naturalWidth+'×'+im.naturalHeight;URL.revokeObjectURL(url);show()}
+  im.onerror=()=>{URL.revokeObjectURL(url);show()}
+  im.src=url
+}
+$('pick').onclick=()=>$('file').click()
+$('file').onchange=e=>load(e.target.files[0])
+document.addEventListener('dragover',e=>e.preventDefault())
+document.addEventListener('drop',e=>{e.preventDefault();load(e.dataTransfer.files[0])})
+
+$('run').onclick=()=>{
+  if(!src)return
+  let dpi=DPI_PRESETS[dpiIdx][1]
+  if(dpi===-1)dpi=Math.round(Number($('customDpi').value))
+  if(!dpi||dpi<1||dpi>65535){alert('DPI 请填 1 到 65535 之间的整数');return}
+  try{
+    const r=setDpi(src,dpi)
+    const blob=new Blob([r.bytes],{type:'image/jpeg'})
+    if(outUrl)URL.revokeObjectURL(outUrl)
+    outUrl=URL.createObjectURL(blob)
+    $('outImg').src=outUrl;$('dl').href=outUrl;$('dl').download=srcName+'_'+dpi+'dpi.jpg'
+    let info='处理结果：DPI 已改为 '+dpi+'，'+(dims?dims+' 像素（没变），':'像素没变，')+kbText(blob.size)
+    if(dims){const [w,h]=dims.split('×').map(Number);info+='。按这个 DPI 打印约 '+(w/dpi*2.54).toFixed(1)+'×'+(h/dpi*2.54).toFixed(1)+' 厘米'}
+    $('outInfo').textContent=info
+    $('outNote').hidden=!r.inserted;$('outNote').textContent='原照片没有记录 DPI 的标准信息段，已补上。'
+    $('out').hidden=false
+    $('out').scrollIntoView({behavior:'smooth',block:'nearest'})
+  }catch(e){console.error(e);alert('处理失败，可以先用“转成 JPG”重新保存一次再试')}
+}
+</script>
+<script>
+// 访问计数：只发送本页网址，不读取、不发送照片；失败不影响使用
+setTimeout(function(){try{
+  if(!/^https?:$/.test(location.protocol))return
+  var u=location.origin+location.pathname,k='vercount_uv_'+location.host.replace(/[^a-zA-Z0-9_-]/g,'_'),nu=document.cookie.indexOf(k+'=1')<0
+  if(nu)document.cookie=k+'=1; path=/; max-age=31536000; samesite=lax'
+  if(window.fetch)fetch('https://events.vercount.one/api/v2/log',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:u,isNewUv:nu})}).catch(function(){})
+  var b=new Image();b.referrerPolicy='no-referrer-when-downgrade';b.src='https://busuanzi.ibruce.info/busuanzi?jsonpCallback=BusuanziCallback_0'
+}catch(e){}},800)
+</script>
+</body>
+</html>
