@@ -40,12 +40,6 @@ footer{margin-top:28px;color:var(--sub);font-size:13px;text-align:center}
 <p class="sub">只改照片里记录的 DPI 数值，像素和画面一点不动。照片只在你自己的浏览器里处理，不上传、不保存。</p>
 
 <div class="card">
-  <h2>DPI 和像素有什么区别？</h2>
-  <p><b>像素</b>是照片实际有多少个点，比如 295×413，决定照片清不清楚。<b>DPI</b> 只是照片里记的一个数字，意思是“打印时每英寸放几个点”，不改变照片本身。</p>
-  <p class="sub">所以报名系统要求“300dpi”时，通常只要把这个数字改成 300 就行；如果同时要求像素（比如 295×413），像素要另外去<a href="/">首页</a>改。</p>
-</div>
-
-<div class="card">
   <h2>① 选照片（JPG 格式）</h2>
   <input id="file" type="file" accept="image/jpeg,.jpg,.jpeg" hidden>
   <button id="pick" class="big ghost">点这里选一张 JPG 照片（也可以把照片拖进来）</button>
@@ -68,6 +62,12 @@ footer{margin-top:28px;color:var(--sub);font-size:13px;text-align:center}
     <a id="dl" class="big" download="照片.jpg">保存照片</a>
     <p class="sub">手机上请点“保存照片”按钮保存；长按图片保存时，有的手机会重新存一遍，DPI 可能又变回去。</p>
   </div>
+</div>
+
+<div class="card">
+  <h2>DPI 和像素有什么区别？</h2>
+  <p><b>像素</b>是照片实际有多少个点，比如 295×413，决定照片清不清楚。<b>DPI</b> 只是照片里记的一个数字，意思是“打印时每英寸放几个点”，不改变照片本身。</p>
+  <p class="sub">所以报名系统要求“300dpi”时，通常只要把这个数字改成 300 就行；如果同时要求像素（比如 295×413），像素要另外去<a href="/">首页</a>改。</p>
 </div>
 
 <div class="card">
@@ -245,6 +245,36 @@ $('run').onclick=()=>{
     $('out').scrollIntoView({behavior:'smooth',block:'nearest'})
   }catch(e){console.error(e);alert('处理失败，可以先用“转成 JPG”重新保存一次再试')}
 }
+</script>
+<script>
+// 微信内置浏览器：微信里 <a download> 保存不了。图片结果换成 data: 地址并提示长按保存；文件结果提示到浏览器里打开。其他浏览器不受影响
+(function(){
+  if(!/MicroMessenger/i.test(navigator.userAgent))return
+  var KIND='img',EXTRA='<div style="font-size:14px;margin-top:6px">注意：长按保存时，有的手机会把图片重新存一遍，DPI 可能又变回去。要确保 DPI 不变，请点右上角 ··· → 在浏览器打开，用浏览器里的“保存照片”按钮保存。</div>'
+  var d=document,$=function(i){return d.getElementById(i)},dl=$('dl'),out=$('out'),main=d.querySelector('main')
+  if(!dl||!out||!main)return
+  d.documentElement.classList.add('wx')
+  var box='border:2px solid #d97706;background:#fff7e6;color:#7a3e00;border-radius:10px;padding:10px 12px;margin:10px 0;line-height:1.5'
+  function el(id,css,html){var e=d.createElement('div');e.id=id;e.style.cssText=css;e.innerHTML=html;return e}
+  if(KIND==='file'){
+    main.insertBefore(el('wxTop',box+';margin:0 0 4px;font-size:16px','<b>微信里存不了文件：点右上角 ··· → 在浏览器打开</b>，再用本页。'),main.firstChild)
+    out.insertBefore(el('wxTip',box+';font-size:17px','<b>微信里存不了文件：点右上角 ··· → 在浏览器打开</b>，在浏览器里重新选文件、生成，再保存。'),dl)
+    return
+  }
+  var im=$('outImg');if(!im)return
+  var tip=el('wxTip',box+';text-align:center','<div style="font-size:21px;font-weight:700">长按上面的图片 → 保存图片</div><div style="font-size:15px;margin-top:4px">如果长按保存不了，点右上角 ··· → 在浏览器打开，再处理一次</div>'+EXTRA)
+  im.parentNode.insertBefore(tip,im.nextSibling)
+  dl.style.display='none'
+  var last='',seq=0
+  function sync(){
+    tip.style.display=dl.hidden?'none':''
+    var h=dl.getAttribute('href')||'';if(!/^blob:/.test(h)||h===last)return
+    last=h;var my=++seq
+    fetch(h).then(function(r){return r.blob()}).then(function(b){return new Promise(function(ok,no){var fr=new FileReader();fr.onload=function(){ok(fr.result)};fr.onerror=no;fr.readAsDataURL(b)})})
+      .then(function(u){if(my===seq)im.src=u}).catch(function(){})
+  }
+  new MutationObserver(sync).observe(dl,{attributes:true,attributeFilter:['href','hidden']});sync()
+})()
 </script>
 <script>
 // 访问计数：只发送本页网址，不读取、不发送照片；失败不影响使用

@@ -51,8 +51,7 @@ footer{margin-top:28px;color:var(--sub);font-size:13px;text-align:center}
 <body>
 <main>
 <h1>身份证正反面怎么放在一张纸上？合并成一张图 / A4纸打印</h1>
-<p class="sub">选好人像面和国徽面两张照片，按身份证实际大小（85.6×54 毫米）上下排在一张白底图上，可以保存成 JPG 上传，也可以直接打印。</p>
-<div class="safe"><b>照片只在你自己的手机或电脑上处理：</b>不上传、不保存、不记录照片内容。页面打开后断网也能用。关掉页面，照片就不在这里了。</div>
+<p class="sub">两面照片合成一张图，可保存 JPG 或直接打印。照片不上传。</p>
 
 <div class="card">
   <h2>① 选身份证两面的照片</h2>
@@ -97,6 +96,12 @@ footer{margin-top:28px;color:var(--sub);font-size:13px;text-align:center}
     <button id="prt" class="big ghost" type="button">直接打印</button>
     <p class="sub">手机上如果点了没反应，长按上面的图片选“保存图片”。打印时“缩放”请选 100% 或“实际大小”，不要选“适合页面”，证件才和真身份证差不多大；打印机都有边距，大小会有零点几毫米的偏差。如果上传还限制文件大小，保存后再去<a href="/">压缩照片</a>。</p>
   </div>
+</div>
+
+<div class="card">
+  <h2>关于本页</h2>
+  <p class="sub">选好人像面和国徽面两张照片，按身份证实际大小（85.6×54 毫米）上下排在一张白底图上，可以保存成 JPG 上传，也可以直接打印。</p>
+  <div class="safe"><b>照片只在你自己的手机或电脑上处理：</b>不上传、不保存、不记录照片内容。页面打开后断网也能用。关掉页面，照片就不在这里了。</div>
 </div>
 
 <div class="card">
@@ -223,6 +228,36 @@ $('run').onclick=async()=>{
   finally{btn.disabled=false;btn.textContent='生成'}
 }
 $('prt').onclick=()=>{const im=$('printImg');if(im.complete)window.print();else im.onload=()=>{im.onload=null;window.print()}}
+</script>
+<script>
+// 微信内置浏览器：微信里 <a download> 保存不了。图片结果换成 data: 地址并提示长按保存；文件结果提示到浏览器里打开。其他浏览器不受影响
+(function(){
+  if(!/MicroMessenger/i.test(navigator.userAgent))return
+  var KIND='img',EXTRA=''
+  var d=document,$=function(i){return d.getElementById(i)},dl=$('dl'),out=$('out'),main=d.querySelector('main')
+  if(!dl||!out||!main)return
+  d.documentElement.classList.add('wx')
+  var box='border:2px solid #d97706;background:#fff7e6;color:#7a3e00;border-radius:10px;padding:10px 12px;margin:10px 0;line-height:1.5'
+  function el(id,css,html){var e=d.createElement('div');e.id=id;e.style.cssText=css;e.innerHTML=html;return e}
+  if(KIND==='file'){
+    main.insertBefore(el('wxTop',box+';margin:0 0 4px;font-size:16px','<b>微信里存不了文件：点右上角 ··· → 在浏览器打开</b>，再用本页。'),main.firstChild)
+    out.insertBefore(el('wxTip',box+';font-size:17px','<b>微信里存不了文件：点右上角 ··· → 在浏览器打开</b>，在浏览器里重新选文件、生成，再保存。'),dl)
+    return
+  }
+  var im=$('outImg');if(!im)return
+  var tip=el('wxTip',box+';text-align:center','<div style="font-size:21px;font-weight:700">长按上面的图片 → 保存图片</div><div style="font-size:15px;margin-top:4px">如果长按保存不了，点右上角 ··· → 在浏览器打开，再处理一次</div>'+EXTRA)
+  im.parentNode.insertBefore(tip,im.nextSibling)
+  dl.style.display='none'
+  var last='',seq=0
+  function sync(){
+    tip.style.display=dl.hidden?'none':''
+    var h=dl.getAttribute('href')||'';if(!/^blob:/.test(h)||h===last)return
+    last=h;var my=++seq
+    fetch(h).then(function(r){return r.blob()}).then(function(b){return new Promise(function(ok,no){var fr=new FileReader();fr.onload=function(){ok(fr.result)};fr.onerror=no;fr.readAsDataURL(b)})})
+      .then(function(u){if(my===seq)im.src=u}).catch(function(){})
+  }
+  new MutationObserver(sync).observe(dl,{attributes:true,attributeFilter:['href','hidden']});sync()
+})()
 </script>
 <script>
 // 访问计数：只发送本页网址，不读取、不发送照片；失败不影响使用

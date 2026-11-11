@@ -39,7 +39,7 @@ footer{margin-top:28px;color:var(--sub);font-size:13px;text-align:center}
 <body>
 <main>
 <h1>CSV 用 Excel 打开是乱码？转成 Excel 能直接打开的版本</h1>
-<p class="sub">选 CSV 文件，自动判断它是什么编码，预览里中文正常了，就保存一份 Excel 双击就能正常打开的 CSV。文件只在你自己的浏览器里处理，不上传、不保存。</p>
+<p class="sub">自动判断编码，转成 Excel 双击就能正常打开的 CSV。文件不上传。</p>
 
 <div class="card">
   <h2>① 选 CSV 文件</h2>
@@ -65,6 +65,11 @@ footer{margin-top:28px;color:var(--sub);font-size:13px;text-align:center}
     <a id="dl" class="big" download="文件_Excel可打开.csv">保存 CSV</a>
     <p class="sub">保存后用 Excel 双击打开新文件即可。内容一个字没改，只是换成了 Excel 认得出的编码（UTF-8 带 BOM）。</p>
   </div>
+</div>
+
+<div class="card">
+  <h2>关于本页</h2>
+  <p class="sub">选 CSV 文件，自动判断它是什么编码，预览里中文正常了，就保存一份 Excel 双击就能正常打开的 CSV。文件只在你自己的浏览器里处理，不上传、不保存。</p>
 </div>
 
 <div class="card">
@@ -196,6 +201,36 @@ $('run').onclick=()=>{
   $('outInfo').textContent='已生成：原来是 '+encName(enc)+'，现在是 UTF-8 带 BOM，'+kbText(blob.size)+'。'
   $('out').hidden=false;$('out').scrollIntoView({behavior:'smooth',block:'nearest'})
 }
+</script>
+<script>
+// 微信内置浏览器：微信里 <a download> 保存不了。图片结果换成 data: 地址并提示长按保存；文件结果提示到浏览器里打开。其他浏览器不受影响
+(function(){
+  if(!/MicroMessenger/i.test(navigator.userAgent))return
+  var KIND='file',EXTRA=''
+  var d=document,$=function(i){return d.getElementById(i)},dl=$('dl'),out=$('out'),main=d.querySelector('main')
+  if(!dl||!out||!main)return
+  d.documentElement.classList.add('wx')
+  var box='border:2px solid #d97706;background:#fff7e6;color:#7a3e00;border-radius:10px;padding:10px 12px;margin:10px 0;line-height:1.5'
+  function el(id,css,html){var e=d.createElement('div');e.id=id;e.style.cssText=css;e.innerHTML=html;return e}
+  if(KIND==='file'){
+    main.insertBefore(el('wxTop',box+';margin:0 0 4px;font-size:16px','<b>微信里存不了文件：点右上角 ··· → 在浏览器打开</b>，再用本页。'),main.firstChild)
+    out.insertBefore(el('wxTip',box+';font-size:17px','<b>微信里存不了文件：点右上角 ··· → 在浏览器打开</b>，在浏览器里重新选文件、生成，再保存。'),dl)
+    return
+  }
+  var im=$('outImg');if(!im)return
+  var tip=el('wxTip',box+';text-align:center','<div style="font-size:21px;font-weight:700">长按上面的图片 → 保存图片</div><div style="font-size:15px;margin-top:4px">如果长按保存不了，点右上角 ··· → 在浏览器打开，再处理一次</div>'+EXTRA)
+  im.parentNode.insertBefore(tip,im.nextSibling)
+  dl.style.display='none'
+  var last='',seq=0
+  function sync(){
+    tip.style.display=dl.hidden?'none':''
+    var h=dl.getAttribute('href')||'';if(!/^blob:/.test(h)||h===last)return
+    last=h;var my=++seq
+    fetch(h).then(function(r){return r.blob()}).then(function(b){return new Promise(function(ok,no){var fr=new FileReader();fr.onload=function(){ok(fr.result)};fr.onerror=no;fr.readAsDataURL(b)})})
+      .then(function(u){if(my===seq)im.src=u}).catch(function(){})
+  }
+  new MutationObserver(sync).observe(dl,{attributes:true,attributeFilter:['href','hidden']});sync()
+})()
 </script>
 <script>
 // 访问计数：只发送本页网址，不读取、不发送文件；失败不影响使用
