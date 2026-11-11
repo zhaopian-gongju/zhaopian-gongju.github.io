@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PDF只要其中几页、删掉某一页、几个PDF合成一个（在线免费，不上传）</title>
+<meta name="description" content="PDF只要其中几页怎么弄？想删掉PDF里的某一页、把几个PDF合成一个、调整页面顺序、把某一页转个方向？选PDF后看着每页的小图点选，一键保存成新的PDF。文件只在你自己的浏览器里处理，不上传。">
+<link rel="canonical" href="https://zhaopian-gongju.github.io/pdf-pages/">
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--fg:#1c2330;--sub:#5b6676;--line:#dfe3ea;--main:#1769e0;--mainfg:#fff;--warn:#b45309;--ok:#15803d}
+@media (prefers-color-scheme:dark){:root{--bg:#12151b;--card:#1b2029;--fg:#e8ecf2;--sub:#9aa5b5;--line:#2c3441;--main:#4c8ff5;--mainfg:#0b1220;--warn:#f0b35a;--ok:#4ade80}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 -apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+main{max-width:720px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:24px;line-height:1.35;margin:8px 0 6px}
+h2{font-size:18px;margin:0 0 10px}
+p{margin:6px 0}
+a{color:var(--main)}
+.sub{color:var(--sub);font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:14px}
+.big{display:block;width:100%;padding:13px;border:0;border-radius:10px;background:var(--main);color:var(--mainfg);font-size:17px;font-weight:600;cursor:pointer;text-align:center;text-decoration:none;margin-top:8px}
+.big[disabled]{opacity:.5;cursor:default}
+.ghost{background:transparent;border:1px dashed var(--main);color:var(--main)}
+.note{color:var(--warn);font-size:14px}
+.sbtn{border:1px solid var(--line);background:transparent;color:var(--fg);border-radius:8px;padding:6px 10px;font-size:14px;cursor:pointer}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}
+input[type=text]{flex:1;min-width:140px;padding:8px;border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--fg);font-size:16px}
+.files{list-style:none;margin:10px 0 0;padding:0}
+.files li{display:flex;gap:8px;align-items:center;font-size:14px;border:1px solid var(--line);border-radius:8px;padding:6px 8px;margin-top:6px}
+.files .nm{flex:1;min-width:0;word-break:break-all}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:10px;margin-top:12px}
+.pg{border:2px solid var(--line);border-radius:10px;padding:6px;text-align:center;font-size:13px;background:var(--card)}
+.pg.on{border-color:var(--main)}
+.pg.off{opacity:.45}
+.pg .box{height:132px;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative}
+.pg canvas{max-width:116px;max-height:116px;background:#fff;border:1px solid var(--line);transition:transform .15s}
+.pg .ph{width:84px;height:116px;background:#fff;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:#999}
+.pg .tick{position:absolute;top:2px;left:2px;width:24px;height:24px;border-radius:50%;background:var(--main);color:var(--mainfg);font-size:15px;line-height:24px}
+.pg.off .tick{background:#999}
+.pg .lbl{margin:4px 0;word-break:break-all}
+.pg .ops{display:flex;justify-content:center;gap:4px}
+.pg .ops button{border:1px solid var(--line);background:transparent;color:var(--fg);border-radius:6px;padding:3px 7px;font-size:14px;cursor:pointer;min-width:30px}
+.pg .ops button[disabled]{opacity:.3;cursor:default}
+.links{margin:0;padding-left:20px}
+.links li{margin:4px 0}
+[hidden]{display:none!important}
+footer{margin-top:28px;color:var(--sub);font-size:13px;text-align:center}
+</style>
+</head>
+<body>
+<main>
+<h1>PDF 只要其中几页 / 删掉某一页 / 几个 PDF 合成一个</h1>
+<p class="sub">选一个或几个 PDF，看着每页的小图点选要哪几页，还能调顺序、把某一页转个方向，最后保存成一个新 PDF。文件只在你自己的浏览器里处理，不上传、不保存。</p>
+
+<div class="card">
+  <h2>① 选 PDF（可以选多个，会按顺序接在一起）</h2>
+  <input id="file" type="file" accept="application/pdf,.pdf" multiple hidden>
+  <button id="pick" class="big ghost">点这里选 PDF（也可以把文件拖进来）</button>
+  <ul id="files" class="files"></ul>
+  <p id="srcNote" class="note" hidden></p>
+</div>
+
+<div class="card" id="pagesCard" hidden>
+  <h2>② 点小图选页（蓝框 ✓ 的会保留）</h2>
+  <div class="row"><button id="all" class="sbtn" type="button">全选</button><button id="none" class="sbtn" type="button">全不选</button><span id="count" class="sub"></span></div>
+  <div class="row"><span class="sub">只要第</span><input id="range" type="text" placeholder="例如 1-3,5,8" inputmode="text"><span class="sub">页</span><button id="applyRange" class="sbtn" type="button">按页码选</button></div>
+  <p id="rangeNote" class="note" hidden></p>
+  <p class="sub">页码按下面排的顺序数。← → 调顺序，↻ 把这一页顺时针转 90°，✕ 把这一页从列表里拿掉。</p>
+  <div id="grid" class="grid"></div>
+</div>
+
+<div class="card">
+  <button id="run" class="big" disabled>保存选中的页为新 PDF</button>
+  <div id="out" hidden>
+    <p id="outInfo" style="margin-top:12px"></p>
+    <a id="dl" class="big" download="新文件.pdf">保存 PDF</a>
+    <p class="sub">手机上保存后一般在“下载”或“文件”里能找到。原文件不会被改动。</p>
+  </div>
+  <p id="fail" class="note" hidden></p>
+</div>
+
+<div class="card">
+  <h2>常见问题</h2>
+  <p><b>PDF 只要其中几页，怎么单独保存出来？</b><br>选 PDF 后点“全不选”，再点要的那几页（或在“只要第__页”里填 1-3,5 这样的页码），点“保存选中的页为新 PDF”。</p>
+  <p><b>怎么删掉 PDF 里的某一页？</b><br>把那一页点成灰色（不选），或点它下面的 ✕，再保存。保存的是新文件，原文件不变。</p>
+  <p><b>几个 PDF 怎么合成一个？</b><br>第①步一次选几个（或分几次添加），所有页会按顺序排在一起，用 ← → 调好顺序再保存。页面大小不一样的 PDF 合在一起后，每页保持各自原来的大小。</p>
+  <p><b>PDF 里有一页是横的、倒的，怎么转过来？</b><br>点那一页下面的 ↻，每点一次顺时针转 90°，小图会跟着转，转对了再保存。</p>
+  <p><b>保存后文字还能复制吗？清晰度会变吗？</b><br>能复制，不变。这里是把原来的页面原样搬到新文件里，不重新压缩。要把文件变小，用<a href="/pdf-too-big/">PDF 太大传不上去</a>。</p>
+  <p><b>提示“这个文件有密码”？</b><br>加了密码或权限保护的 PDF 本页处理不了。</p>
+  <p><b>文件会被传到网上吗？</b><br>不会。全部在你的设备上完成。页数很多时小图会边看边加载；文件特别大时手机可能内存不够，换电脑更稳。</p>
+</div>
+
+<div class="card">
+  <h2>其他常见问题</h2>
+  <ul class="links">
+    <li><a href="/">照片太大传不上去（压到指定KB、改一寸二寸像素）</a></li>
+    <li><a href="/to-jpg/">提示“只支持JPG格式”“图片格式不正确”</a></li>
+    <li><a href="/too-small/">提示“照片不能小于XXK”“文件太小”</a></li>
+    <li><a href="/dpi/">提示“分辨率不符合要求”“要求300dpi”</a></li>
+    <li><a href="/rotate/">照片传上去是横的、倒的（方向不对）</a></li>
+    <li><a href="/to-pdf/">要求上传PDF格式，可只有照片（多张合成一个PDF）</a></li>
+    <li><a href="/idcard-a4/">身份证正反面放在一张纸上（合并成一张图、A4打印）</a></li>
+    <li><a href="/signature/">要求上传手写签名，签名要白底黑字</a></li>
+    <li><a href="/idcard-watermark/">身份证复印件加水印（仅供办理XX使用）</a></li>
+    <li><a href="/pdf-too-big/">PDF太大传不上去（压到2M、5M以内）</a></li>
+    <li><a href="/csv-luanma/">CSV用Excel打开是乱码</a></li>
+  </ul>
+</div>
+
+<footer>本页由 AI 自主制作和运营 · 免费使用 · 处理结果请以报名系统实际校验为准<br>本站只统计访问次数（不涉及文件内容）</footer>
+</main>
+
+<script src="/vendor/pdfjs-3.11.174/pdf.min.js"></script>
+<script src="/vendor/pdf-lib-1.17.1/pdf-lib.min.js"></script>
+<script>
+const PDFJS='/vendor/pdfjs-3.11.174/'
+const $=id=>document.getElementById(id)
+const mbText=b=>{const kb=b/1000;return kb>=1000?(kb/1000).toFixed(2)+' M':kb.toFixed(0)+' KB'}
+if(window.pdfjsLib)pdfjsLib.GlobalWorkerOptions.workerSrc=PDFJS+'pdf.worker.min.js'
+const docs=[]        // {id,name,bytes,js(pdf.js 文档),letter,pages}
+let items=[]         // 每页：{doc,idx(0起),rot(额外旋转),sel,el,cv,state}
+let outUrl='',busy=false,docSeq=0
+const LETTERS='ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+
+function errText(e){
+  const s=String(e&&(e.name+' '+e.message)||e)
+  if(/Password|encrypt/i.test(s))return '这个文件有密码，本页处理不了'
+  if(/memory|allocation|Array buffer|RangeError/i.test(s))return '文件太大，设备内存不够，换电脑试试'
+  return '不是正常的 PDF 或文件已损坏，打不开'
+}
+async function addFile(file){
+  const head=new Uint8Array(await file.slice(0,1024).arrayBuffer())
+  if(new TextDecoder('latin1').decode(head).indexOf('%PDF')<0)throw {name:'NotPdf',message:'不是 PDF 文件'}
+  const bytes=new Uint8Array(await file.arrayBuffer())
+  let lib
+  try{lib=await PDFLib.PDFDocument.load(bytes,{updateMetadata:false})}
+  catch(e){if(/encrypt/i.test(e&&(e.name+' '+e.message)))throw {name:'Encrypted',message:'这个文件有密码，本页处理不了'};throw e}
+  const js=await pdfjsLib.getDocument({data:bytes.slice(),isEvalSupported:false,enableXfa:false,cMapUrl:PDFJS+'cmaps/',cMapPacked:true}).promise
+  const d={id:++docSeq,name:file.name||'文件.pdf',bytes,js,lib,pages:js.numPages,letter:LETTERS[(docSeq-1)%26]}
+  docs.push(d)
+  for(let i=0;i<d.pages;i++)items.push({doc:d,idx:i,rot:0,sel:true,el:null,cv:null,state:0})
+}
+async function addFiles(list){
+  if(!window.pdfjsLib||!window.PDFLib){note('页面组件没加载完整，请刷新页面再试；还不行请换个浏览器。');return}
+  const bad=[];$('fail').hidden=true
+  for(const f of Array.from(list||[])){
+    try{await addFile(f)}catch(e){console.error(e);bad.push((f.name||'文件')+'：'+(e&&e.name==='NotPdf'?'不是 PDF 文件':e&&e.name==='Encrypted'?e.message:errText(e)))}
+  }
+  note(bad.length?'这些文件没加进来——'+bad.join('；'):'')
+  renderFiles();renderGrid()
+}
+function note(t){$('srcNote').textContent=t;$('srcNote').hidden=!t}
+function renderFiles(){
+  const ul=$('files');ul.innerHTML=''
+  docs.forEach(d=>{
+    const li=document.createElement('li'),nm=document.createElement('span');nm.className='nm'
+    nm.textContent=(docs.length>1?d.letter+'：':'')+d.name+'（'+d.pages+' 页，'+mbText(d.bytes.length)+'）'
+    const b=document.createElement('button');b.className='sbtn';b.type='button';b.textContent='移除'
+    b.onclick=()=>{items=items.filter(it=>it.doc!==d);docs.splice(docs.indexOf(d),1);try{d.js.destroy()}catch(e){};renderFiles();renderGrid()}
+    li.append(nm,b);ul.appendChild(li)
+  })
+  $('pick').textContent=docs.length?'继续添加 PDF（接在后面）':'点这里选 PDF（也可以把文件拖进来）'
+}
+
+// 小图：进入可视区域才渲染，一次只渲染一张，页数多也不卡
+const queue=[];let rendering=false
+const io=('IntersectionObserver' in window)?new IntersectionObserver(es=>{es.forEach(e=>{const it=e.target._it;if(e.isIntersecting&&it&&it.state===0){it.state=1;queue.push(it);pump()}})},{rootMargin:'300px'}):null
+async function pump(){
+  if(rendering)return;rendering=true
+  while(queue.length){
+    // 先画离屏幕最近的那页（快速滑动时，滑过去的页往后排）
+    let k=0,best=1e9;queue.forEach((q,i)=>{const r=q.el.getBoundingClientRect(),d=r.bottom<0?-r.bottom:r.top>innerHeight?r.top-innerHeight:0;if(d<best){best=d;k=i}})
+    const it=queue.splice(k,1)[0];if(!items.includes(it))continue
+    try{
+      const page=await it.doc.js.getPage(it.idx+1),v=page.getViewport({scale:1}),s=Math.min(232/v.width,232/v.height)
+      const vp=page.getViewport({scale:s}),cv=document.createElement('canvas');cv.width=Math.ceil(vp.width);cv.height=Math.ceil(vp.height)
+      const ctx=cv.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height)
+      await page.render({canvasContext:ctx,viewport:vp}).promise;page.cleanup()
+      it.cv=cv;it.state=2;const box=it.el.querySelector('.box'),ph=box.querySelector('.ph');if(ph)ph.replaceWith(cv);applyRot(it)
+    }catch(e){console.error(e);it.state=3;const ph=it.el.querySelector('.ph');if(ph)ph.textContent='预览失败'}
+    await new Promise(r=>setTimeout(r,0))
+  }
+  rendering=false
+}
+function applyRot(it){if(it.cv)it.cv.style.transform='rotate('+it.rot+'deg)'}
+function makeEl(it){
+  const el=document.createElement('div');el.className='pg';el._it=it
+  const box=document.createElement('div');box.className='box';box.title='点一下：选 / 不选'
+  const ph=document.createElement('div');ph.className='ph';ph.textContent='…'
+  const tick=document.createElement('span');tick.className='tick'
+  box.append(ph,tick);box.onclick=()=>{it.sel=!it.sel;paint(it);updCount()}
+  const lbl=document.createElement('div');lbl.className='lbl'
+  const ops=document.createElement('div');ops.className='ops'
+  const mk=(t,tt,f)=>{const b=document.createElement('button');b.type='button';b.textContent=t;b.title=tt;b.onclick=f;ops.appendChild(b);return b}
+  it.bL=mk('←','往前挪',()=>move(it,-1));mk('↻','顺时针转 90°',()=>{it.rot=(it.rot+90)%360;applyRot(it);$('out').hidden=true});it.bR=mk('→','往后挪',()=>move(it,1))
+  mk('✕','从列表里拿掉',()=>{items.splice(items.indexOf(it),1);el.remove();if(io)io.unobserve(el);relabel();updCount()})
+  el.append(box,lbl,ops);it.el=el
+  if(io)io.observe(el);else{it.state=1;queue.push(it);pump()}
+  return el
+}
+function paint(it){it.el.className='pg '+(it.sel?'on':'off');it.el.querySelector('.tick').textContent=it.sel?'✓':'';$('out').hidden=true}
+function relabel(){
+  const multi=docs.length>1
+  items.forEach((it,i)=>{it.el.querySelector('.lbl').textContent='第 '+(i+1)+' 页'+(multi?'（'+it.doc.letter+'-'+(it.idx+1)+'）':it.idx!==i?'（原第 '+(it.idx+1)+' 页）':'');it.bL.disabled=i===0;it.bR.disabled=i===items.length-1})
+}
+function renderGrid(){
+  const g=$('grid')
+  for(const it of items)if(!it.el)makeEl(it)
+  const frag=document.createDocumentFragment();items.forEach(it=>{paint(it);frag.appendChild(it.el)})
+  g.innerHTML='';g.appendChild(frag)
+  relabel();updCount();$('pagesCard').hidden=!items.length
+}
+function move(it,d){const i=items.indexOf(it),j=i+d;if(j<0||j>=items.length)return;[items[i],items[j]]=[items[j],items[i]]
+  const g=$('grid');if(d<0)g.insertBefore(it.el,items[i].el);else g.insertBefore(items[i].el,it.el);relabel();$('out').hidden=true}
+function updCount(){const n=items.filter(i=>i.sel).length;$('count').textContent='共 '+items.length+' 页，选了 '+n+' 页';$('run').disabled=!n||busy;$('out').hidden=true}
+$('all').onclick=()=>{items.forEach(it=>{it.sel=true;paint(it)});updCount()}
+$('none').onclick=()=>{items.forEach(it=>{it.sel=false;paint(it)});updCount()}
+$('applyRange').onclick=()=>{
+  const t=$('range').value.replace(/[，、；;\s]+/g,',').replace(/[－—～~至到]/g,'-'),want=new Set();let bad=''
+  for(const part of t.split(',').filter(Boolean)){
+    const m=part.match(/^(\d+)(?:-(\d+))?$/);if(!m){bad=part;break}
+    let a=+m[1],b=m[2]?+m[2]:a;if(a>b)[a,b]=[b,a]
+    if(a<1||b>items.length){bad=part+'（一共只有 '+items.length+' 页）';break}
+    for(let k=a;k<=b;k++)want.add(k)
+  }
+  $('rangeNote').hidden=!bad&&!!want.size;$('rangeNote').textContent=bad?'看不懂这一段：'+bad+'。请写成 1-3,5 这样的格式':'请先填页码，例如 1-3,5'
+  if(bad||!want.size)return
+  items.forEach((it,i)=>{it.sel=want.has(i+1);paint(it)});updCount()
+}
+$('pick').onclick=()=>$('file').click()
+$('file').onchange=e=>{addFiles(e.target.files);e.target.value=''}
+document.addEventListener('dragover',e=>e.preventDefault())
+document.addEventListener('drop',e=>{e.preventDefault();addFiles(e.dataTransfer.files)})
+
+$('run').onclick=async()=>{
+  const sel=items.filter(i=>i.sel);if(!sel.length||busy)return
+  const btn=$('run');busy=true;btn.disabled=true;btn.textContent='正在生成…';$('fail').hidden=true
+  try{
+    // 每个原文件只复制一次（共用的字体等资源不会重复），再按列表顺序放进新文件
+    const out=await PDFLib.PDFDocument.create(),copied=new Map()
+    for(const d of docs){
+      const idx=sel.filter(it=>it.doc===d).map(it=>it.idx);if(!idx.length)continue
+      const pages=await out.copyPages(d.lib,idx),m=new Map();idx.forEach((k,j)=>m.set(k,pages[j]));copied.set(d,m)
+    }
+    for(const it of sel){
+      const p=copied.get(it.doc).get(it.idx)
+      if(it.rot)p.setRotation(PDFLib.degrees((p.getRotation().angle+it.rot)%360))
+      out.addPage(p)
+    }
+    const bytes=await out.save(),blob=new Blob([bytes],{type:'application/pdf'})
+    if(outUrl)URL.revokeObjectURL(outUrl)
+    outUrl=URL.createObjectURL(blob);$('dl').href=outUrl
+    const base=docs[0].name.replace(/\.pdf$/i,'')||'文件'
+    $('dl').download=base+(docs.length>1?'_合并':'_选出')+sel.length+'页.pdf'
+    $('outInfo').textContent='已生成：新 PDF 共 '+sel.length+' 页，'+mbText(blob.size)+'。'
+    $('out').hidden=false;$('out').scrollIntoView({behavior:'smooth',block:'nearest'})
+  }catch(e){console.error(e);$('fail').hidden=false;$('fail').textContent='生成失败：'+errText(e)+'。'}
+  finally{busy=false;btn.textContent='保存选中的页为新 PDF';btn.disabled=!items.some(i=>i.sel)}
+}
+</script>
+<script>
+// 访问计数：只发送本页网址，不读取、不发送文件；失败不影响使用
+setTimeout(function(){try{
+  if(!/^https?:$/.test(location.protocol))return
+  var u=location.origin+location.pathname,k='vercount_uv_'+location.host.replace(/[^a-zA-Z0-9_-]/g,'_'),nu=document.cookie.indexOf(k+'=1')<0
+  if(nu)document.cookie=k+'=1; path=/; max-age=31536000; samesite=lax'
+  if(window.fetch)fetch('https://events.vercount.one/api/v2/log',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:u,isNewUv:nu})}).catch(function(){})
+  var b=new Image();b.referrerPolicy='no-referrer-when-downgrade';b.src='https://busuanzi.ibruce.info/busuanzi?jsonpCallback=BusuanziCallback_0'
+}catch(e){}},800)
+</script>
+</body>
+</html>

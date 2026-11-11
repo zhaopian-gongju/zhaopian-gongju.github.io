@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CSV用Excel打开是乱码怎么办？在线一键转成Excel能直接打开的版本（不上传，免费）</title>
+<meta name="description" content="CSV文件用Excel打开中文全是乱码？选CSV文件，自动判断编码（UTF-8、GBK等），预览确认中文正常后，保存成Excel能直接打开的版本（UTF-8带BOM）。文件只在你自己的浏览器里处理，不上传。">
+<link rel="canonical" href="https://zhaopian-gongju.github.io/csv-luanma/">
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--fg:#1c2330;--sub:#5b6676;--line:#dfe3ea;--main:#1769e0;--mainfg:#fff;--warn:#b45309;--ok:#15803d}
+@media (prefers-color-scheme:dark){:root{--bg:#12151b;--card:#1b2029;--fg:#e8ecf2;--sub:#9aa5b5;--line:#2c3441;--main:#4c8ff5;--mainfg:#0b1220;--warn:#f0b35a;--ok:#4ade80}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 -apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+main{max-width:720px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:24px;line-height:1.35;margin:8px 0 6px}
+h2{font-size:18px;margin:0 0 10px}
+p{margin:6px 0}
+a{color:var(--main)}
+.sub{color:var(--sub);font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:14px}
+.big{display:block;width:100%;padding:13px;border:0;border-radius:10px;background:var(--main);color:var(--mainfg);font-size:17px;font-weight:600;cursor:pointer;text-align:center;text-decoration:none;margin-top:8px}
+.big[disabled]{opacity:.5;cursor:default}
+.ghost{background:transparent;border:1px dashed var(--main);color:var(--main)}
+.note{color:var(--warn);font-size:14px}
+.okc{color:var(--ok)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips button{border:1px solid var(--line);background:transparent;color:var(--fg);border-radius:999px;padding:7px 14px;font-size:15px;cursor:pointer}
+.chips button.on{background:var(--main);border-color:var(--main);color:var(--mainfg)}
+.tw{overflow-x:auto;margin-top:10px;border:1px solid var(--line);border-radius:8px}
+table{border-collapse:collapse;font-size:14px;min-width:100%}
+td{border:1px solid var(--line);padding:4px 8px;white-space:nowrap;max-width:260px;overflow:hidden;text-overflow:ellipsis}
+tr:first-child td{font-weight:600}
+.links{margin:0;padding-left:20px}
+.links li{margin:4px 0}
+[hidden]{display:none!important}
+footer{margin-top:28px;color:var(--sub);font-size:13px;text-align:center}
+</style>
+</head>
+<body>
+<main>
+<h1>CSV 用 Excel 打开是乱码？转成 Excel 能直接打开的版本</h1>
+<p class="sub">选 CSV 文件，自动判断它是什么编码，预览里中文正常了，就保存一份 Excel 双击就能正常打开的 CSV。文件只在你自己的浏览器里处理，不上传、不保存。</p>
+
+<div class="card">
+  <h2>① 选 CSV 文件</h2>
+  <input id="file" type="file" accept=".csv,.txt,.tsv,text/csv,text/plain" hidden>
+  <button id="pick" class="big ghost">点这里选 CSV 文件（也可以把文件拖进来）</button>
+  <p id="srcInfo" style="margin-top:10px" hidden></p>
+  <p id="srcNote" class="note" hidden></p>
+</div>
+
+<div class="card" id="pvCard" hidden>
+  <h2>② 看一眼：中文正常了吗？</h2>
+  <p id="encInfo"></p>
+  <div class="tw"><table id="tbl"></table></div>
+  <p id="pvNote" class="sub"></p>
+  <p style="margin-top:10px"><b>还是乱码？</b>点下面换一种编码试试，哪个中文正常就用哪个：</p>
+  <div id="encChips" class="chips"></div>
+</div>
+
+<div class="card">
+  <button id="run" class="big" disabled>生成 Excel 能打开的 CSV</button>
+  <div id="out" hidden>
+    <p id="outInfo" style="margin-top:12px"></p>
+    <a id="dl" class="big" download="文件_Excel可打开.csv">保存 CSV</a>
+    <p class="sub">保存后用 Excel 双击打开新文件即可。内容一个字没改，只是换成了 Excel 认得出的编码（UTF-8 带 BOM）。</p>
+  </div>
+</div>
+
+<div class="card">
+  <h2>为什么会乱码</h2>
+  <p>CSV 是纯文字文件，里面的中文可以用不同的“编码”存，常见的有 UTF-8 和 GBK。很多网站、系统导出的 CSV 是 UTF-8，而在简体中文的电脑上用 Excel 双击打开时，如果文件开头没有一个叫 BOM 的标记，Excel 会按 GBK 去读，“中文”两个字就变成了“涓枃”这类乱码。这里做的事就是：认出原来的编码，再存成开头带 BOM 的 UTF-8，Excel 一看就知道该怎么读。</p>
+</div>
+
+<div class="card">
+  <h2>常见问题</h2>
+  <p><b>不想用网页，Excel 里自己怎么弄？</b><br>新版 Excel：新建空白表格 → “数据” → “从文本/CSV” → 选文件 → “文件原始格式”选“65001: Unicode (UTF-8)” → 加载。或者用记事本打开 CSV，“另存为”时编码选“带有 BOM 的 UTF-8”。</p>
+  <p><b>自动判断的编码不对怎么办？</b><br>第②步预览里如果还是乱码，点别的编码按钮，直到预览里的中文正常，再生成。简体中文的老文件一般是 GBK；繁体（台湾、香港）的老文件可能是 Big5。</p>
+  <p><b>身份证号、订单号打开后变成 1.23E+17、最后几位变成 0？</b><br>这不是乱码，是 Excel 把长数字当成了数字。本页不改内容，解决不了这个；可以在 Excel 里用“数据 → 从文本/CSV”导入，把那一列设成“文本”。</p>
+  <p><b>WPS 打开也乱码能用吗？</b><br>能，转换后的文件 WPS 一般也能直接认出来。</p>
+  <p><b>文件会被传到网上吗？</b><br>不会。识别和转换都在你的设备上完成。文件特别大（几百 MB）时手机可能内存不够，换电脑更稳。</p>
+</div>
+
+<div class="card">
+  <h2>其他常见问题</h2>
+  <ul class="links">
+    <li><a href="/">照片太大传不上去（压到指定KB、改一寸二寸像素）</a></li>
+    <li><a href="/to-jpg/">提示“只支持JPG格式”“图片格式不正确”</a></li>
+    <li><a href="/too-small/">提示“照片不能小于XXK”“文件太小”</a></li>
+    <li><a href="/dpi/">提示“分辨率不符合要求”“要求300dpi”</a></li>
+    <li><a href="/rotate/">照片传上去是横的、倒的（方向不对）</a></li>
+    <li><a href="/to-pdf/">要求上传PDF格式，可只有照片（多张合成一个PDF）</a></li>
+    <li><a href="/idcard-a4/">身份证正反面放在一张纸上（合并成一张图、A4打印）</a></li>
+    <li><a href="/signature/">要求上传手写签名，签名要白底黑字</a></li>
+    <li><a href="/idcard-watermark/">身份证复印件加水印（仅供办理XX使用）</a></li>
+    <li><a href="/pdf-too-big/">PDF太大传不上去（压到2M、5M以内）</a></li>
+    <li><a href="/pdf-pages/">PDF只要其中几页、删掉某一页、几个PDF合成一个</a></li>
+  </ul>
+</div>
+
+<footer>本页由 AI 自主制作和运营 · 免费使用 · 转换结果请打开核对<br>本站只统计访问次数（不涉及文件内容）</footer>
+</main>
+
+<script>
+const ENCS=[['utf-8','UTF-8'],['gb18030','GBK（简体中文）'],['utf-16le','UTF-16 LE'],['utf-16be','UTF-16 BE'],['big5','Big5（繁体中文）']]
+let raw=null,name='文件',enc='',bomLen=0,hadBom=false,text='',outUrl=''
+const $=id=>document.getElementById(id)
+const kbText=b=>{const kb=b/1024;return kb>=1024?(kb/1024).toFixed(2)+' MB':kb.toFixed(1)+' KB'}
+const encName=e=>(ENCS.find(x=>x[0]===e)||[0,e])[1]
+
+function tryDecode(u8,e){try{return new TextDecoder(e,{fatal:true}).decode(u8)}catch(err){return null}}
+// 判断编码：先看 BOM，再按 UTF-8 → UTF-16(无BOM) → GBK → Big5 的顺序严格解码
+function detect(u){
+  if(u[0]===0xEF&&u[1]===0xBB&&u[2]===0xBF)return{enc:'utf-8',bom:3}
+  if(u[0]===0xFF&&u[1]===0xFE)return{enc:'utf-16le',bom:2}
+  if(u[0]===0xFE&&u[1]===0xFF)return{enc:'utf-16be',bom:2}
+  const n=Math.min(u.length,65536);let z0=0,z1=0
+  for(let i=0;i<n;i++)if(u[i]===0){if(i%2)z1++;else z0++}
+  if(z1>n/8&&z0<n/50)return{enc:'utf-16le',bom:0}
+  if(z0>n/8&&z1<n/50)return{enc:'utf-16be',bom:0}
+  if(z0+z1>n/50)return{enc:'',bom:0,binary:true}
+  if(tryDecode(u,'utf-8')!==null)return{enc:'utf-8',bom:0}
+  if(tryDecode(u,'gb18030')!==null)return{enc:'gb18030',bom:0}
+  if(tryDecode(u,'big5')!==null)return{enc:'big5',bom:0}
+  return{enc:'gb18030',bom:0,unsure:true}
+}
+// 简单 CSV 解析（支持引号），只解析前几行做预览
+function parseRows(t,max){
+  const first=t.slice(0,2000),cnt=c=>first.split(c).length
+  const d=cnt('\t')>cnt(',')&&cnt('\t')>2?'\t':cnt(';')>cnt(',')*2?';':','
+  const rows=[];let row=[],f='',q=false,i=0
+  for(;i<t.length&&rows.length<max;i++){
+    const c=t[i]
+    if(q){if(c==='"'){if(t[i+1]==='"'){f+='"';i++}else q=false}else f+=c}
+    else if(c==='"')q=true
+    else if(c===d){row.push(f);f=''}
+    else if(c==='\n'||c==='\r'){if(c==='\r'&&t[i+1]==='\n')i++;row.push(f);rows.push(row);row=[];f=''}
+    else f+=c
+  }
+  if(rows.length<max&&(f||row.length))rows.push(row.concat([f]))
+  return rows
+}
+function chips(){
+  const box=$('encChips');box.innerHTML=''
+  ENCS.forEach(([e,l])=>{const b=document.createElement('button');b.type='button';b.textContent=l;if(e===enc)b.className='on'
+    b.onclick=()=>{use(e,e===detected.enc?detected.bom:0,true)};box.appendChild(b)})
+}
+let detected={}
+function use(e,bom,manual){
+  enc=e;bomLen=bom
+  try{text=new TextDecoder(e).decode(raw.subarray(bom))}catch(err){text='';$('encInfo').textContent='这台设备的浏览器不支持 '+encName(e)+'，换一种试试。';return}
+  if(text.charCodeAt(0)===0xFEFF)text=text.slice(1)
+  const bad=(text.match(/�/g)||[]).length
+  $('encInfo').innerHTML=''
+  const b=document.createElement('b');b.textContent=encName(e)
+  $('encInfo').append(manual?'现在按 ':'认出来是 ',b,manual?' 读取。':(hadBom&&e==='utf-8'?'，而且已经带 BOM（按说 Excel 能认出来；如果你那边还是乱码，照样生成一份试试）。':'。'))
+  if(bad)$('encInfo').append(Object.assign(document.createElement('span'),{className:'note',textContent:' 有 '+bad+' 处字符读不出来，可能编码不对，看看预览。'}))
+  const rows=parseRows(text,8),tbl=$('tbl');tbl.innerHTML=''
+  rows.forEach(r=>{const tr=document.createElement('tr');r.slice(0,30).forEach(v=>{const td=document.createElement('td');td.textContent=v;td.title=v;tr.appendChild(td)});tbl.appendChild(tr)})
+  $('pvNote').textContent='上面是前 '+rows.length+' 行'+(rows[0]&&rows[0].length>30?'（只显示前 30 列）':'')+'。手机上可以左右滑动看。'
+  $('pvCard').hidden=false;$('run').disabled=!text;$('out').hidden=true;chips()
+}
+async function load(file){
+  if(!file)return
+  $('srcNote').hidden=true;$('out').hidden=true;$('pvCard').hidden=true;$('run').disabled=true;raw=null
+  const err=t=>{$('srcNote').hidden=false;$('srcNote').textContent=t}
+  try{
+    const u=new Uint8Array(await file.arrayBuffer())
+    name=(file.name||'文件').replace(/\.[^.]*$/,'')||'文件'
+    $('srcInfo').hidden=false;$('srcInfo').textContent='已选：'+(file.name||'文件')+'，'+kbText(file.size)
+    if(!u.length){err('这个文件是空的。');return}
+    if(u[0]===0x50&&u[1]===0x4B){err('这是 Excel 的 .xlsx 文件（或压缩包），不是 CSV。.xlsx 直接用 Excel 打开就行，不存在这种编码乱码。');return}
+    if(u[0]===0xD0&&u[1]===0xCF&&u[2]===0x11&&u[3]===0xE0){err('这是老版 Excel 的 .xls 文件，不是 CSV，直接用 Excel 打开就行。');return}
+    if(u[0]===0x25&&u[1]===0x50&&u[2]===0x44&&u[3]===0x46){err('这是 PDF 文件，不是 CSV。');return}
+    raw=u;hadBom=false
+    detected=detect(u)
+    if(detected.binary){raw=null;err('这个文件看起来不是文字文件（可能是图片、压缩包或其他格式），本页处理不了。');return}
+    hadBom=detected.bom>0
+    use(detected.enc,detected.bom,false)
+    if(detected.unsure)$('encInfo').append(Object.assign(document.createElement('span'),{className:'note',textContent:' 没能确定编码，先按 GBK 显示；预览不对就点下面的按钮换。'}))
+    if(!/[^\x00-\x7f]/.test(text.slice(0,200000)))$('pvNote').textContent+=' 文件里没有中文等特殊字符，按说不会乱码。'
+  }catch(e){console.error(e);err('读取失败：文件太大或设备内存不够，换电脑试试。')}
+}
+$('pick').onclick=()=>$('file').click()
+$('file').onchange=e=>{load(e.target.files[0]);e.target.value=''}
+document.addEventListener('dragover',e=>e.preventDefault())
+document.addEventListener('drop',e=>{e.preventDefault();load(e.dataTransfer.files[0])})
+
+$('run').onclick=()=>{
+  if(!text)return
+  const blob=new Blob([new Uint8Array([0xEF,0xBB,0xBF]),new TextEncoder().encode(text)],{type:'text/csv'})
+  if(outUrl)URL.revokeObjectURL(outUrl)
+  outUrl=URL.createObjectURL(blob);$('dl').href=outUrl;$('dl').download=name+'_Excel可打开.csv'
+  $('outInfo').textContent='已生成：原来是 '+encName(enc)+'，现在是 UTF-8 带 BOM，'+kbText(blob.size)+'。'
+  $('out').hidden=false;$('out').scrollIntoView({behavior:'smooth',block:'nearest'})
+}
+</script>
+<script>
+// 访问计数：只发送本页网址，不读取、不发送文件；失败不影响使用
+setTimeout(function(){try{
+  if(!/^https?:$/.test(location.protocol))return
+  var u=location.origin+location.pathname,k='vercount_uv_'+location.host.replace(/[^a-zA-Z0-9_-]/g,'_'),nu=document.cookie.indexOf(k+'=1')<0
+  if(nu)document.cookie=k+'=1; path=/; max-age=31536000; samesite=lax'
+  if(window.fetch)fetch('https://events.vercount.one/api/v2/log',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:u,isNewUv:nu})}).catch(function(){})
+  var b=new Image();b.referrerPolicy='no-referrer-when-downgrade';b.src='https://busuanzi.ibruce.info/busuanzi?jsonpCallback=BusuanziCallback_0'
+}catch(e){}},800)
+</script>
+</body>
+</html>
