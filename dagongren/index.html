@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>2026 年度打工人鉴定：12 道题测出你是哪种打工人（免费趣味测试）</title>
+<meta name="description" content="12 道上班日常选择题：开会、周报、群消息、摸鱼、加班、年会……答完得到你的“年度打工人类型”和一张可以发到同事群的结果图。纯属娱乐，答案只在你的浏览器里计算，不上传。">
+<link rel="canonical" href="https://zhaopian-gongju.github.io/dagongren/">
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--fg:#1c2330;--sub:#5b6676;--line:#dfe3ea;--main:#1769e0;--mainfg:#fff;--warn:#b45309;--soft:#eef3fc}
+@media (prefers-color-scheme:dark){:root{--bg:#12151b;--card:#1b2029;--fg:#e8ecf2;--sub:#9aa5b5;--line:#2c3441;--main:#4c8ff5;--mainfg:#0b1220;--warn:#f0b35a;--soft:#1f2836}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 -apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;overflow-x:hidden}
+main{max-width:720px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:28px;line-height:1.3;margin:8px 0 6px}
+h2{font-size:18px;margin:0 0 10px}
+p{margin:6px 0}
+a{color:var(--main);word-break:break-all}
+.sub{color:var(--sub);font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:14px}
+.big{display:block;width:100%;padding:13px;border:0;border-radius:10px;background:var(--main);color:var(--mainfg);font-size:17px;font-weight:600;cursor:pointer;text-align:center;text-decoration:none;font-family:inherit}
+.ghost{background:transparent;border:1px solid var(--main);color:var(--main)}
+.row{display:flex;gap:10px;margin-top:10px}
+.row>*{flex:1;min-width:0}
+.notice{border:1px solid var(--warn);color:var(--warn);border-radius:10px;padding:8px 12px;font-size:14px;margin:10px 0 0}
+[hidden]{display:none!important}
+footer{margin-top:28px;color:var(--sub);font-size:13px;text-align:center}
+/* 首屏 */
+#start{min-height:calc(100vh - 60px);display:flex;flex-direction:column;justify-content:center;text-align:center}
+#start .tag{display:inline-block;margin:0 auto;border:1px solid var(--line);border-radius:999px;padding:3px 12px;font-size:13px;color:var(--sub)}
+#start h1{font-size:34px;margin:14px 0 8px}
+#start .lead{color:var(--sub);margin:0 0 22px}
+#start .big{font-size:19px;padding:15px}
+#start .hint{margin-top:12px}
+/* 答题 */
+#quiz{min-height:calc(100vh - 60px);display:flex;flex-direction:column}
+.bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--main);transition:width .25s}
+.qtop{display:flex;justify-content:space-between;align-items:center;margin:10px 0 4px;font-size:14px;color:var(--sub)}
+.back{background:none;border:0;color:var(--main);font-size:15px;padding:6px 0;cursor:pointer;font-family:inherit}
+.back[disabled]{visibility:hidden}
+#qText{font-size:21px;line-height:1.45;margin:12px 0 16px;font-weight:700}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opts button{display:block;width:100%;text-align:left;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:12px;padding:13px 14px;font-size:16px;line-height:1.5;cursor:pointer;font-family:inherit}
+.opts button b{color:var(--main);margin-right:6px}
+.opts button.on{border-color:var(--main);background:var(--soft);box-shadow:0 0 0 1px var(--main) inset}
+#judging{text-align:center;padding:60px 0;font-size:18px;color:var(--sub)}
+/* 结果 */
+#result .you{color:var(--sub);margin:0}
+#rTitle{font-size:30px;line-height:1.3;margin:2px 0 10px}
+.kw{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+.kw span{border-radius:999px;padding:3px 12px;font-size:14px;background:var(--soft);color:var(--main);font-weight:600}
+#rText{font-size:17px;line-height:1.75;margin:0 0 12px}
+.pair{display:flex;gap:10px}
+.pair>div{flex:1;min-width:0;border:1px solid var(--line);border-radius:10px;padding:10px}
+.pair .l{font-size:13px;color:var(--sub)}
+.pair .n{font-weight:700;margin:2px 0}
+.pair .r{font-size:13px;color:var(--sub);line-height:1.5}
+#rWish{margin:12px 0 0;padding:10px 12px;border-radius:10px;background:var(--soft)}
+img.share{display:block;width:100%;max-width:420px;margin:0 auto;border:1px solid var(--line);border-radius:10px}
+#copied{text-align:center}
+details{margin-top:6px}
+summary{cursor:pointer;color:var(--main)}
+.all{margin:8px 0 0;padding-left:20px;font-size:15px}
+.all li{margin:4px 0}
+.links{margin:0;padding-left:20px}
+.links li{margin:4px 0}
+@media (max-width:380px){#start h1{font-size:30px}#qText{font-size:19px}.pair{flex-direction:column}}
+</style>
+</head>
+<body>
+<main>
+
+<section id="start">
+  <span class="tag">年底限定 · 12 道题 · 约 1 分钟</span>
+  <h1>2026 年度<br>打工人鉴定</h1>
+  <p class="lead">开会、周报、群消息、摸鱼、加班、年会……<br>答完领取你的年度打工人称号</p>
+  <button id="go" class="big" type="button">开始鉴定</button>
+  <p class="sub hint">纯属娱乐，不是心理测评 · 不用填任何信息</p>
+</section>
+
+<section id="quiz" hidden>
+  <div class="bar"><i id="barFill"></i></div>
+  <div class="qtop"><button id="prev" class="back" type="button">‹ 上一题</button><span id="qNum"></span></div>
+  <p id="qText"></p>
+  <div id="opts" class="opts"></div>
+</section>
+
+<section id="judging" hidden>正在鉴定……</section>
+
+<section id="result" hidden>
+  <div class="card">
+    <p class="you">你的 2026 年度打工人类型是</p>
+    <h2 id="rTitle"></h2>
+    <div id="rKw" class="kw"></div>
+    <p id="rText"></p>
+    <div class="pair">
+      <div><div class="l">最佳搭档</div><div class="n" id="rPartner"></div><div class="r" id="rPartnerWhy"></div></div>
+      <div><div class="l">天敌</div><div class="n" id="rEnemy"></div><div class="r" id="rEnemyWhy"></div></div>
+    </div>
+    <p id="rWish"></p>
+  </div>
+  <div class="card" id="out">
+    <h2>结果图（可以发到同事群、朋友圈）</h2>
+    <img id="outImg" class="share" alt="打工人鉴定结果图">
+    <div id="wxTip" hidden style="border:2px solid #d97706;background:#fff7e6;color:#7a3e00;border-radius:10px;padding:10px 12px;margin:10px 0;line-height:1.5;text-align:center"><div style="font-size:21px;font-weight:700">长按上面的图片 → 保存图片</div><div style="font-size:15px;margin-top:4px">如果长按保存不了，点右上角 ··· → 在浏览器打开，再测一次</div></div>
+    <a id="dl" class="big" download="2026年度打工人鉴定.png" style="margin-top:12px">保存图片</a>
+    <p id="dlHint" class="sub">手机上如果点了没反应，长按上面的图片选“保存图片”。</p>
+    <div class="row">
+      <button id="again" class="big ghost" type="button">再测一次</button>
+      <button id="copy" class="big ghost" type="button">复制链接</button>
+    </div>
+    <p id="copied" class="sub" hidden></p>
+  </div>
+  <div class="card">
+    <details>
+      <summary>看看全部 9 种打工人</summary>
+      <ul id="allTypes" class="all"></ul>
+    </details>
+  </div>
+</section>
+
+<div class="card">
+  <h2>说明</h2>
+  <p>· 12 道上班日常的选择题，每题选最像你的那一个，答完得到你的“2026 年度打工人类型”，一共 9 种。</p>
+  <p>· 题目和结果都是为了好玩写的，<b>纯属娱乐，不是心理测评</b>，不代表对任何人的评价，也不能用来判断性格、能力或状态。</p>
+  <p>· 不用填姓名、手机号等任何信息。答案只在你自己的浏览器里计算，不上传、不保存，关掉页面就没了。</p>
+  <p>· 结果图在你的设备上生成，用的是手机自带字体，不同手机看起来会略有差别。</p>
+  <p class="notice">内容中的人物、场景均为虚构，如有雷同，说明大家上的是同一种班。</p>
+</div>
+
+<div class="card">
+  <h2>本站其他免费小工具</h2>
+  <ul class="links">
+    <li><a href="/">照片太大传不上去（压到指定KB、改一寸二寸像素）</a></li>
+    <li><a href="/to-jpg/">提示“只支持JPG格式”“图片格式不正确”</a></li>
+    <li><a href="/too-small/">提示“照片不能小于XXK”“文件太小”</a></li>
+    <li><a href="/dpi/">提示“分辨率不符合要求”“要求300dpi”</a></li>
+    <li><a href="/rotate/">照片传上去是横的、倒的（方向不对）</a></li>
+    <li><a href="/to-pdf/">要求上传PDF格式，可只有照片（多张合成一个PDF）</a></li>
+    <li><a href="/idcard-a4/">身份证正反面放在一张纸上（合并成一张图、A4打印）</a></li>
+    <li><a href="/signature/">要求上传手写签名，签名要白底黑字</a></li>
+    <li><a href="/idcard-watermark/">身份证复印件加水印（仅供办理XX使用）</a></li>
+    <li><a href="/pdf-too-big/">PDF太大传不上去（压到2M、5M以内）</a></li>
+    <li><a href="/pdf-pages/">PDF只要其中几页、删掉某一页、几个PDF合成一个</a></li>
+    <li><a href="/csv-luanma/">CSV用Excel打开是乱码</a></li>
+    <li><a href="/jiaozi/">教资报名照片上传不了、审核不通过（JPG、不大于200K）</a></li>
+    <li><a href="/ncre/">计算机二级报名照片上传不了（JPG、20～200KB）</a></li>
+    <li><a href="/zhuopai/">会议桌牌、席卡批量打印（两面有字、对折不倒）</a></li>
+    <li><a href="/jiangzhuang/">奖状批量打印名字（贴名单自动套名字）</a></li>
+    <li><a href="/choujiang/">年会抽奖网页版（不用下载安装）</a></li>
+    <li><a href="/gongzitiao/">工资表拆成工资条（每人自动带表头）</a></li>
+  </ul>
+</div>
+
+<footer>本页由 AI 自主制作和运营 · 免费使用 · 纯属娱乐，不是心理测评<br>本站只统计访问次数（不涉及你的答案）</footer>
+</main>
+
+<canvas id="work" hidden></canvas>
+<script>
+/*DATA-START*/
+var TYPES={
+  A:{name:'「收到」永动机',color:'#1769e0',kw:['秒回','好的','马上'],
+    text:'消息还没发完，你的“收到”已经到了。全组的待办都知道该往哪儿流——流向你。你不是不会拒绝，只是每次“不”字打到一半，手指自己改成了“好的”。',
+    partner:'F',partnerWhy:'TA 替你把那个“不”字说出口',enemy:'I',enemyWhy:'你说“马上”，TA 说“再改一版”',
+    wish:'2027 年，愿你回的每一个“收到”，收到的都是红包。'},
+  B:{name:'带薪摸鱼艺术家',color:'#0f8f7a',kw:['切屏','隐身','刚好在忙'],
+    text:'你把切屏练到了最高境界：手比领导的脚步声快。一天的活两小时干完，剩下的时间，用来让它看起来像干了八小时。效率高到不敢让任何人知道。',
+    partner:'G',partnerWhy:'TA 负责放哨，你负责摸鱼',enemy:'E',enemyWhy:'TA 不走，你都不好意思“忙完”',
+    wish:'2027 年，愿你摸的每一条鱼，都能算进 KPI。'},
+  C:{name:'周报文学家',color:'#7a4fd6',kw:['拉齐','赋能','闭环'],
+    text:'别人修了个小 bug，你写成“底层稳定性专项攻坚”。三件小事经你一写，像打赢了一场战役。唯一的问题是：读完的人还是不知道你这周到底干了啥。',
+    partner:'D',partnerWhy:'TA 干了一堆说不出来，你说得出来',enemy:'I',enemyWhy:'TA 会追问“闭环具体是哪一步”',
+    wish:'2027 年，愿你的年终奖，像你的周报一样有气势。'},
+  D:{name:'人间灭火器',color:'#d4462f',kw:['我来看看','救急','顺手背锅'],
+    text:'哪里冒烟，哪里就有你。别人的锅你接过来修好，修完对方说“其实也没多大事”。你是组里最靠得住的人，也是周报里最写不出东西的人。',
+    partner:'C',partnerWhy:'你负责灭火，TA 负责把它写成战役',enemy:'B',enemyWhy:'火，往往是从 TA 的工位冒出来的',
+    wish:'2027 年，愿你身边风平浪静，灭火器只用来当摆设。'},
+  E:{name:'工位守夜人',color:'#3b4a8c',kw:['最后一盏灯','外卖','明早要'],
+    text:'保安认识你，外卖骑手认识你，楼下便利店给你留过关东煮。你见过凌晨两点的写字楼，却很久没见过傍晚六点的太阳。',
+    partner:'F',partnerWhy:'TA 下班时，顺手把你也拽走',enemy:'A',enemyWhy:'TA 一句“收到”，你俩今晚都走不了',
+    wish:'2027 年，愿你下班的时候，天还亮着。'},
+  F:{name:'准点消失术大师',color:'#e07b10',kw:['到点','边界感','明天说'],
+    text:'18:00 整，你的工位只剩一把还在转的椅子。你不是不努力，是把努力全塞进了八小时。你的那句“明天说”，是整个部门最稳定的系统。',
+    partner:'A',partnerWhy:'你负责说“不”，TA 负责说“好”',enemy:'D',enemyWhy:'17:58，TA 喊了一声“出事了”',
+    wish:'2027 年，愿每一个下班时间，都准时属于你自己。'},
+  G:{name:'茶水间情报站长',color:'#c2367a',kw:['小群','吃瓜','我听说'],
+    text:'消息还没到工作群，就先到了你这儿。年会奖品是什么、隔壁组为什么开了三小时会，你比当事人还清楚。你站的地方，就是公司的信息枢纽。',
+    partner:'B',partnerWhy:'你负责情报，TA 负责放风',enemy:'H',enemyWhy:'你讲了半天，TA 回一句“啊？谁？”',
+    wish:'2027 年，愿你听到的每一个好消息，都是关于你的。'},
+  H:{name:'云上班选手',color:'#2b8fc0',kw:['发呆','已读','人在魂不在'],
+    text:'身体按时打卡，灵魂在远方续费。开会时你频频点头，其实在想晚饭；屏幕一直亮着，你在看窗外那朵云。活儿也没耽误，就是每次被点名都要先“啊？”一声。',
+    partner:'I',partnerWhy:'TA 替你盯细节，你帮 TA 松口气',enemy:'A',enemyWhy:'TA 秒回，衬得你三小时后的“好的”格外扎眼',
+    wish:'2027 年，愿你的人和魂，一起去度个真正的假。'},
+  I:{name:'像素级较真人',color:'#4f6b2a',kw:['再改一版','对齐','最终版v7'],
+    text:'领导说“简单弄一下”，你交了三版，外加一份说明。表格边框你对齐到了像素，没人发现，但你知道。你的东西从不返工，因为你已经替所有人返工过了。',
+    partner:'H',partnerWhy:'TA 提醒你：差不多，也是一种对齐',enemy:'C',enemyWhy:'TA 一句“基本闭环了”，你难受一整天',
+    wish:'2027 年，愿你交出去的第一版，就是最终版。'}
+}
+var QS=[
+  {q:'周一 9:05，工作群里领导发来两个字：“在吗？”你——',o:[
+    ['秒回：“在的！”',{A:2}],
+    ['先截图发进小群：“来了来了”',{G:2}],
+    ['脑补出十种可能，顺手把上周的文件又检查了一遍',{I:2}],
+    ['假装还在地铁上，等他把下一句发完',{B:2,H:1,F:1}]]},
+  {q:'领导说：“这个简单弄一下就行。”你——',o:[
+    ['那就真的简单弄一下，交了',{F:2}],
+    ['交了三版，外加一版“如果预算多一点”',{I:2}],
+    ['回了句“收到”，然后发现“简单”的意思是今晚',{E:2,A:1}],
+    ['先去茶水间打听：上一个“简单弄一下”的人，后来怎么样了',{G:2}]]},
+  {q:'周五写周报，你的状态是——',o:[
+    ['三件小事，写出了“拉齐、赋能、闭环”的气势',{C:2}],
+    ['打开上周那份，改个日期',{B:2,F:1}],
+    ['写不出来。这周光顾着救火了，火又不能写进周报',{D:2}],
+    ['周报？那是周五半夜在工位上写的东西',{E:2}]]},
+  {q:'工作日下午三点，你最可能在——',o:[
+    ['茶水间，顺便掌握了三个部门的最新动态',{G:2,B:1}],
+    ['带薪如厕，刚好刷完一集',{B:2}],
+    ['今天第四个会里，前三个会的结论还没对齐',{C:2}],
+    ['盯着屏幕，回过神来半小时过去了，文档还停在第一行',{H:2}]]},
+  {q:'下班前五分钟，群里 @所有人：“这个明早要。”你——',o:[
+    ['包已经背上了。明早的事，明早说',{F:2}],
+    ['默默把外卖地址改成公司',{E:2}],
+    ['第一个回：“收到！”',{A:2}],
+    ['一看是隔壁组的锅，还是撸起了袖子',{D:2}]]},
+  {q:'年会现场，你是——',o:[
+    ['节目还没开始，就已经知道一等奖是什么、谁会被拉上台',{G:2}],
+    ['被安排了节目，因为当时没说出那个“不”字',{A:2}],
+    ['坐在角落，人在年会，魂已经回到被窝了',{H:2}],
+    ['抽奖系统卡住了，被叫去后台修',{D:2}]]},
+  {q:'有人问：“这个今天能给吗？”你——',o:[
+    ['能。（然后通宵）',{E:2,A:1}],
+    ['能，先给一版“阶段性成果”',{C:2}],
+    ['“我手上排了三件，你想排第几？”',{F:2}],
+    ['“今天给的话，有几处细节我没法保证。”',{I:2}]]},
+  {q:'你的电脑桌面上——',o:[
+    ['每个文件都按“日期_项目_版本号”命名，整整齐齐',{I:2}],
+    ['有个文件夹叫“参考素材”，里面全是表情包',{B:2,G:1}],
+    ['开着二十个窗口，全是别人发来“帮我看一下”的',{D:2,E:1}],
+    ['壁纸是一片海，那是你“下次休假”要去的地方（已经三年了）',{H:2}]]},
+  {q:'开会的时候，你通常——',o:[
+    ['会还没开完，纪要已经写好了，标题比会议本身还宏大',{C:2}],
+    ['摄像头关着，在赶另一个会要用的材料',{B:2,E:1}],
+    ['听到“这个谁跟进一下”时，正好和领导对上了眼',{A:2}],
+    ['一直在想晚饭吃什么，顺手在小窗约好了饭搭子',{H:2,G:1}]]},
+  {q:'同事在大群里发了个明显算错的数，你——',o:[
+    ['私聊他：“第三行好像……”',{I:2}],
+    ['默默帮他改好了，没人知道',{D:2}],
+    ['在小群里发了一个“？”',{G:2}],
+    ['没看到，那会儿我已经下班了',{F:2,H:1}]]},
+  {q:'你今年说得最多的一句话是——',o:[
+    ['“收到。”',{A:2}],
+    ['“我来看看。”',{D:2}],
+    ['“我们对齐一下颗粒度。”',{C:2}],
+    ['“啊？刚才说到哪了？”',{H:2,B:1}]]},
+  {q:'你的 2026 年度高光时刻是——',o:[
+    ['全年没在晚上七点后回过一条工作消息',{F:2}],
+    ['工位见你的时间，比床见你的还多',{E:2}],
+    ['年终总结写了二十页，自己读完都被感动了',{C:2}],
+    ['一张表对齐到了像素级，没人发现，但你知道',{I:2}]]}
+]
+var ORDER='ABCDEFGHI'
+// 计分：每个选项给对应类型加分，最高分为结果；并列时按答案算出的固定序号挑一个（同样的答案永远得到同样的结果）
+function decide(ans){
+  var s={},i,k
+  for(i=0;i<ORDER.length;i++)s[ORDER[i]]=0
+  for(i=0;i<ans.length;i++){var w=QS[i].o[ans[i]][1];for(k in w)s[k]+=w[k]}
+  var max=-1,top=[]
+  for(i=0;i<ORDER.length;i++){k=ORDER[i];if(s[k]>max){max=s[k];top=[k]}else if(s[k]===max)top.push(k)}
+  if(top.length===1)return top[0]
+  var h=7;for(i=0;i<ans.length;i++)h=(h*31+ans[i]*(i+3)+i)%100003
+  return top[h%top.length]
+}
+/*DATA-END*/
+</script>
+<script>
+(function(){
+var $=function(id){return document.getElementById(id)}
+var WX=/MicroMessenger/i.test(navigator.userAgent)
+var URL_TEXT='zhaopian-gongju.github.io/dagongren',URL_FULL='https://zhaopian-gongju.github.io/dagongren/'
+var ans=[],cur=0,busy=false,outUrl=''
+function show(id){['start','quiz','judging','result'].forEach(function(s){$(s).hidden=s!==id});window.scrollTo(0,0)}
+function render(){
+  var q=QS[cur]
+  $('barFill').style.width=(cur/QS.length*100)+'%'
+  $('qNum').textContent=(cur+1)+' / '+QS.length
+  $('qText').textContent=q.q
+  $('prev').disabled=false
+  var box=$('opts');box.innerHTML=''
+  q.o.forEach(function(o,i){
+    var b=document.createElement('button');b.type='button'
+    b.innerHTML='<b>'+'ABCD'[i]+'</b>';b.appendChild(document.createTextNode(o[0]))
+    if(ans[cur]===i)b.className='on'
+    b.onclick=function(){pick(i,b)}
+    box.appendChild(b)
+  })
+}
+function pick(i,b){
+  if(busy)return;busy=true
+  ans[cur]=i
+  Array.prototype.forEach.call($('opts').children,function(x){x.className=''});b.className='on'
+  setTimeout(function(){
+    busy=false
+    if(cur<QS.length-1){cur++;render()}
+    else finish()
+  },220)
+}
+$('go').onclick=function(){ans=[];cur=0;show('quiz');render()}
+$('prev').onclick=function(){if(busy)return;if(cur===0){show('start');return}cur--;render()}
+$('again').onclick=function(){ans=[];cur=0;show('quiz');render()}
+
+function finish(){
+  $('barFill').style.width='100%'
+  show('judging')
+  setTimeout(function(){showResult(decide(ans.slice(0,QS.length)))},650)
+}
+function showResult(k){
+  var t=TYPES[k]
+  document.documentElement.setAttribute('data-type',k)
+  $('rTitle').textContent=t.name;$('rTitle').style.color=t.color
+  $('rKw').innerHTML='';t.kw.forEach(function(w){var s=document.createElement('span');s.textContent=w;$('rKw').appendChild(s)})
+  $('rText').textContent=t.text
+  $('rPartner').textContent=TYPES[t.partner].name;$('rPartnerWhy').textContent=t.partnerWhy
+  $('rEnemy').textContent=TYPES[t.enemy].name;$('rEnemyWhy').textContent=t.enemyWhy
+  $('rWish').textContent=t.wish
+  $('copied').hidden=true
+  show('result')
+  makeImage(t)
+}
+// ---------- 分享图 ----------
+var FONT='"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans CJK SC","Source Han Sans SC","WenQuanYi Micro Hei",sans-serif'
+var NOHEAD='，。、！？：；”’）》」』…—'
+function wrap(ctx,text,maxW){
+  var lines=[],line=''
+  for(var i=0;i<text.length;i++){
+    var ch=text[i],t=line+ch
+    if(ctx.measureText(t).width>maxW&&line&&NOHEAD.indexOf(ch)<0){lines.push(line);line=ch}else line=t
+  }
+  if(line)lines.push(line)
+  // 最后一行只剩一两个字时，从上一行挪两个字下来，避免孤字
+  var n=lines.length
+  if(n>1&&lines[n-1].length<=2&&lines[n-2].length>4){var p=lines[n-2];lines[n-2]=p.slice(0,-2);lines[n-1]=p.slice(-2)+lines[n-1]}
+  return lines
+}
+function rr(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
+function layout(ctx,t,draw){
+  var W=1080,P=72,IN=W-P*2,y=0
+  function f(px,bold){ctx.font=(bold?'bold ':'')+px+'px '+FONT}
+  function text(s,x,yy,px,bold,color,align){if(!draw)return;f(px,bold);ctx.fillStyle=color;ctx.textAlign=align||'left';ctx.textBaseline='alphabetic';ctx.fillText(s,x,yy)}
+  // 顶部
+  y=118
+  text('2026 年度打工人鉴定',W/2,y,38,true,'rgba(255,255,255,.92)','center')
+  y+=70
+  text('我的年度打工人类型是',W/2,y,34,false,'rgba(255,255,255,.8)','center')
+  f(104,true);var tl=wrap(ctx,t.name,IN)
+  y+=20
+  tl.forEach(function(l){y+=124;text(l,W/2,y,104,true,'#fff','center')})
+  // 关键词
+  y+=52
+  f(36,true)
+  var ws=t.kw.map(function(k){return ctx.measureText(k).width+56}),gap=20,tot=ws.reduce(function(a,b){return a+b},0)+gap*(ws.length-1)
+  var x=(W-tot)/2
+  t.kw.forEach(function(k,i){
+    if(draw){ctx.fillStyle='rgba(255,255,255,.18)';rr(ctx,x,y,ws[i],68,34);ctx.fill();ctx.strokeStyle='rgba(255,255,255,.55)';ctx.lineWidth=2;ctx.stroke()}
+    text(k,x+ws[i]/2,y+46,36,true,'#fff','center')
+    x+=ws[i]+gap
+  })
+  y+=68+56
+  var headEnd=y
+  // 判词卡
+  var cardY=y,cardPad=52
+  f(44,false);var jl=wrap(ctx,t.text,IN-cardPad*2)
+  var cardH=cardPad+44+30+jl.length*72+cardPad-14
+  if(draw){ctx.fillStyle='#fff';rr(ctx,P,cardY,IN,cardH,28);ctx.fill()}
+  text('年度判词',P+cardPad,cardY+cardPad+30,32,true,t.color)
+  jl.forEach(function(l,i){text(l,P+cardPad,cardY+cardPad+44+30+50+i*72,44,false,'#1c2330')})
+  y=cardY+cardH+28
+  // 搭档和天敌
+  var bw=(IN-28)/2,bp=34
+  f(30,false);var pr=wrap(ctx,t.partnerWhy,bw-bp*2),er=wrap(ctx,t.enemyWhy,bw-bp*2)
+  f(42,true);var pn=wrap(ctx,TYPES[t.partner].name,bw-bp*2),en=wrap(ctx,TYPES[t.enemy].name,bw-bp*2)
+  var rows=Math.max(pn.length,en.length),rrows=Math.max(pr.length,er.length)
+  var bh=bp+30+24+rows*56+12+rrows*44+bp-6
+  ;[[P,'最佳搭档',pn,pr,'#0f8f5a'],[P+bw+28,'天敌',en,er,'#d4462f']].forEach(function(b){
+    if(draw){ctx.fillStyle='#fff';rr(ctx,b[0],y,bw,bh,28);ctx.fill()}
+    text(b[1],b[0]+bp,y+bp+28,30,true,b[4])
+    var yy=y+bp+30+24
+    b[2].forEach(function(l){yy+=56;text(l,b[0]+bp,yy-8,42,true,'#1c2330')});yy+=(rows-b[2].length)*56
+    yy+=12
+    b[3].forEach(function(l){yy+=44;text(l,b[0]+bp,yy,30,false,'#5b6676')})
+  })
+  y+=bh+28
+  // 祝福
+  f(40,false);var wl=wrap(ctx,t.wish,IN-cardPad*2)
+  var wh=cardPad+30+24+wl.length*62+cardPad-20
+  if(draw){ctx.fillStyle='#fff';rr(ctx,P,y,IN,wh,28);ctx.fill()}
+  text('2027 祝福',P+cardPad,y+cardPad+28,32,true,t.color)
+  wl.forEach(function(l,i){text(l,P+cardPad,y+cardPad+30+24+44+i*62,40,false,'#1c2330')})
+  y+=wh+56
+  // 底部
+  text('你是哪种？',W/2,y+56,60,true,'#1c2330','center')
+  text('测一测：'+URL_TEXT,W/2,y+56+70,36,false,'#1c2330','center')
+  text('纯属娱乐，不是心理测评 · 由 AI 自主制作和运营',W/2,y+56+70+54,26,false,'#5b6676','center')
+  y+=56+70+54+64
+  return {h:Math.ceil(y),headEnd:headEnd}
+}
+function makeImage(t){
+  var c=$('work'),ctx=c.getContext('2d')
+  c.width=1080;c.height=10
+  var L=layout(ctx,t,false)
+  c.width=1080;c.height=L.h
+  ctx=c.getContext('2d')
+  // 背景：上半主题色，下半浅色
+  ctx.fillStyle='#f3f1ec';ctx.fillRect(0,0,c.width,c.height)
+  var g=ctx.createLinearGradient(0,0,c.width,L.headEnd+160)
+  g.addColorStop(0,t.color);g.addColorStop(1,shade(t.color,-0.25))
+  ctx.fillStyle=g;ctx.fillRect(0,0,c.width,L.headEnd+160)
+  ctx.fillStyle='rgba(255,255,255,.07)'
+  for(var i=0;i<6;i++){ctx.beginPath();ctx.arc(980-i*40,90+i*30,120+i*60,0,Math.PI*2);ctx.fill()}
+  layout(ctx,t,true)
+  if(WX){
+    // 微信内置浏览器里 blob: 地址的图片长按保存会失败，改用 data: 地址
+    var u=c.toDataURL('image/png')
+    $('outImg').src=u;$('dl').hidden=true;$('dlHint').hidden=true;$('wxTip').hidden=false
+    return
+  }
+  c.toBlob(function(b){
+    if(!b)return
+    if(outUrl)URL.revokeObjectURL(outUrl)
+    outUrl=URL.createObjectURL(b)
+    $('outImg').src=outUrl;$('dl').href=outUrl
+  },'image/png')
+}
+function shade(hex,p){
+  var n=parseInt(hex.slice(1),16),r=n>>16,g=n>>8&255,b=n&255
+  function m(v){return Math.max(0,Math.min(255,Math.round(v+(p<0?v*p:(255-v)*p))))}
+  return 'rgb('+m(r)+','+m(g)+','+m(b)+')'
+}
+// ---------- 复制链接 ----------
+$('copy').onclick=function(){
+  var done=function(ok){$('copied').hidden=false;$('copied').textContent=ok?'链接已复制，发给同事看看 TA 是哪种':'复制不了，请手动复制：'+URL_FULL}
+  var fallback=function(){
+    try{var ta=document.createElement('textarea');ta.value=URL_FULL;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.left='-9999px';document.body.appendChild(ta);ta.select();var ok=document.execCommand('copy');document.body.removeChild(ta);done(ok)}catch(e){done(false)}
+  }
+  if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(URL_FULL).then(function(){done(true)},fallback)
+  else fallback()
+}
+// 全部类型
+ORDER.split('').forEach(function(k){var li=document.createElement('li');li.innerHTML='<b></b>：';li.firstChild.textContent=TYPES[k].name;li.appendChild(document.createTextNode(TYPES[k].kw.join(' / ')));$('allTypes').appendChild(li)})
+})()
+</script>
+<script>
+// 访问计数：只发送本页网址，不读取、不发送你的答案；失败不影响使用
+setTimeout(function(){try{
+  if(!/^https?:$/.test(location.protocol))return
+  var u=location.origin+location.pathname,k='vercount_uv_'+location.host.replace(/[^a-zA-Z0-9_-]/g,'_'),nu=document.cookie.indexOf(k+'=1')<0
+  if(nu)document.cookie=k+'=1; path=/; max-age=31536000; samesite=lax'
+  if(window.fetch)fetch('https://events.vercount.one/api/v2/log',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:u,isNewUv:nu})}).catch(function(){})
+  var b=new Image();b.referrerPolicy='no-referrer-when-downgrade';b.src='https://busuanzi.ibruce.info/busuanzi?jsonpCallback=BusuanziCallback_0'
+}catch(e){}},800)
+</script>
+</body>
+</html>

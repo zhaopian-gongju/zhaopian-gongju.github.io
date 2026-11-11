@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>年会抽奖网页版：不用下载安装，贴名单就能大屏滚动抽奖（免费）</title>
+<meta name="description" content="年会、活动要抽奖，不想下载安装软件？打开网页把名单贴进来，设好奖项和人数，投影全屏滚动名字，按空格开始、停止。中过的不再中，结果可复制、导出 Excel 能直接打开的 CSV，刷新不丢。名单只在本机浏览器里，不上传。">
+<link rel="canonical" href="https://zhaopian-gongju.github.io/choujiang/">
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--fg:#1c2330;--sub:#5b6676;--line:#dfe3ea;--main:#1769e0;--mainfg:#fff;--warn:#b45309;--ok:#15803d}
+@media (prefers-color-scheme:dark){:root{--bg:#12151b;--card:#1b2029;--fg:#e8ecf2;--sub:#9aa5b5;--line:#2c3441;--main:#4c8ff5;--mainfg:#0b1220;--warn:#f0b35a;--ok:#4ade80}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 -apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+main{max-width:720px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:24px;line-height:1.35;margin:8px 0 6px}
+h2{font-size:18px;margin:0 0 10px}
+p{margin:6px 0}
+a{color:var(--main)}
+.sub{color:var(--sub);font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:14px}
+.safe{border:1px solid var(--ok);border-radius:10px;padding:10px 12px;margin-top:10px;font-size:15px}
+.safe b{color:var(--ok)}
+textarea,input[type=text]{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--fg);font:16px/1.5 -apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+textarea{display:block;min-height:140px;resize:vertical}
+input[type=number]{width:4.5em;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);font-size:16px}
+.prow{display:flex;gap:8px;align-items:center;margin-top:8px}
+.prow input[type=text]{flex:1;min-width:0}
+.x{border:1px solid var(--line);background:transparent;color:var(--sub);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:15px}
+label{cursor:pointer}
+.big{display:block;width:100%;padding:13px;border:0;border-radius:10px;background:var(--main);color:var(--mainfg);font-size:17px;font-weight:600;cursor:pointer;text-align:center;text-decoration:none;margin-top:8px}
+.big[disabled]{opacity:.5;cursor:default}
+.ghost{background:transparent;border:1px dashed var(--main);color:var(--main)}
+.lnk{background:none;border:0;color:var(--main);padding:0;font-size:14px;cursor:pointer;text-decoration:underline}
+.note{color:var(--warn);font-size:14px}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.res{margin-top:10px;font-size:15px}
+.res b{display:block;margin-top:8px}
+.res span{display:inline-block;margin:2px 10px 2px 0}
+.links{margin:0;padding-left:20px}
+.links li{margin:4px 0}
+[hidden]{display:none!important}
+footer{margin-top:28px;color:var(--sub);font-size:13px;text-align:center}
+/* 大屏 */
+#stage{position:fixed;inset:0;z-index:10;background:radial-gradient(ellipse at 50% 35%,#3a0d12 0%,#16070a 55%,#07060b 100%);color:#fff;display:flex;flex-direction:column;align-items:center;padding:3vh 3vw;overflow:hidden;font-family:"Microsoft YaHei","PingFang SC","Noto Sans CJK SC",sans-serif}
+#sTitle{font-size:clamp(22px,4.2vw,64px);font-weight:700;color:#ffd77a;letter-spacing:.08em;text-align:center;line-height:1.2}
+#sProg{font-size:clamp(14px,1.8vw,28px);color:#f3c9a6;margin-top:.4em;text-align:center}
+#sNames{flex:1;width:100%;display:flex;flex-wrap:wrap;align-content:center;justify-content:center;gap:1.5vh 3vw;margin:2vh 0}
+#sNames .nm{text-align:center;font-weight:800;line-height:1.15;white-space:nowrap;text-shadow:0 0 .35em rgba(255,190,90,.45)}
+#sNames .nm small{display:block;font-size:.32em;font-weight:400;color:#f3c9a6;text-shadow:none;margin-top:.15em}
+#sNames.rolling .nm{color:#fff3d6}
+#sNames.win .nm{color:#ffd77a;animation:pop .5s ease-out}
+#sNames .hint{font-size:clamp(20px,3.5vw,54px);color:#f3c9a6;text-align:center}
+@keyframes pop{0%{transform:scale(.6);opacity:.2}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+#sBar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;font-size:clamp(14px,1.6vw,22px)}
+#sBar button,#sBar select{font:inherit;border-radius:10px;border:1px solid rgba(255,215,122,.5);background:rgba(255,255,255,.06);color:#fff;padding:.45em .9em;cursor:pointer}
+#sBar select option{color:#000}
+#sBar input{font:inherit;width:3.6em;padding:.35em;border-radius:8px;border:1px solid rgba(255,215,122,.5);background:rgba(255,255,255,.08);color:#fff;text-align:center}
+#sGo{background:#d4302b!important;border-color:#ff8a65!important;font-weight:700;min-width:7em;font-size:1.25em!important}
+#sGo[disabled]{opacity:.45;cursor:default}
+#sKey{color:#c99b85;font-size:clamp(12px,1.2vw,16px);margin-top:1vh;text-align:center}
+#sWon{font-size:clamp(12px,1.3vw,18px);color:#e7b9a0;margin-top:1vh;text-align:center;max-height:14vh;overflow:auto;width:100%}
+</style>
+</head>
+<body>
+<main>
+<h1>年会抽奖：贴名单就能抽，不用下载安装</h1>
+<p class="sub">投影全屏滚动名字，空格键开始、停止，中过的不再中。名单只在本机浏览器里，不上传。</p>
+
+<div class="card">
+  <textarea id="src" placeholder="一行一个人，例如：&#10;张三&#10;李四,技术部&#10;王五,财务部&#10;（逗号后面可写部门，大屏上会小字显示）"></textarea>
+  <p class="sub" style="margin-top:6px"><span id="cnt">0 人</span>。从 Excel 复制一列（或姓名、部门两列）粘贴也行。 <button id="demo" class="lnk" type="button">填入示例名单</button></p>
+  <div id="prizes"></div>
+  <p style="margin-top:6px"><button id="addP" class="lnk" type="button">＋ 加一个奖项</button></p>
+  <p><label><input id="noRepeat" type="checkbox" checked> 中过奖的人不再参与后面的抽奖</label></p>
+  <button id="start" class="big">进入大屏开始抽奖</button>
+  <p id="msg" class="note" hidden></p>
+</div>
+
+<div class="card" id="resCard">
+  <h2>抽奖结果</h2>
+  <div id="res" class="res"><span class="sub">还没有抽。</span></div>
+  <div class="btns" style="margin-top:10px">
+    <button id="copy" class="big ghost" type="button">复制结果</button>
+    <button id="csv" class="big ghost" type="button">导出 Excel 表（CSV）</button>
+  </div>
+  <a id="dl" hidden download="抽奖结果.csv"></a>
+  <p class="sub">结果自动存在这台电脑的浏览器里，刷新、关掉再打开都还在。 <button id="clear" class="lnk" type="button">清空全部结果</button></p>
+</div>
+
+<div class="card">
+  <h2>关于本页</h2>
+  <p class="sub">打开网页就能用的抽奖工具：把名单贴进来，设好奖项（名称、人数），点“进入大屏”接上投影，按空格开始滚动、再按一次停下，名字大字显示。适合年会、活动、班会现场抽奖。</p>
+  <div class="safe"><b>名单只在你自己的电脑上：</b>不上传到任何服务器。名单和结果只存在这台电脑的浏览器里（换电脑、换浏览器就看不到），点“清空全部结果”或清除浏览器数据就删掉了。页面打开后断网也能用。</div>
+</div>
+
+<div class="card">
+  <h2>常见问题</h2>
+  <p><b>怎么操作？</b><br>贴名单 → 设奖项 → “进入大屏开始抽奖” → 空格键（或点“开始”）名字开始滚动 → 再按空格停下，显示中奖人。一个奖项抽满后点“下一个奖项”。按 Esc 或点“退出大屏”回到设置页。</p>
+  <p><b>一次抽好几个人？</b><br>大屏下方“本次抽 N 人”改成想要的数，一次停下就出 N 个名字，比如三等奖 10 个一次抽完。</p>
+  <p><b>随机公平吗？</b><br>停下那一刻才从还没中奖的人里随机挑，用的是浏览器自带的密码学随机数（crypto.getRandomValues），每个人机会相同。滚动时屏幕上闪过的名字只是动画，不影响结果。</p>
+  <p><b>中过的人还能再中吗？</b><br>默认不能。想让中过的人还能参加后面的奖项，取消勾选“中过奖的人不再参与后面的抽奖”（同一个奖项里还是不会重复）。</p>
+  <p><b>抽错了 / 中奖人不在场？</b><br>大屏上点“撤销上一次”，刚才那一批作废，可以重抽。</p>
+  <p><b>名单里有同名的人？</b><br>完全一样的行只算一次。同名不同人请在逗号后面写上部门，例如“张伟,技术部”和“张伟,财务部”。</p>
+  <p><b>不小心刷新了 / 关了页面？</b><br>名单、奖项和结果都存在这台电脑的浏览器里，重新打开本页还在。用浏览器的“无痕 / 隐私模式”时关掉就没了。</p>
+</div>
+
+<div class="card">
+  <h2>其他常见问题</h2>
+  <ul class="links">
+    <li><a href="/">照片太大传不上去（压到指定KB、改一寸二寸像素）</a></li>
+    <li><a href="/to-jpg/">提示“只支持JPG格式”“图片格式不正确”</a></li>
+    <li><a href="/too-small/">提示“照片不能小于XXK”“文件太小”</a></li>
+    <li><a href="/dpi/">提示“分辨率不符合要求”“要求300dpi”</a></li>
+    <li><a href="/rotate/">照片传上去是横的、倒的（方向不对）</a></li>
+    <li><a href="/to-pdf/">要求上传PDF格式，可只有照片（多张合成一个PDF）</a></li>
+    <li><a href="/idcard-a4/">身份证正反面放在一张纸上（合并成一张图、A4打印）</a></li>
+    <li><a href="/signature/">要求上传手写签名，签名要白底黑字</a></li>
+    <li><a href="/idcard-watermark/">身份证复印件加水印（仅供办理XX使用）</a></li>
+    <li><a href="/pdf-too-big/">PDF太大传不上去（压到2M、5M以内）</a></li>
+    <li><a href="/pdf-pages/">PDF只要其中几页、删掉某一页、几个PDF合成一个</a></li>
+    <li><a href="/csv-luanma/">CSV用Excel打开是乱码</a></li>
+    <li><a href="/jiaozi/">教资报名照片上传不了、审核不通过（JPG、不大于200K）</a></li>
+    <li><a href="/ncre/">计算机二级报名照片上传不了（JPG、20～200KB）</a></li>
+    <li><a href="/zhuopai/">会议桌牌、席卡批量打印（两面有字、对折不倒）</a></li>
+    <li><a href="/jiangzhuang/">奖状批量打印名字（贴名单自动套名字）</a></li>
+    <li><a href="/gongzitiao/">工资表拆成工资条（每人自动带表头）</a></li>
+    <li><a href="/dagongren/">2026年度打工人鉴定（12道题趣味测试）</a></li>
+  </ul>
+</div>
+
+<footer>本页由 AI 自主制作和运营 · 免费使用<br>本站只统计访问次数（不涉及名单内容）</footer>
+</main>
+
+<div id="stage" hidden>
+  <div id="sTitle"></div>
+  <div id="sProg"></div>
+  <div id="sNames"></div>
+  <div id="sBar">
+    <select id="sPrize" aria-label="选奖项"></select>
+    <span>本次抽 <input id="sN" type="number" min="1" value="1"> 人</span>
+    <button id="sGo" type="button">开始</button>
+    <button id="sNext" type="button" hidden>下一个奖项 →</button>
+    <button id="sUndo" type="button">撤销上一次</button>
+    <button id="sExit" type="button">退出大屏</button>
+  </div>
+  <div id="sKey">空格键：开始 / 停止　Esc：退出大屏</div>
+  <div id="sWon"></div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id)
+const KEY='zpgj_choujiang_v1'
+let st={src:'',prizes:[{name:'三等奖',n:5},{name:'二等奖',n:3},{name:'一等奖',n:1}],noRepeat:true,results:[],cur:0}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}}
+function restore(){try{const v=JSON.parse(localStorage.getItem(KEY)||'null');if(v&&Array.isArray(v.prizes)&&Array.isArray(v.results))st=Object.assign(st,v)}catch(e){}}
+
+// 均匀随机整数 [0,n)，crypto.getRandomValues + 拒绝采样
+function rnd(n){const b=new Uint32Array(1),lim=Math.floor(4294967296/n)*n;let v;do{crypto.getRandomValues(b);v=b[0]}while(v>=lim);return v%n}
+function pickK(arr,k){const a=arr.slice(),out=[];for(let i=0;i<k&&a.length;i++){const j=rnd(a.length);out.push(a[j]);a[j]=a[a.length-1];a.pop()}return out}
+
+// 名单：一行一人，去掉空行、首尾空格；完全相同的行只算一次
+function people(){
+  const seen=new Set(),out=[];let dup=0
+  for(let line of st.src.split(/\r\n|\r|\n/)){
+    line=line.replace(/[​﻿]/g,'').trim();if(!line)continue
+    const m=line.split(/\t|,|，/),name=m[0].trim(),dept=m.slice(1).map(s=>s.trim()).filter(Boolean).join(' ')
+    if(!name)continue
+    const id=dept?name+'，'+dept:name
+    if(seen.has(id)){dup++;continue}
+    seen.add(id);out.push({id,name,dept})
+  }
+  return{list:out,dup}
+}
+const wonIn=pi=>st.results.filter(r=>r.p===pi)
+function pool(pi){
+  const ex=new Set((st.noRepeat?st.results:wonIn(pi)).map(r=>r.id))
+  return people().list.filter(p=>!ex.has(p.id))
+}
+
+// ===== 设置区 =====
+function drawPrizes(){
+  const box=$('prizes');box.innerHTML=''
+  st.prizes.forEach((p,i)=>{
+    const r=document.createElement('div');r.className='prow'
+    const a=Object.assign(document.createElement('input'),{type:'text',value:p.name,placeholder:'奖项名称'});a.setAttribute('aria-label','奖项名称')
+    const b=Object.assign(document.createElement('input'),{type:'number',min:1,value:p.n});b.setAttribute('aria-label','人数')
+    const x=Object.assign(document.createElement('button'),{type:'button',className:'x',textContent:'删'})
+    a.oninput=()=>{p.name=a.value;save();drawRes()};b.oninput=()=>{p.n=Math.max(1,parseInt(b.value)||1);save()}
+    x.onclick=()=>{if(st.prizes.length<=1)return;if(wonIn(i).length&&!confirm('这个奖项已经有中奖结果，删掉会连结果一起删，确定？'))return
+      st.results=st.results.filter(r=>r.p!==i).map(r=>r.p>i?Object.assign(r,{p:r.p-1}):r);st.prizes.splice(i,1);if(st.cur>=st.prizes.length)st.cur=st.prizes.length-1;save();drawPrizes();drawRes()}
+    r.append(a,b,document.createTextNode('人'),x);box.appendChild(r)
+  })
+}
+function drawCount(){const {list,dup}=people();$('cnt').textContent=list.length+' 人'+(dup?'（有 '+dup+' 行重复，只算一次）':'')}
+function drawRes(){
+  const box=$('res');box.innerHTML=''
+  if(!st.results.length){box.innerHTML='<span class="sub">还没有抽。</span>';return}
+  st.prizes.forEach((p,i)=>{const w=wonIn(i);if(!w.length)return
+    const h=document.createElement('b');h.textContent=(p.name||'奖项'+(i+1))+'（'+w.length+'/'+p.n+'）';box.appendChild(h)
+    w.forEach(r=>{const s=document.createElement('span');s.textContent=r.id;box.appendChild(s)})})
+}
+$('src').oninput=()=>{st.src=$('src').value;save();drawCount()}
+$('noRepeat').onchange=()=>{st.noRepeat=$('noRepeat').checked;save()}
+$('addP').onclick=()=>{st.prizes.push({name:'奖项'+(st.prizes.length+1),n:1});save();drawPrizes()}
+$('demo').onclick=()=>{if($('src').value.trim()&&!confirm('用示例名单替换框里现有的名单？'))return
+  $('src').value=['张三,技术部','李四,技术部','王五,财务部','赵六,市场部','孙七,市场部','周八,行政部','吴九,人事部','郑十,销售部','欧阳明月,技术部','阿依古丽·买买提,财务部'].join('\n');$('src').oninput()}
+function msg(t){$('msg').hidden=!t;$('msg').textContent=t||''}
+
+// ===== 大屏 =====
+let rolling=false,timer=0,lastBatch=null
+function curP(){return st.prizes[st.cur]}
+function left(){const p=curP();return Math.max(0,p.n-wonIn(st.cur).length)}
+function fitNames(arr,cls){
+  const box=$('sNames');box.className=cls;box.innerHTML=''
+  const n=arr.length,W=box.clientWidth||innerWidth,H=box.clientHeight||innerHeight*0.6
+  const cols=n<=1?1:n<=4?2:n<=9?3:n<=16?4:n<=30?5:6,rows=Math.ceil(n/cols)
+  const cw=W/cols*0.86,chH=H/rows/(arr.some(p=>p.dept)?1.75:1.35)
+  for(const p of arr){
+    const d=document.createElement('div');d.className='nm'
+    const len=Math.max(2,[...p.name].length)
+    d.style.fontSize=Math.max(14,Math.min(cw/len,chH,n===1?W*0.16:9999))+'px'
+    d.textContent=p.name;if(p.dept){const s=document.createElement('small');s.textContent=p.dept;d.appendChild(s)}
+    d.style.width=(W/cols*0.92)+'px';box.appendChild(d)
+  }
+}
+function hint(t){const box=$('sNames');box.className='';box.innerHTML='';const d=document.createElement('div');d.className='hint';d.textContent=t;box.appendChild(d)}
+function stageUI(){
+  const p=curP(),w=wonIn(st.cur),l=left(),pl=pool(st.cur).length
+  $('sTitle').textContent=p.name||('奖项'+(st.cur+1))
+  $('sProg').textContent='共 '+p.n+' 名，已抽 '+w.length+' 名'+(l?'，还剩 '+l+' 名':'（已抽满）')+'　｜　可抽人数 '+pl
+  const sel=$('sPrize');sel.innerHTML='';st.prizes.forEach((q,i)=>sel.appendChild(new Option((q.name||'奖项'+(i+1))+'（'+wonIn(i).length+'/'+q.n+'）',i)));sel.value=st.cur
+  const inp=$('sN');inp.max=Math.max(1,l);if(+inp.value>l&&l)inp.value=l
+  $('sGo').disabled=!rolling&&(!l||!pl);$('sGo').textContent=rolling?'停！':'开始'
+  $('sNext').hidden=rolling||!!l||st.cur>=st.prizes.length-1
+  $('sUndo').disabled=rolling||!st.results.length
+  $('sPrize').disabled=rolling
+  $('sWon').textContent=w.length?'本奖项中奖：'+w.map(r=>r.id).join('、'):''
+}
+function enterStage(){
+  st.src=$('src').value;save()
+  if(!(st.cur>=0&&st.cur<st.prizes.length))st.cur=0
+  const {list}=people()
+  if(!list.length){msg('先把名单贴到框里（一行一个人）。');return}
+  if(!st.prizes.length){msg('至少要有一个奖项。');return}
+  msg('')
+  $('stage').hidden=false
+  try{const e=$('stage'),r=(e.requestFullscreen||e.webkitRequestFullscreen||function(){}).call(e);if(r&&r.catch)r.catch(()=>{})}catch(e){}
+  // 默认停在第一个还没抽满的奖项
+  if(!left()){const i=st.prizes.findIndex((q,i)=>wonIn(i).length<q.n);if(i>=0)st.cur=i}
+  $('sN').value=Math.min(1,left())||1
+  stageUI()
+  const w=wonIn(st.cur)
+  if(lastBatch&&lastBatch.p===st.cur)fitNames(lastBatch.list,'win');else hint(left()?'准备好了吗？按空格开始':'这个奖项已抽满')
+}
+function exitStage(){
+  if(rolling)toggle()
+  $('stage').hidden=true
+  try{if(document.fullscreenElement)document.exitFullscreen()}catch(e){}
+  drawPrizes();drawRes()
+}
+function toggle(){
+  if($('stage').hidden)return
+  if(!rolling){
+    const l=left(),pl=pool(st.cur)
+    if(!l){hint('这个奖项已抽满，点“下一个奖项”');return}
+    if(!pl.length){hint('没有可抽的人了');return}
+    rolling=true
+    const want=Math.max(1,parseInt($('sN').value)||1),k=Math.min(want,l,pl.length)
+    short=k<Math.min(want,l)?k:0
+    $('sN').value=k
+    const tick=()=>fitNames(pickK(pl,k),'rolling')
+    tick();timer=setInterval(tick,70)
+    stageUI()
+  }else{
+    clearInterval(timer);rolling=false
+    const l=left(),pl=pool(st.cur),k=Math.max(1,Math.min(parseInt($('sN').value)||1,l,pl.length))
+    const win=pickK(pl,k),t=Date.now()
+    win.forEach(p=>st.results.push({p:st.cur,id:p.id,name:p.name,dept:p.dept,t}))
+    lastBatch={p:st.cur,list:win,t};save()
+    fitNames(win,'win')
+    stageUI()
+    if(short||(left()&&!pool(st.cur).length))$('sProg').textContent+='（可抽的人不够了）'
+  }
+}
+let short=0
+function blurStage(){const a=document.activeElement;if(a&&a!==document.body&&$('stage').contains(a)&&a.tagName!=='INPUT')a.blur()}
+$('start').onclick=enterStage
+$('sGo').onclick=()=>{blurStage();toggle()}
+$('sExit').onclick=exitStage
+$('sPrize').onchange=()=>{blurStage();st.cur=+$('sPrize').value;lastBatch=null;save();$('sN').value=1;stageUI();hint(left()?'准备好了吗？按空格开始':'这个奖项已抽满')}
+$('sNext').onclick=()=>{blurStage();if(st.cur<st.prizes.length-1){st.cur++;lastBatch=null;save();$('sN').value=1;stageUI();hint(left()?'准备好了吗？按空格开始':'这个奖项已抽满')}}
+$('sUndo').onclick=()=>{
+  blurStage()
+  if(rolling||!st.results.length)return
+  const t=st.results[st.results.length-1].t,b=st.results.filter(r=>r.t===t)
+  if(!confirm('撤销上一次抽中的 '+b.map(r=>r.name).join('、')+'？'))return
+  st.results=st.results.filter(r=>r.t!==t);st.cur=b[0].p;lastBatch=null;save();stageUI();hint('已撤销，可以重抽')
+}
+document.addEventListener('keydown',e=>{
+  if($('stage').hidden)return
+  if(e.target&&e.target.tagName==='INPUT')return
+  if(e.code==='Space'||e.key===' '||e.key==='Enter'){e.preventDefault();if(!$('sGo').disabled||rolling)toggle()}
+  else if(e.key==='Escape')exitStage()
+})
+document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&!$('stage').hidden&&!rolling){/* 浏览器退出全屏时保留大屏层，按“退出大屏”回设置页 */}})
+addEventListener('resize',()=>{if(!$('stage').hidden&&!rolling&&lastBatch&&lastBatch.p===st.cur)fitNames(lastBatch.list,'win')})
+
+// ===== 结果导出 =====
+function resultRows(){return st.results.map(r=>[st.prizes[r.p]?st.prizes[r.p].name:'',r.name,r.dept||'',new Date(r.t).toLocaleString('zh-CN',{hour12:false})])}
+function csvText(){
+  const q=v=>/[",\r\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v
+  return [['奖项','姓名','部门','抽取时间'],...resultRows()].map(r=>r.map(v=>q(String(v))).join(',')).join('\r\n')+'\r\n'
+}
+function copyText(t){
+  if(navigator.clipboard&&window.isSecureContext)return navigator.clipboard.writeText(t)
+  return new Promise((ok,no)=>{const a=document.createElement('textarea');a.value=t;a.style.position='fixed';a.style.opacity='0';document.body.appendChild(a);a.select();try{document.execCommand('copy')?ok():no()}catch(e){no(e)}a.remove()})
+}
+$('copy').onclick=()=>{
+  if(!st.results.length){alert('还没有结果');return}
+  const t=st.prizes.map((p,i)=>{const w=wonIn(i);return w.length?(p.name+'（'+w.length+'名）：'+w.map(r=>r.id).join('、')):''}).filter(Boolean).join('\n')
+  copyText(t).then(()=>{$('copy').textContent='已复制';setTimeout(()=>$('copy').textContent='复制结果',1500)},()=>alert('复制失败，请手动选中上面的结果复制'))
+}
+let csvUrl=''
+$('csv').onclick=()=>{
+  if(!st.results.length){alert('还没有结果');return}
+  const blob=new Blob([new Uint8Array([0xEF,0xBB,0xBF]),new TextEncoder().encode(csvText())],{type:'text/csv'})
+  if(csvUrl)URL.revokeObjectURL(csvUrl);csvUrl=URL.createObjectURL(blob)
+  const a=$('dl');a.href=csvUrl;a.download='抽奖结果.csv';a.click()
+}
+$('clear').onclick=()=>{if(!st.results.length)return;if(!confirm('清空全部 '+st.results.length+' 条中奖结果？清空后不能恢复。'))return;st.results=[];st.cur=0;lastBatch=null;save();drawRes();drawPrizes()}
+
+restore()
+$('src').value=st.src;$('noRepeat').checked=st.noRepeat!==false
+drawPrizes();drawCount();drawRes()
+</script>
+<script>
+// 访问计数：只发送本页网址，不读取、不发送名单；失败不影响使用
+setTimeout(function(){try{
+  if(!/^https?:$/.test(location.protocol))return
+  var u=location.origin+location.pathname,k='vercount_uv_'+location.host.replace(/[^a-zA-Z0-9_-]/g,'_'),nu=document.cookie.indexOf(k+'=1')<0
+  if(nu)document.cookie=k+'=1; path=/; max-age=31536000; samesite=lax'
+  if(window.fetch)fetch('https://events.vercount.one/api/v2/log',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:u,isNewUv:nu})}).catch(function(){})
+  var b=new Image();b.referrerPolicy='no-referrer-when-downgrade';b.src='https://busuanzi.ibruce.info/busuanzi?jsonpCallback=BusuanziCallback_0'
+}catch(e){}},800)
+</script>
+</body>
+</html>

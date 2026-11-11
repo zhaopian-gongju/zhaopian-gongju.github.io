@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>奖状怎么批量打印名字：贴名单自动套名字，也能套打空白奖状纸（免费，不上传）</title>
+<meta name="description" content="几十张奖状一张张改名字太慢？把名单贴进来，填一次正文模板、落款和日期，每人自动一张：可以整张打印（自带边框和“奖状”标题，A4 横向），也可以只印文字套打到买来的空白奖状纸上，位置按毫米微调，带测试页。可直接打印或下载 PDF，名单不上传。">
+<link rel="canonical" href="https://zhaopian-gongju.github.io/jiangzhuang/">
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--fg:#1c2330;--sub:#5b6676;--line:#dfe3ea;--main:#1769e0;--mainfg:#fff;--warn:#b45309;--ok:#15803d}
+@media (prefers-color-scheme:dark){:root{--bg:#12151b;--card:#1b2029;--fg:#e8ecf2;--sub:#9aa5b5;--line:#2c3441;--main:#4c8ff5;--mainfg:#0b1220;--warn:#f0b35a;--ok:#4ade80}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 -apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+main{max-width:720px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:24px;line-height:1.35;margin:8px 0 6px}
+h2{font-size:18px;margin:0 0 10px}
+p{margin:6px 0}
+a{color:var(--main)}
+.sub{color:var(--sub);font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:14px}
+.safe{border:1px solid var(--ok);border-radius:10px;padding:10px 12px;margin-top:10px;font-size:15px}
+.safe b{color:var(--ok)}
+textarea,input[type=text]{display:block;width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--fg);font:16px/1.5 -apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+textarea{min-height:150px;resize:vertical}
+#tpl{min-height:110px}
+select,input[type=number]{padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);font-size:16px;max-width:100%}
+input[type=number]{width:5em}
+.opt{margin:12px 0}
+.opt>b{display:block;margin-bottom:4px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px 12px}
+.grid label{white-space:nowrap}
+label{cursor:pointer}
+.big{display:block;width:100%;padding:13px;border:0;border-radius:10px;background:var(--main);color:var(--mainfg);font-size:17px;font-weight:600;cursor:pointer;text-align:center;text-decoration:none;margin-top:8px}
+.big[disabled]{opacity:.5;cursor:default}
+.ghost{background:transparent;border:1px dashed var(--main);color:var(--main)}
+.lnk{background:none;border:0;color:var(--main);padding:0;font-size:14px;cursor:pointer;text-decoration:underline}
+.note{color:var(--warn);font-size:14px}
+.pvgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.pvgrid canvas{width:100%;height:auto;display:block;border:1px solid var(--line);background:#fff}
+.links{margin:0;padding-left:20px}
+.links li{margin:4px 0}
+[hidden]{display:none!important}
+footer{margin-top:28px;color:var(--sub);font-size:13px;text-align:center}
+#printArea{display:none}
+@media print{
+  html,body{margin:0;padding:0;background:#fff}
+  body>*{display:none!important}
+  body>#printArea{display:block!important}
+  #printArea .pg{position:relative;overflow:hidden;break-after:page;page-break-after:always}
+  #printArea .pg:last-child{break-after:auto;page-break-after:auto}
+}
+</style>
+<style id="pageCss">@page{size:297mm 210mm;margin:0}</style>
+</head>
+<body>
+<main>
+<h1>奖状一张张改名字太慢？贴名单批量打印</h1>
+<p class="sub">每人自动一张，可整张打印，也可套打到买来的空白奖状纸上。名单不上传。</p>
+
+<div class="card">
+  <textarea id="src" placeholder="一行一个名字，例如：&#10;张三&#10;李四,优秀班干部&#10;王五,学习标兵&#10;（逗号或 Tab 后面可写这个人的奖项，不写就用下面的“默认奖项”）"></textarea>
+  <p class="sub" style="margin-top:6px">从 Excel 复制“姓名”一列（或“姓名、奖项”两列）直接粘贴也行。 <button id="demo" class="lnk" type="button">填入示例名单</button></p>
+  <button id="run" class="big">生成奖状</button>
+  <p id="msg" class="note" hidden></p>
+</div>
+
+<div class="card">
+  <h2>奖状内容</h2>
+  <div class="opt"><b>正文（{姓名}、{奖项} 会自动换成每个人的）</b>
+    <textarea id="tpl">{姓名} 同学：
+在本学期的学习和生活中表现突出，被评为“{奖项}”。
+特发此状，以资鼓励。</textarea>
+    <p class="sub">每行一段，自动换行；以冒号结尾的行（称呼）顶格，其他段落开头空两格。</p>
+  </div>
+  <div class="opt"><b>默认奖项（名单里没写奖项的人用这个）</b><input id="award" type="text" value="三好学生"></div>
+  <div class="opt"><b>落款单位</b><input id="org" type="text" value="XX学校" placeholder="例如：XX学校 / XX公司"></div>
+  <div class="opt"><b>日期</b><input id="date" type="text"></div>
+</div>
+
+<div class="card">
+  <h2>怎么打印</h2>
+  <div class="opt">
+    <label><input type="radio" name="mode" value="full" checked> 整张打印（自带边框和“奖状”标题，A4 横向，普通白纸或厚一点的纸）</label><br>
+    <label><input type="radio" name="mode" value="over"> 套打到买来的空白奖状纸（只印文字）</label>
+  </div>
+  <div class="opt"><b>字体和字号</b>
+    <select id="font"><option value="kai" selected>楷体（奖状常用）</option><option value="song">宋体</option><option value="hei">黑体</option></select>
+    <select id="size"><option value="7">正文小</option><option value="8.5" selected>正文中</option><option value="10">正文大</option><option value="12">正文特大</option></select>
+    <select id="tcolor"><option value="black" selected>黑色字</option><option value="red">红色字</option></select>
+    <span id="frameOpt"><select id="frame"><option value="red" selected>红色边框</option><option value="gold">金色边框</option></select></span>
+  </div>
+  <div id="overOpt" hidden>
+    <div class="opt"><b>空白奖状纸的大小</b>
+      <select id="paper"><option value="297x210" selected>A4 横向（29.7×21 厘米）</option><option value="210x297">A4 竖向（21×29.7 厘米）</option><option value="260x185">16 开横向（26×18.5 厘米）</option><option value="368x260">8 开横向（36.8×26 厘米，要能打 A3 的打印机）</option><option value="custom">自己填</option></select>
+      <span id="customP" hidden>宽 <input id="pw" type="number" value="297" min="100" max="450"> × 高 <input id="ph" type="number" value="210" min="100" max="450"> 毫米</span>
+    </div>
+    <div class="opt"><b>文字位置（毫米，从纸的左边、上边量起）</b>
+      <div class="grid">
+        <label>正文左边 <input id="bx" type="number" step="1"></label>
+        <label>正文顶上 <input id="by" type="number" step="1"></label>
+        <label>正文宽度 <input id="bw" type="number" step="1"></label>
+        <label>落款右端 <input id="ox" type="number" step="1"></label>
+        <label>落款高度 <input id="oy" type="number" step="1"></label>
+        <label>日期右端 <input id="dx" type="number" step="1"></label>
+        <label>日期高度 <input id="dy" type="number" step="1"></label>
+      </div>
+      <p style="margin-top:8px"><b>整体挪动</b>（打出来整体偏了就调这里，正数往右 / 往下）</p>
+      <div class="grid">
+        <label>左右 <input id="offx" type="number" step="1" value="0"></label>
+        <label>上下 <input id="offy" type="number" step="1" value="0"></label>
+      </div>
+      <p class="sub">量一下空白奖状上“正文区域”离纸左边、上边多少毫米填进去。<button id="resetPos" class="lnk" type="button">恢复默认位置</button></p>
+    </div>
+    <button id="testPrt" class="big ghost" type="button">打印测试页（先用普通纸试）</button>
+    <p class="sub">测试页按上面的位置印出第一个人的文字，再加上刻度和虚线框。用普通纸打出来，叠在空白奖状上对着光看位置，偏多少就调多少，再正式打印。</p>
+  </div>
+</div>
+
+<div class="card" id="out" hidden>
+  <h2>预览</h2>
+  <p id="info"></p>
+  <div id="pv" class="pvgrid"></div>
+  <p id="pvMore" class="sub"></p>
+  <button id="prt" class="big" type="button">直接打印</button>
+  <button id="pdf" class="big ghost" type="button">下载 PDF</button>
+  <a id="dl" class="big" hidden download="奖状.pdf">保存 PDF</a>
+  <p class="sub">打印时“缩放”选 100% 或“实际大小”，不要选“适合页面”。套打时纸张大小选成空白奖状纸的大小，纸放进手动进纸口前先确认正反和上下。</p>
+</div>
+
+<div class="card">
+  <h2>关于本页</h2>
+  <p class="sub">把获奖名单贴进来，正文模板、落款单位、日期填一次，每个人自动生成一张奖状。整张打印时页面自带简洁的边框和“奖状”标题；已经买好空白奖状纸的，选“套打”只印文字，位置可以按毫米调。</p>
+  <div class="safe"><b>名单只在你自己的电脑或手机上处理：</b>不上传、不保存。页面打开后断网也能用。关掉页面，名单就不在这里了。</div>
+</div>
+
+<div class="card">
+  <h2>常见问题</h2>
+  <p><b>买来的空白奖状怎么用打印机打名字？</b><br>选“套打到买来的空白奖状纸”，纸张大小选成奖状纸的大小，量好正文区域的位置填进去。先点“打印测试页”用普通纸打一张，叠在空白奖状上对着光看，偏了就调“整体挪动”，对准后再放奖状纸正式打印。厚的奖状纸一般要从打印机的手动进纸口（单张进纸）放。</p>
+  <p><b>每个人奖项不一样怎么办？</b><br>名单里写成“姓名,奖项”（例如“李四,优秀班干部”），正文里的 {奖项} 就会换成各自的；没写奖项的人用“默认奖项”。</p>
+  <p><b>正文太长放不下？</b><br>会自动缩小字号放进去，预览上方会提示有几张缩小了。也可以把“正文”选小一号，或者删减文字。</p>
+  <p><b>Word 邮件合并也能做，为什么用这个？</b><br>邮件合并要准备 Excel 数据源、插入合并域、调格式，步骤多。这里贴名单就能出，适合赶时间。</p>
+  <p><b>名字是生僻字，显示成方框？</b><br>说明这台电脑的字体里没有这个字。换成“宋体”或“黑体”试试，一般能显示；还不行就只能手写那一张。</p>
+  <p><b>能做成竖版奖状吗？</b><br>整张打印目前只有 A4 横版。套打可以选“A4 竖向”或自己填纸张大小。</p>
+</div>
+
+<div class="card">
+  <h2>其他常见问题</h2>
+  <ul class="links">
+    <li><a href="/">照片太大传不上去（压到指定KB、改一寸二寸像素）</a></li>
+    <li><a href="/to-jpg/">提示“只支持JPG格式”“图片格式不正确”</a></li>
+    <li><a href="/too-small/">提示“照片不能小于XXK”“文件太小”</a></li>
+    <li><a href="/dpi/">提示“分辨率不符合要求”“要求300dpi”</a></li>
+    <li><a href="/rotate/">照片传上去是横的、倒的（方向不对）</a></li>
+    <li><a href="/to-pdf/">要求上传PDF格式，可只有照片（多张合成一个PDF）</a></li>
+    <li><a href="/idcard-a4/">身份证正反面放在一张纸上（合并成一张图、A4打印）</a></li>
+    <li><a href="/signature/">要求上传手写签名，签名要白底黑字</a></li>
+    <li><a href="/idcard-watermark/">身份证复印件加水印（仅供办理XX使用）</a></li>
+    <li><a href="/pdf-too-big/">PDF太大传不上去（压到2M、5M以内）</a></li>
+    <li><a href="/pdf-pages/">PDF只要其中几页、删掉某一页、几个PDF合成一个</a></li>
+    <li><a href="/csv-luanma/">CSV用Excel打开是乱码</a></li>
+    <li><a href="/jiaozi/">教资报名照片上传不了、审核不通过（JPG、不大于200K）</a></li>
+    <li><a href="/ncre/">计算机二级报名照片上传不了（JPG、20～200KB）</a></li>
+    <li><a href="/zhuopai/">会议桌牌、席卡批量打印（两面有字、对折不倒）</a></li>
+    <li><a href="/choujiang/">年会抽奖网页版（不用下载安装）</a></li>
+    <li><a href="/gongzitiao/">工资表拆成工资条（每人自动带表头）</a></li>
+    <li><a href="/dagongren/">2026年度打工人鉴定（12道题趣味测试）</a></li>
+  </ul>
+</div>
+
+<footer>本页由 AI 自主制作和运营 · 免费使用 · 打印前请先看预览核对<br>本站只统计访问次数（不涉及名单内容）</footer>
+</main>
+<div id="printArea"></div>
+
+<script>
+const $=id=>document.getElementById(id)
+const FONTS={
+  hei:'"SimHei","Heiti SC","STHeiti","PingFang SC","Microsoft YaHei","Noto Sans CJK SC","Source Han Sans SC",sans-serif',
+  song:'"SimSun","Songti SC","STSong","Noto Serif CJK SC","Source Han Serif SC",serif',
+  kai:'"KaiTi","STKaiti","Kaiti SC","KaiTi_GB2312",serif'
+}
+const mc=document.createElement('canvas').getContext('2d')
+function unitW(s,font,bold){mc.font=(bold?'bold ':'')+'100px '+font;return Math.max(mc.measureText(s).width/100,0.01)}
+function parseList(t){
+  const out=[]
+  for(let line of t.split(/\r\n|\r|\n/)){
+    line=line.replace(/[​﻿]/g,'').trim();if(!line)continue
+    const m=line.split(/\t|,|，/),name=m[0].trim(),sub=m.slice(1).map(s=>s.trim()).filter(Boolean).join(' ')
+    if(name)out.push({name,sub})
+  }
+  return out
+}
+function drawPage(c,pg,k){
+  c.width=Math.round(pg.w*k);c.height=Math.round(pg.h*k)
+  const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height)
+  for(const it of pg.items){
+    x.save()
+    if(it.t==='text'){
+      x.font=(it.bold?'bold ':'')+(it.size*k)+'px '+it.font;x.fillStyle=it.color;x.textBaseline='middle';x.textAlign=it.align||'center'
+      x.translate(it.x*k,it.y*k);if(it.rot)x.rotate(Math.PI);x.fillText(it.s,0,0)
+    }else{
+      x.strokeStyle=it.color;x.lineWidth=Math.max(1,it.lw*k);if(it.dash)x.setLineDash(it.dash.map(v=>v*k))
+      x.beginPath();if(it.t==='rect')x.rect(it.x*k,it.y*k,it.w*k,it.h*k);else{x.moveTo(it.x1*k,it.y1*k);x.lineTo(it.x2*k,it.y2*k)}x.stroke()
+    }
+    x.restore()
+  }
+}
+function pageDom(pg){
+  const d=document.createElement('div');d.className='pg';d.style.width=pg.w+'mm';d.style.height=pg.h+'mm'
+  for(const it of pg.items){
+    const e=document.createElement('div'),s=e.style;s.position='absolute'
+    if(it.t==='text'){
+      e.textContent=it.s;s.whiteSpace='pre';s.left=it.x+'mm';s.top=(it.y-it.size/2)+'mm';s.height=it.size+'mm';s.lineHeight=it.size+'mm'
+      s.fontSize=it.size+'mm';s.fontFamily=it.font;s.fontWeight=it.bold?'bold':'normal';s.color=it.color
+      const a=it.align||'center';s.transform='translateX('+(a==='center'?-50:a==='right'?-100:0)+'%)'+(it.rot?' rotate(180deg)':'')
+    }else if(it.t==='rect'){
+      s.left=(it.x-it.lw/2)+'mm';s.top=(it.y-it.lw/2)+'mm';s.width=(it.w+it.lw)+'mm';s.height=(it.h+it.lw)+'mm';s.boxSizing='border-box'
+      s.border=it.lw+'mm '+(it.dash?'dashed':'solid')+' '+it.color
+    }else{
+      const hz=it.y1===it.y2
+      s.left=(Math.min(it.x1,it.x2)-(hz?0:it.lw/2))+'mm';s.top=(Math.min(it.y1,it.y2)-(hz?it.lw/2:0))+'mm'
+      s.width=(hz?Math.abs(it.x2-it.x1):0)+'mm';s.height=(hz?0:Math.abs(it.y2-it.y1))+'mm'
+      s[hz?'borderTop':'borderLeft']=it.lw+'mm '+(it.dash?'dashed':'solid')+' '+it.color
+    }
+    d.appendChild(e)
+  }
+  return d
+}
+
+// ===== 奖状排版 =====
+const LH=1.75,CLOSE='，。、；：？！）》」』”’,.;:!?)%'
+function wrap(text,font,size,w1,w){
+  const lines=[];let cur='',lim=w1
+  for(const ch of text){
+    if(cur&&unitW(cur+ch,font)*size>lim&&!CLOSE.includes(ch)){lines.push(cur);cur=ch;lim=w}else cur+=ch
+  }
+  lines.push(cur);return lines
+}
+function bodyLines(text,font,size,w){
+  const out=[]
+  text.split(/\r\n|\r|\n/).forEach(para=>{
+    para=para.trim();if(!para){out.push({s:'',ind:0});return}
+    const ind=/[：:]$/.test(para)?0:2*size*unitW('　',font)
+    wrap(para,font,size,w-ind,w).forEach((s,i)=>out.push({s,ind:i?0:ind}))
+  })
+  while(out.length&&!out[out.length-1].s)out.pop()
+  while(out.length&&!out[0].s)out.shift()
+  return out
+}
+function fill(tpl,p,award){
+  return tpl.replace(/[{｛]\s*姓名\s*[}｝]/g,p.name).replace(/[{｛]\s*奖项\s*[}｝]/g,p.sub||award)
+}
+function paperSize(){
+  const v=$('paper').value;if(v!=='custom'){const [w,h]=v.split('x').map(Number);return{w,h}}
+  return{w:Math.min(450,Math.max(100,+$('pw').value||297)),h:Math.min(450,Math.max(100,+$('ph').value||210))}
+}
+function defPos(P){return{bx:Math.round(P.w*0.17),by:Math.round(P.h*0.36),bw:Math.round(P.w*0.66),ox:Math.round(P.w*0.83),oy:Math.round(P.h*0.74),dx:Math.round(P.w*0.83),dy:Math.round(P.h*0.81)}}
+const POS=['bx','by','bw','ox','oy','dx','dy']
+function setPos(P){const d=defPos(P);POS.forEach(k=>$(k).value=d[k])}
+function opts(){
+  const mode=document.querySelector('input[name=mode]:checked').value,font=FONTS[$('font').value]
+  const o={mode,font,size:+$('size').value,color:$('tcolor').value==='red'?'#c8102e':'#000000',frame:$('frame').value==='gold'?'#b8860b':'#c0261d',
+    tpl:$('tpl').value.trim(),award:$('award').value.trim(),org:$('org').value.trim(),date:$('date').value.trim()}
+  if(mode==='full'){Object.assign(o,{P:{w:297,h:210},bx:45,by:72,bw:207,ox:250,oy:160,dx:250,dy:174,offx:0,offy:0})}
+  else{o.P=paperSize();const d=defPos(o.P);POS.forEach(k=>{const v=parseFloat($(k).value);o[k]=isFinite(v)?v:d[k]});o.offx=parseFloat($('offx').value)||0;o.offy=parseFloat($('offy').value)||0}
+  return o
+}
+// 返回一页 + 是否缩小过字号
+function onePage(p,o,test){
+  const items=[],X=v=>v+o.offx,Y=v=>v+o.offy,P=o.P
+  if(o.mode==='full'){
+    items.push({t:'rect',x:9,y:9,w:P.w-18,h:P.h-18,lw:2.2,color:o.frame},{t:'rect',x:13.5,y:13.5,w:P.w-27,h:P.h-27,lw:0.5,color:o.frame})
+    const ts=24,f=o.font
+    items.push({t:'text',s:'奖',x:P.w/2-ts*0.95,y:44,size:ts,font:f,color:o.frame,bold:true},{t:'text',s:'状',x:P.w/2+ts*0.95,y:44,size:ts,font:f,color:o.frame,bold:true})
+  }
+  const maxH=Math.max(10,o.oy-o.size*1.2-o.by)
+  let size=o.size,lines=bodyLines(fill(o.tpl,p,o.award),o.font,size,o.bw)
+  while(lines.length*size*LH>maxH&&size>4){size=Math.round((size-0.25)*100)/100;lines=bodyLines(fill(o.tpl,p,o.award),o.font,size,o.bw)}
+  lines.forEach((l,i)=>{if(l.s)items.push({t:'text',s:l.s,x:X(o.bx+l.ind),y:Y(o.by+size*LH*i+size/2),size,font:o.font,color:o.color,align:'left'})})
+  if(o.org)items.push({t:'text',s:o.org,x:X(o.ox),y:Y(o.oy),size:o.size,font:o.font,color:o.color,align:'right'})
+  if(o.date)items.push({t:'text',s:o.date,x:X(o.dx),y:Y(o.dy),size:o.size,font:o.font,color:o.color,align:'right'})
+  if(test){
+    const g='#9aa3ae',gs=2.6
+    items.push({t:'rect',x:X(o.bx),y:Y(o.by),w:o.bw,h:maxH,lw:0.2,color:g,dash:[1.5,1]})
+    for(const [rx,ry,s] of [[o.ox,o.oy,o.org],[o.dx,o.dy,o.date]]){if(!s)continue;const w=unitW(s,o.font)*o.size;items.push({t:'rect',x:X(rx-w),y:Y(ry-o.size*0.6),w,h:o.size*1.2,lw:0.2,color:g,dash:[1.5,1]})}
+    for(let v=10;v<P.w-5;v+=10){items.push({t:'line',x1:v,y1:6,x2:v,y2:v%50?9:11,lw:0.2,color:g});if(v%50===0||v===10)items.push({t:'text',s:String(v),x:v,y:13.5,size:gs,font:o.font,color:g})}
+    for(let v=10;v<P.h-5;v+=10){items.push({t:'line',x1:6,y1:v,x2:v%50?9:11,y2:v,lw:0.2,color:g});if(v%50===0||v===10)items.push({t:'text',s:String(v),x:14,y:v,size:gs,font:o.font,color:g,align:'left'})}
+    items.push({t:'text',s:'测试页：用普通纸打印，叠在空白奖状上对着光看位置（刻度单位：毫米）',x:P.w/2,y:P.h-9,size:3,font:o.font,color:g})
+  }
+  return{page:{w:P.w,h:P.h,items},shrunk:size<o.size}
+}
+function build(people,o){
+  if(!o.tpl)throw new Error('正文是空的，先填上正文。')
+  const pages=[];let shrunk=0
+  for(const p of people){const r=onePage(p,o,false);pages.push(r.page);if(r.shrunk)shrunk++}
+  return{pages,shrunk}
+}
+
+// ===== 界面 =====
+let pages=[],people=[],pending=null,pdfUrl='',made=false
+const PV=6
+function msg(t){$('msg').hidden=!t;$('msg').textContent=t||''}
+{const d=new Date();$('date').value=d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日'}
+setPos(paperSize())
+function render(){
+  people=parseList($('src').value)
+  const o=opts()
+  $('overOpt').hidden=o.mode!=='over';$('frameOpt').hidden=o.mode!=='full';$('customP').hidden=$('paper').value!=='custom'
+  if(!made)return
+  $('dl').hidden=true;$('pdf').hidden=false
+  if(!people.length){msg('先把名单贴到上面的框里（一行一个名字）。');$('out').hidden=true;pages=[];return}
+  let r;try{r=build(people,o)}catch(e){msg(e.message);$('out').hidden=true;pages=[];return}
+  msg('');pages=r.pages
+  const P=o.P
+  $('info').innerHTML='';$('info').append('共 ',Object.assign(document.createElement('b'),{textContent:people.length+' 人'}),'，',Object.assign(document.createElement('b'),{textContent:pages.length+' 张'}),
+    '（'+(o.mode==='full'?'A4 横向，整张打印':'套打，纸张 '+P.w/10+'×'+P.h/10+' 厘米，只印文字')+'）。'+(r.shrunk?' 有 '+r.shrunk+' 张正文较长，字号已自动缩小。':''))
+  if(/\{|｛/.test(fill(o.tpl,{name:'',sub:''},'')))$('info').append(Object.assign(document.createElement('span'),{className:'note',textContent:' 正文里有认不出的 {…}，只认 {姓名} 和 {奖项}。'}))
+  const box=$('pv');box.innerHTML=''
+  const tw=Math.min(box.clientWidth||340,700)/2*(window.devicePixelRatio||1)
+  pages.slice(0,PV).forEach(pg=>{const c=document.createElement('canvas');drawPage(c,pg,tw/pg.w);box.appendChild(c)})
+  $('pvMore').textContent=pages.length>PV?'预览只显示前 '+PV+' 张，打印和 PDF 里是全部 '+pages.length+' 张。':''
+  $('out').hidden=false
+}
+let tmr=0;const later=()=>{clearTimeout(tmr);tmr=setTimeout(render,250)}
+$('run').onclick=()=>{made=true;render();if(!$('out').hidden)$('out').scrollIntoView({behavior:'smooth',block:'start'})}
+document.querySelectorAll('main textarea,main input,main select').forEach(e=>{e.addEventListener('input',later);e.addEventListener('change',later)})
+$('paper').addEventListener('change',()=>{setPos(paperSize())})
+$('pw').addEventListener('change',()=>{setPos(paperSize())});$('ph').addEventListener('change',()=>{setPos(paperSize())})
+$('resetPos').onclick=()=>{setPos(paperSize());$('offx').value=0;$('offy').value=0;render()}
+$('demo').onclick=()=>{$('src').value='张三\n李四,优秀班干部\n王五,学习标兵\n赵六\n欧阳明月,进步之星\n阿依古丽·买买提';made=true;render()}
+
+function buildPrint(list){
+  const pa=$('printArea');pa.innerHTML='';list.forEach(pg=>pa.appendChild(pageDom(pg)))
+  if(list[0])$('pageCss').textContent='@page{size:'+list[0].w+'mm '+list[0].h+'mm;margin:0}'
+}
+function testPage(){const ps=parseList($('src').value);return onePage(ps[0]||{name:'张三',sub:''},opts(),true).page}
+window.addEventListener('beforeprint',()=>{if(!pending&&made)render();buildPrint(pending||pages)})
+window.addEventListener('afterprint',()=>{pending=null})
+$('prt').onclick=()=>{if(!pages.length)return;buildPrint(pages);window.print()}
+$('testPrt').onclick=()=>{if(!opts().tpl){msg('正文是空的，先填上正文。');return}pending=[testPage()];buildPrint(pending);window.print();setTimeout(()=>{pending=null},1000)}
+
+function loadLib(){
+  if(window.PDFLib)return Promise.resolve()
+  return new Promise((ok,no)=>{const s=document.createElement('script');s.src='/vendor/pdf-lib-1.17.1/pdf-lib.min.js';s.onload=ok;s.onerror=()=>no(new Error('lib'));document.head.appendChild(s)})
+}
+async function makePdf(list,prog){
+  await loadLib()
+  const doc=await PDFLib.PDFDocument.create(),c=document.createElement('canvas'),k=300/25.4,pt=72/25.4
+  for(let i=0;i<list.length;i++){
+    const pg=list[i];drawPage(c,pg,k)
+    const b=await new Promise((r,j)=>c.toBlob(x=>x?r(x):j(new Error('toBlob')),'image/jpeg',0.9))
+    const img=await doc.embedJpg(new Uint8Array(await b.arrayBuffer()))
+    doc.addPage([pg.w*pt,pg.h*pt]).drawImage(img,{x:0,y:0,width:pg.w*pt,height:pg.h*pt})
+    prog(i+1,list.length)
+  }
+  c.width=c.height=1
+  return new Blob([await doc.save()],{type:'application/pdf'})
+}
+$('pdf').onclick=async()=>{
+  if(!pages.length)return
+  const btn=$('pdf');btn.disabled=true
+  try{
+    const blob=await makePdf(pages,(i,n)=>{btn.textContent='正在生成 PDF… '+i+'/'+n})
+    if(pdfUrl)URL.revokeObjectURL(pdfUrl);pdfUrl=URL.createObjectURL(blob)
+    $('dl').href=pdfUrl;$('dl').download='奖状_'+people.length+'张.pdf';$('dl').textContent='保存 PDF（'+pages.length+' 页，'+(blob.size/1048576).toFixed(1)+' MB）'
+    $('dl').hidden=false;btn.hidden=true
+  }catch(e){console.error(e);msg('PDF 生成失败（可能是手机内存不够），换电脑试试，或用“直接打印”。')}
+  finally{btn.disabled=false;btn.textContent='下载 PDF'}
+}
+if(/MicroMessenger/i.test(navigator.userAgent)){
+  const d=document.createElement('div');d.id='wxTop';d.style.cssText='border:2px solid #d97706;background:#fff7e6;color:#7a3e00;border-radius:10px;padding:10px 12px;margin:0 0 4px;line-height:1.5'
+  d.innerHTML='<b>微信里不能打印、存不了 PDF：点右上角 ··· → 在浏览器打开</b>，再用本页。';document.querySelector('main').insertBefore(d,document.querySelector('main').firstChild)
+}
+render()
+</script>
+<script>
+// 访问计数：只发送本页网址，不读取、不发送名单；失败不影响使用
+setTimeout(function(){try{
+  if(!/^https?:$/.test(location.protocol))return
+  var u=location.origin+location.pathname,k='vercount_uv_'+location.host.replace(/[^a-zA-Z0-9_-]/g,'_'),nu=document.cookie.indexOf(k+'=1')<0
+  if(nu)document.cookie=k+'=1; path=/; max-age=31536000; samesite=lax'
+  if(window.fetch)fetch('https://events.vercount.one/api/v2/log',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:u,isNewUv:nu})}).catch(function(){})
+  var b=new Image();b.referrerPolicy='no-referrer-when-downgrade';b.src='https://busuanzi.ibruce.info/busuanzi?jsonpCallback=BusuanziCallback_0'
+}catch(e){}},800)
+</script>
+</body>
+</html>

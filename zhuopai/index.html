@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>会议桌牌怎么打印：两面有字、对折不倒，贴名单批量出席卡（免费，不上传）</title>
+<meta name="description" content="会议桌牌、席卡要两面都有名字，A4 对折后一面字是倒的，Word 里不会弄？把名单贴进来，自动把上半面倒过来印，对折立起来两面都是正的；也能按亚克力台卡尺寸排版带裁切线。字号自动撑满，可直接打印或下载 PDF。名单只在你自己的浏览器里处理，不上传。">
+<link rel="canonical" href="https://zhaopian-gongju.github.io/zhuopai/">
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--fg:#1c2330;--sub:#5b6676;--line:#dfe3ea;--main:#1769e0;--mainfg:#fff;--warn:#b45309;--ok:#15803d}
+@media (prefers-color-scheme:dark){:root{--bg:#12151b;--card:#1b2029;--fg:#e8ecf2;--sub:#9aa5b5;--line:#2c3441;--main:#4c8ff5;--mainfg:#0b1220;--warn:#f0b35a;--ok:#4ade80}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 -apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+main{max-width:720px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:24px;line-height:1.35;margin:8px 0 6px}
+h2{font-size:18px;margin:0 0 10px}
+p{margin:6px 0}
+a{color:var(--main)}
+.sub{color:var(--sub);font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:14px}
+.safe{border:1px solid var(--ok);border-radius:10px;padding:10px 12px;margin-top:10px;font-size:15px}
+.safe b{color:var(--ok)}
+textarea{display:block;width:100%;min-height:150px;padding:10px;border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--fg);font:16px/1.5 -apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;resize:vertical}
+select,input[type=number]{padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);font-size:16px;max-width:100%}
+input[type=number]{width:5.5em}
+input[type=range]{width:100%}
+.opt{margin:10px 0}
+.opt>b{display:block;margin-bottom:4px}
+label{cursor:pointer}
+.big{display:block;width:100%;padding:13px;border:0;border-radius:10px;background:var(--main);color:var(--mainfg);font-size:17px;font-weight:600;cursor:pointer;text-align:center;text-decoration:none;margin-top:8px}
+.big[disabled]{opacity:.5;cursor:default}
+.ghost{background:transparent;border:1px dashed var(--main);color:var(--main)}
+.lnk{background:none;border:0;color:var(--main);padding:0;font-size:14px;cursor:pointer;text-decoration:underline}
+.note{color:var(--warn);font-size:14px}
+.pvgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.pvgrid canvas{width:100%;height:auto;display:block;border:1px solid var(--line);background:#fff}
+.links{margin:0;padding-left:20px}
+.links li{margin:4px 0}
+[hidden]{display:none!important}
+footer{margin-top:28px;color:var(--sub);font-size:13px;text-align:center}
+#printArea{display:none}
+@media print{
+  html,body{margin:0;padding:0;background:#fff}
+  body>*{display:none!important}
+  body>#printArea{display:block!important}
+  #printArea .pg{position:relative;overflow:hidden;break-after:page;page-break-after:always}
+  #printArea .pg:last-child{break-after:auto;page-break-after:auto}
+}
+</style>
+<style id="pageCss">@page{size:297mm 210mm;margin:0}</style>
+</head>
+<body>
+<main>
+<h1>会议桌牌怎么打印：两面有字、对折不倒</h1>
+<p class="sub">名单贴进来，自动把上半面倒过来印，A4 对折立起来两面都是正的。名单不上传。</p>
+
+<div class="card">
+  <textarea id="src" placeholder="一行一个名字，例如：&#10;张三&#10;李四,总经理&#10;王五,财务部&#10;（逗号或 Tab 后面可以写职务或单位，不写也行）"></textarea>
+  <p class="sub" style="margin-top:6px">从 Excel 复制一列或两列直接粘贴也行。 <button id="demo" class="lnk" type="button">填入示例名单</button></p>
+  <button id="run" class="big">生成桌牌</button>
+  <p id="msg" class="note" hidden></p>
+</div>
+
+<div class="card">
+  <h2>样式</h2>
+  <div class="opt">
+    <label><input type="radio" name="style" value="fold" checked> A4 对折立放（上半面自动倒印，每人一页）</label><br>
+    <label><input type="radio" name="style" value="card"> 插进亚克力台卡（按台卡尺寸排版，带裁切线）</label>
+  </div>
+  <div id="cardOpt" class="opt" hidden>
+    台卡插纸尺寸：宽 <input id="cw" type="number" min="3" max="28" step="0.5" value="20"> 厘米 × 高 <input id="ch" type="number" min="2" max="28" step="0.5" value="10"> 厘米<br>
+    每人印 <select id="copies"><option value="2" selected>2 张（双面台卡，两面都插纸）</option><option value="1">1 张（单面台卡）</option></select>
+    <p class="sub">尺寸量台卡里能插纸的那块透明夹层。量不准就先打一页试试。</p>
+  </div>
+  <div class="opt"><b>字体</b>
+    <select id="font"><option value="hei" selected>黑体（最常见）</option><option value="song">宋体</option><option value="kai">楷体</option></select>
+    <select id="color"><option value="black" selected>黑色字</option><option value="red">红色字</option></select>
+  </div>
+  <div class="opt"><b>名字大小：<span id="scaleV">100%</span>（100% = 自动撑满）</b>
+    <input id="scale" type="range" min="50" max="100" value="100">
+    <label><input id="same" type="checkbox"> 所有人字号统一（按最长的名字算，整齐但短名字会变小）</label><br>
+    <label><input id="space2" type="checkbox" checked> 两个字的名字中间空一格（如“张　三”）</label>
+  </div>
+  <div class="opt"><b>逗号后面的职务 / 单位</b>
+    <select id="subpos"><option value="below" selected>印在名字下面（小字）</option><option value="above">印在名字上面（小字）</option><option value="none">不印</option></select>
+  </div>
+  <div class="opt" id="foldOpt"><label><input id="foldline" type="checkbox" checked> 中间印一条浅色折线</label></div>
+</div>
+
+<div class="card" id="out" hidden>
+  <h2>预览</h2>
+  <p id="info"></p>
+  <div id="pv" class="pvgrid"></div>
+  <p id="pvMore" class="sub"></p>
+  <button id="prt" class="big" type="button">直接打印</button>
+  <button id="pdf" class="big ghost" type="button">下载 PDF</button>
+  <a id="dl" class="big" hidden download="桌牌.pdf">保存 PDF</a>
+  <p class="sub">打印时“缩放”选 100% 或“实际大小”，不要选“适合页面”。对折样式是 A4 横向；先打一页对折试试再全部打印。</p>
+</div>
+
+<div class="card">
+  <h2>关于本页</h2>
+  <p class="sub">把参会人名单贴进来，按每人一页生成会议桌牌（席卡）。A4 对折样式会把上半面的字整体转 180 度，纸沿中线对折、折线朝上立在桌上，两面都是正着的名字。也可以按亚克力台卡的插纸尺寸排在 A4 上，印好沿虚线裁下插进去。</p>
+  <div class="safe"><b>名单只在你自己的电脑或手机上处理：</b>不上传、不保存。页面打开后断网也能用。关掉页面，名单就不在这里了。</div>
+</div>
+
+<div class="card">
+  <h2>常见问题</h2>
+  <p><b>为什么上半面的字要倒着印？</b><br>A4 纸横放、沿长边中线对折，折线朝上立起来时，上半张纸翻到了背面，原来朝上的那头变成了朝下。所以上半面必须先倒过来印，立起来以后两面才都是正的。本页已经自动倒好了，直接打印就行。</p>
+  <p><b>怎么折？</b><br>字朝外，沿中间那条浅色折线对折，折线在上，像一个“人”字立在桌上。想立得更稳，可以把纸折成三角形（两面各留一点底边往里折）。</p>
+  <p><b>Word 里自己怎么弄？</b><br>插入两个文本框，上面那个文本框“旋转 180°”，再一个个改名字。人多的话用这里更快：名单一次贴进来，每人自动一页。</p>
+  <p><b>名字长短不一，字号会不会忽大忽小？</b><br>默认每个人的名字都自动撑满桌牌；想要所有人一样大，勾选“所有人字号统一”。少数民族长名字、外文名也会自动缩到放得下。</p>
+  <p><b>亚克力台卡的尺寸怎么填？</b><br>量台卡里能插纸的那层的宽和高（厘米）。常见的有 20×10、21×9.5 等。双面台卡两面都要插纸，所以默认每人印 2 张。</p>
+  <p><b>打出来字被切掉了一点 / 位置偏了？</b><br>打印对话框里把“缩放”改成 100%（实际大小），“边距”选“默认”或“无”都可以试试。桌牌的字离纸边留了空，正常打印机都能完整印出。</p>
+  <p><b>手机上能用吗？</b><br>能生成和预览，也能下载 PDF 发到电脑或打印店。手机直接连打印机的情况各不相同，用电脑打印最稳。</p>
+</div>
+
+<div class="card">
+  <h2>其他常见问题</h2>
+  <ul class="links">
+    <li><a href="/">照片太大传不上去（压到指定KB、改一寸二寸像素）</a></li>
+    <li><a href="/to-jpg/">提示“只支持JPG格式”“图片格式不正确”</a></li>
+    <li><a href="/too-small/">提示“照片不能小于XXK”“文件太小”</a></li>
+    <li><a href="/dpi/">提示“分辨率不符合要求”“要求300dpi”</a></li>
+    <li><a href="/rotate/">照片传上去是横的、倒的（方向不对）</a></li>
+    <li><a href="/to-pdf/">要求上传PDF格式，可只有照片（多张合成一个PDF）</a></li>
+    <li><a href="/idcard-a4/">身份证正反面放在一张纸上（合并成一张图、A4打印）</a></li>
+    <li><a href="/signature/">要求上传手写签名，签名要白底黑字</a></li>
+    <li><a href="/idcard-watermark/">身份证复印件加水印（仅供办理XX使用）</a></li>
+    <li><a href="/pdf-too-big/">PDF太大传不上去（压到2M、5M以内）</a></li>
+    <li><a href="/pdf-pages/">PDF只要其中几页、删掉某一页、几个PDF合成一个</a></li>
+    <li><a href="/csv-luanma/">CSV用Excel打开是乱码</a></li>
+    <li><a href="/jiaozi/">教资报名照片上传不了、审核不通过（JPG、不大于200K）</a></li>
+    <li><a href="/ncre/">计算机二级报名照片上传不了（JPG、20～200KB）</a></li>
+    <li><a href="/jiangzhuang/">奖状批量打印名字（贴名单自动套名字）</a></li>
+    <li><a href="/choujiang/">年会抽奖网页版（不用下载安装）</a></li>
+    <li><a href="/gongzitiao/">工资表拆成工资条（每人自动带表头）</a></li>
+    <li><a href="/dagongren/">2026年度打工人鉴定（12道题趣味测试）</a></li>
+  </ul>
+</div>
+
+<footer>本页由 AI 自主制作和运营 · 免费使用 · 打印前请先看预览核对<br>本站只统计访问次数（不涉及名单内容）</footer>
+</main>
+<div id="printArea"></div>
+
+<script>
+const $=id=>document.getElementById(id)
+const FONTS={
+  hei:'"SimHei","Heiti SC","STHeiti","PingFang SC","Microsoft YaHei","Noto Sans CJK SC","Source Han Sans SC",sans-serif',
+  song:'"SimSun","Songti SC","STSong","Noto Serif CJK SC","Source Han Serif SC",serif',
+  kai:'"KaiTi","STKaiti","Kaiti SC","KaiTi_GB2312",serif'
+}
+const mc=document.createElement('canvas').getContext('2d')
+function unitW(s,font,bold){mc.font=(bold?'bold ':'')+'100px '+font;return Math.max(mc.measureText(s).width/100,0.01)}
+
+// 名单：一行一人，逗号 / Tab 后面是第二项
+function parseList(t){
+  const out=[]
+  for(let line of t.split(/\r\n|\r|\n/)){
+    line=line.replace(/[​﻿]/g,'').trim();if(!line)continue
+    const m=line.split(/\t|,|，/),name=m[0].trim(),sub=m.slice(1).map(s=>s.trim()).filter(Boolean).join(' ')
+    if(name)out.push({name,sub})
+  }
+  return out
+}
+
+// ===== 页面模型 → canvas / 打印 DOM（同一份模型，打印、预览、PDF 一致）=====
+function drawPage(c,pg,k){
+  c.width=Math.round(pg.w*k);c.height=Math.round(pg.h*k)
+  const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height)
+  for(const it of pg.items){
+    x.save()
+    if(it.t==='text'){
+      x.font=(it.bold?'bold ':'')+(it.size*k)+'px '+it.font;x.fillStyle=it.color;x.textBaseline='middle';x.textAlign=it.align||'center'
+      x.translate(it.x*k,it.y*k);if(it.rot)x.rotate(Math.PI);x.fillText(it.s,0,0)
+    }else{
+      x.strokeStyle=it.color;x.lineWidth=Math.max(1,it.lw*k);if(it.dash)x.setLineDash(it.dash.map(v=>v*k))
+      x.beginPath();if(it.t==='rect')x.rect(it.x*k,it.y*k,it.w*k,it.h*k);else{x.moveTo(it.x1*k,it.y1*k);x.lineTo(it.x2*k,it.y2*k)}x.stroke()
+    }
+    x.restore()
+  }
+}
+function pageDom(pg){
+  const d=document.createElement('div');d.className='pg';d.style.width=pg.w+'mm';d.style.height=pg.h+'mm'
+  for(const it of pg.items){
+    const e=document.createElement('div'),s=e.style;s.position='absolute'
+    if(it.t==='text'){
+      e.textContent=it.s;s.whiteSpace='pre';s.left=it.x+'mm';s.top=(it.y-it.size/2)+'mm';s.height=it.size+'mm';s.lineHeight=it.size+'mm'
+      s.fontSize=it.size+'mm';s.fontFamily=it.font;s.fontWeight=it.bold?'bold':'normal';s.color=it.color
+      const a=it.align||'center';s.transform='translateX('+(a==='center'?-50:a==='right'?-100:0)+'%)'+(it.rot?' rotate(180deg)':'')
+    }else if(it.t==='rect'){
+      s.left=(it.x-it.lw/2)+'mm';s.top=(it.y-it.lw/2)+'mm';s.width=(it.w+it.lw)+'mm';s.height=(it.h+it.lw)+'mm';s.boxSizing='border-box'
+      s.border=it.lw+'mm '+(it.dash?'dashed':'solid')+' '+it.color
+    }else{
+      const hz=it.y1===it.y2
+      s.left=(Math.min(it.x1,it.x2)-(hz?0:it.lw/2))+'mm';s.top=(Math.min(it.y1,it.y2)-(hz?it.lw/2:0))+'mm'
+      s.width=(hz?Math.abs(it.x2-it.x1):0)+'mm';s.height=(hz?0:Math.abs(it.y2-it.y1))+'mm'
+      s[hz?'borderTop':'borderLeft']=it.lw+'mm '+(it.dash?'dashed':'solid')+' '+it.color
+    }
+    d.appendChild(e)
+  }
+  return d
+}
+
+// ===== 桌牌排版 =====
+function opts(){
+  return{style:document.querySelector('input[name=style]:checked').value,font:FONTS[$('font').value],color:$('color').value==='red'?'#c8102e':'#000000',
+    scale:$('scale').value/100,same:$('same').checked,space2:$('space2').checked,sub:$('subpos').value,fold:$('foldline').checked,
+    cw:parseFloat($('cw').value),ch:parseFloat($('ch').value),copies:+$('copies').value}
+}
+const showName=(p,o)=>o.space2&&[...p.name].length===2?[...p.name].join('　'):p.name
+function nameSize(p,o,bw,bh){const sub=o.sub!=='none'&&p.sub;return Math.min(bh*(sub?0.5:0.62),bw*0.88/unitW(showName(p,o),o.font,true))}
+// 在 (bx,by,bw,bh) 这个面里排一个人；rot=true 表示整面转 180 度
+function face(p,o,bx,by,bw,bh,rot,fixed){
+  const name=showName(p,o),sub=o.sub!=='none'?p.sub:''
+  const ns=(fixed||nameSize(p,o,bw,bh))*o.scale
+  const ss=sub?Math.min(bh*0.13,bw*0.9/unitW(sub,o.font,false)):0,gap=sub?bh*0.05:0,tot=ns+gap+ss
+  const cx=bx+bw/2,cy=by+bh/2,top=cy-tot/2
+  let ny,sy
+  if(sub&&o.sub==='above'){sy=top+ss/2;ny=top+ss+gap+ns/2}else{ny=top+ns/2;sy=ny+ns/2+gap+ss/2}
+  if(rot){ny=2*cy-ny;sy=2*cy-sy}
+  const items=[{t:'text',s:name,x:cx,y:ny,size:ns,font:o.font,color:o.color,bold:true,rot}]
+  if(sub)items.push({t:'text',s:sub,x:cx,y:sy,size:ss,font:o.font,color:o.color,bold:false,rot})
+  return items
+}
+function build(people,o){
+  const pages=[];let info=''
+  if(o.style==='fold'){
+    const W=297,H=210,F=H/2
+    const fixed=o.same?Math.min(...people.map(p=>nameSize(p,o,W,F))):0
+    for(const p of people){
+      const items=[...face(p,o,0,0,W,F,true,fixed),...face(p,o,0,F,W,F,false,fixed)]
+      if(o.fold)items.push({t:'line',x1:0,y1:F,x2:W,y2:F,lw:0.25,color:'#bbbbbb',dash:[3,2]})
+      pages.push({w:W,h:H,items})
+    }
+    info='A4 横向，每人一页，上半面已倒印'
+  }else{
+    if(!(o.cw>=3&&o.cw<=28&&o.ch>=2&&o.ch<=28))throw new Error('台卡尺寸请填 3～28 厘米之间的数')
+    const W=o.cw*10,H=o.ch*10,M=5
+    const fit=(pw,ph)=>({pw,ph,cols:Math.floor((pw-2*M+0.01)/W),rows:Math.floor((ph-2*M+0.01)/H)})
+    const a=fit(210,297),b=fit(297,210),L=(b.cols*b.rows>a.cols*a.rows)?b:a,n=L.cols*L.rows
+    if(!n)throw new Error('台卡太大，一张 A4 纸放不下（A4 去掉边距最大约 28.7×20 厘米）')
+    const fixed=o.same?Math.min(...people.map(p=>nameSize(p,o,W,H))):0
+    const list=[];for(const p of people)for(let i=0;i<o.copies;i++)list.push(p)
+    const ox=(L.pw-L.cols*W)/2,oy=(L.ph-L.rows*H)/2
+    for(let s=0;s<list.length;s+=n){
+      const items=[]
+      list.slice(s,s+n).forEach((p,j)=>{const x=ox+(j%L.cols)*W,y=oy+Math.floor(j/L.cols)*H
+        items.push({t:'rect',x,y,w:W,h:H,lw:0.2,color:'#999999',dash:[2,1.5]},...face(p,o,x,y,W,H,false,fixed))})
+      pages.push({w:L.pw,h:L.ph,items})
+    }
+    info='A4 '+(L.pw>L.ph?'横向':'竖向')+'，每页 '+n+' 张台卡（'+o.cw+'×'+o.ch+' 厘米），每人 '+o.copies+' 张，沿虚线裁下'
+  }
+  return{pages,info}
+}
+
+// ===== 界面 =====
+let pages=[],people=[],pending=null,pdfUrl='',made=false
+const PV=6
+function msg(t){$('msg').hidden=!t;$('msg').textContent=t||''}
+function render(){
+  people=parseList($('src').value)
+  $('cardOpt').hidden=opts().style!=='card';$('foldOpt').hidden=opts().style!=='fold'
+  $('scaleV').textContent=$('scale').value+'%'
+  if(!made)return
+  $('dl').hidden=true;$('pdf').hidden=false
+  if(!people.length){msg('先把名单贴到上面的框里（一行一个名字）。');$('out').hidden=true;pages=[];return}
+  let r;try{r=build(people,opts())}catch(e){msg(e.message);$('out').hidden=true;pages=[];return}
+  msg('');pages=r.pages
+  const long=people.filter(p=>[...p.name].length>8).length
+  $('info').innerHTML='';$('info').append('共 ',Object.assign(document.createElement('b'),{textContent:people.length+' 人'}),'，',Object.assign(document.createElement('b'),{textContent:pages.length+' 页'}),'（'+r.info+'）。'+(long?' 有 '+long+' 个名字比较长，已自动缩小字号。':''))
+  const box=$('pv');box.innerHTML=''
+  const tw=Math.min(box.clientWidth||340,700)/2*(window.devicePixelRatio||1)
+  pages.slice(0,PV).forEach(pg=>{const c=document.createElement('canvas');drawPage(c,pg,tw/pg.w);box.appendChild(c)})
+  $('pvMore').textContent=pages.length>PV?'预览只显示前 '+PV+' 页，打印和 PDF 里是全部 '+pages.length+' 页。':''
+  $('out').hidden=false
+}
+let tmr=0;const later=()=>{clearTimeout(tmr);tmr=setTimeout(render,250)}
+$('run').onclick=()=>{made=true;render();if(!$('out').hidden)$('out').scrollIntoView({behavior:'smooth',block:'start'})}
+$('src').oninput=later
+document.querySelectorAll('.card input,.card select').forEach(e=>{if(e.id!=='src'){e.addEventListener('input',later);e.addEventListener('change',later)}})
+$('demo').onclick=()=>{$('src').value='张三\n李四,总经理\n王五,财务部\n赵六\n欧阳明月,技术部\n阿依古丽·买买提,市场部';made=true;render()}
+
+function buildPrint(list){
+  const pa=$('printArea');pa.innerHTML='';list.forEach(pg=>pa.appendChild(pageDom(pg)))
+  if(list[0])$('pageCss').textContent='@page{size:'+list[0].w+'mm '+list[0].h+'mm;margin:0}'
+}
+window.addEventListener('beforeprint',()=>{if(made)render();buildPrint(pending||pages)})
+window.addEventListener('afterprint',()=>{pending=null})
+$('prt').onclick=()=>{if(!pages.length)return;buildPrint(pages);window.print()}
+
+function loadLib(){
+  if(window.PDFLib)return Promise.resolve()
+  return new Promise((ok,no)=>{const s=document.createElement('script');s.src='/vendor/pdf-lib-1.17.1/pdf-lib.min.js';s.onload=ok;s.onerror=()=>no(new Error('lib'));document.head.appendChild(s)})
+}
+async function makePdf(list,prog){
+  await loadLib()
+  const doc=await PDFLib.PDFDocument.create(),c=document.createElement('canvas'),k=300/25.4,pt=72/25.4
+  for(let i=0;i<list.length;i++){
+    const pg=list[i];drawPage(c,pg,k)
+    const b=await new Promise((r,j)=>c.toBlob(x=>x?r(x):j(new Error('toBlob')),'image/jpeg',0.9))
+    const img=await doc.embedJpg(new Uint8Array(await b.arrayBuffer()))
+    doc.addPage([pg.w*pt,pg.h*pt]).drawImage(img,{x:0,y:0,width:pg.w*pt,height:pg.h*pt})
+    prog(i+1,list.length)
+  }
+  c.width=c.height=1
+  return new Blob([await doc.save()],{type:'application/pdf'})
+}
+$('pdf').onclick=async()=>{
+  if(!pages.length)return
+  const btn=$('pdf');btn.disabled=true
+  try{
+    const blob=await makePdf(pages,(i,n)=>{btn.textContent='正在生成 PDF… '+i+'/'+n})
+    if(pdfUrl)URL.revokeObjectURL(pdfUrl);pdfUrl=URL.createObjectURL(blob)
+    $('dl').href=pdfUrl;$('dl').download='桌牌_'+people.length+'人.pdf';$('dl').textContent='保存 PDF（'+pages.length+' 页，'+(blob.size/1048576).toFixed(1)+' MB）'
+    $('dl').hidden=false;btn.hidden=true
+  }catch(e){console.error(e);msg('PDF 生成失败（可能是手机内存不够），换电脑试试，或用“直接打印”。')}
+  finally{btn.disabled=false;btn.textContent='下载 PDF'}
+}
+if(/MicroMessenger/i.test(navigator.userAgent)){
+  const d=document.createElement('div');d.id='wxTop';d.style.cssText='border:2px solid #d97706;background:#fff7e6;color:#7a3e00;border-radius:10px;padding:10px 12px;margin:0 0 4px;line-height:1.5'
+  d.innerHTML='<b>微信里不能打印、存不了 PDF：点右上角 ··· → 在浏览器打开</b>，再用本页。';document.querySelector('main').insertBefore(d,document.querySelector('main').firstChild)
+}
+render()
+</script>
+<script>
+// 访问计数：只发送本页网址，不读取、不发送名单；失败不影响使用
+setTimeout(function(){try{
+  if(!/^https?:$/.test(location.protocol))return
+  var u=location.origin+location.pathname,k='vercount_uv_'+location.host.replace(/[^a-zA-Z0-9_-]/g,'_'),nu=document.cookie.indexOf(k+'=1')<0
+  if(nu)document.cookie=k+'=1; path=/; max-age=31536000; samesite=lax'
+  if(window.fetch)fetch('https://events.vercount.one/api/v2/log',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:u,isNewUv:nu})}).catch(function(){})
+  var b=new Image();b.referrerPolicy='no-referrer-when-downgrade';b.src='https://busuanzi.ibruce.info/busuanzi?jsonpCallback=BusuanziCallback_0'
+}catch(e){}},800)
+</script>
+</body>
+</html>

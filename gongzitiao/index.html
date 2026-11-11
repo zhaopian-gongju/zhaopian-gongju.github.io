@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>工资表怎么做成工资条：每人自动加表头、方便裁开（免费，不上传）</title>
+<meta name="description" content="工资表要给每个人加一行表头再裁开，手工插行太慢？从 Excel 复制整张工资表粘贴进来，自动生成每人一条（表头 + 本人一行 + 裁切空行），支持两行表头。可直接打印，也可复制回 Excel 或下载 CSV。工资数据只在你自己的浏览器里处理，不上传、不保存。">
+<link rel="canonical" href="https://zhaopian-gongju.github.io/gongzitiao/">
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--fg:#1c2330;--sub:#5b6676;--line:#dfe3ea;--main:#1769e0;--mainfg:#fff;--warn:#b45309;--ok:#15803d}
+@media (prefers-color-scheme:dark){:root{--bg:#12151b;--card:#1b2029;--fg:#e8ecf2;--sub:#9aa5b5;--line:#2c3441;--main:#4c8ff5;--mainfg:#0b1220;--warn:#f0b35a;--ok:#4ade80}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 -apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+main{max-width:720px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:24px;line-height:1.35;margin:8px 0 6px}
+h2{font-size:18px;margin:0 0 10px}
+p{margin:6px 0}
+a{color:var(--main)}
+.sub{color:var(--sub);font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:14px}
+.safe{border:1px solid var(--ok);border-radius:10px;padding:10px 12px;margin-top:10px;font-size:15px}
+.safe b{color:var(--ok)}
+textarea{display:block;width:100%;min-height:150px;padding:10px;border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--fg);font:14px/1.5 Consolas,"Microsoft YaHei",monospace;resize:vertical;white-space:pre;overflow:auto}
+select{padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);font-size:16px;max-width:100%}
+.opt{margin:10px 0}
+.opt>b{display:block;margin-bottom:4px}
+label{cursor:pointer}
+.big{display:block;width:100%;padding:13px;border:0;border-radius:10px;background:var(--main);color:var(--mainfg);font-size:17px;font-weight:600;cursor:pointer;text-align:center;text-decoration:none;margin-top:8px}
+.big[disabled]{opacity:.5;cursor:default}
+.ghost{background:transparent;border:1px dashed var(--main);color:var(--main)}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.lnk{background:none;border:0;color:var(--main);padding:0;font-size:14px;cursor:pointer;text-decoration:underline}
+.note{color:var(--warn);font-size:14px}
+.pvbox{overflow:auto;max-height:480px;border:1px solid var(--line);border-radius:8px;background:#fff;color:#000;padding:8px;margin-top:10px}
+.slips table{border-collapse:collapse;margin:0;font-family:"SimSun","Songti SC","Microsoft YaHei",serif}
+.slips td,.slips th{border:1px solid #000;padding:.25em .5em;white-space:nowrap;text-align:center}
+.slips th{font-weight:bold;background:#f2f2f2}
+.slips .slip{padding:3mm 0 4mm;border-bottom:1px dashed #888;break-inside:avoid;page-break-inside:avoid}
+.slips .slip:last-child{border-bottom:0}
+.slips .brk{break-after:page;page-break-after:always;border-bottom:0}
+.links{margin:0;padding-left:20px}
+.links li{margin:4px 0}
+[hidden]{display:none!important}
+footer{margin-top:28px;color:var(--sub);font-size:13px;text-align:center}
+#printArea{display:none}
+@media print{
+  html,body{margin:0;padding:0;background:#fff}
+  body>*{display:none!important}
+  body>#printArea{display:block!important}
+  .slips th{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+<style id="pageCss">@page{size:A4 landscape;margin:10mm}</style>
+</head>
+<body>
+<main>
+<h1>工资表怎么拆成工资条：每人自动带表头</h1>
+<p class="sub">从 Excel 复制整张工资表粘贴进来，每人一条，带表头和裁切空行。数据不上传、不保存。</p>
+
+<div class="card">
+  <textarea id="src" spellcheck="false" placeholder="在 Excel 里选中整张工资表（含表头）→ Ctrl+C → 点这里 Ctrl+V&#10;第一行是表头，下面每行一个人"></textarea>
+  <p class="sub" style="margin-top:6px"><label><input type="radio" name="hr" value="1" checked> 表头 1 行</label>　<label><input type="radio" name="hr" value="2"> 表头 2 行（有合并单元格的大表头）</label>　<button id="demo" class="lnk" type="button">填入示例</button></p>
+  <button id="run" class="big">生成工资条</button>
+  <p id="msg" class="note" hidden></p>
+</div>
+
+<div class="card">
+  <h2>选项</h2>
+  <div class="opt"><label><input id="gap" type="checkbox" checked> 每条之间空一行（方便裁开）</label><br>
+    <label><input id="skipSum" type="checkbox" checked> 去掉“合计 / 总计 / 小计”行</label></div>
+  <div class="opt"><b>打印</b>
+    <select id="per"><option value="0" selected>每页条数：自动排满</option><option value="3">每页 3 条</option><option value="4">每页 4 条</option><option value="5">每页 5 条</option><option value="6">每页 6 条</option><option value="8">每页 8 条</option><option value="10">每页 10 条</option></select>
+    <select id="fs"><option value="9">字号小</option><option value="10.5" selected>字号中</option><option value="12">字号大</option></select>
+    <select id="orient"><option value="landscape" selected>A4 横向</option><option value="portrait">A4 竖向</option></select>
+  </div>
+</div>
+
+<div class="card" id="out" hidden>
+  <h2>结果</h2>
+  <p id="info"></p>
+  <button id="prt" class="big" type="button">打印工资条</button>
+  <div class="btns">
+    <button id="copy" class="big ghost" type="button">复制（粘回 Excel）</button>
+    <button id="csv" class="big ghost" type="button">下载 CSV</button>
+  </div>
+  <a id="dl" hidden download="工资条.csv"></a>
+  <p class="sub">“复制”后到 Excel 新建一个表，点 A1 粘贴，就是带表头的工资条，可以再调格式打印。列太多一页放不下时，打印选“A4 横向”或字号小。</p>
+  <div class="pvbox"><div id="pv" class="slips"></div></div>
+  <p id="pvMore" class="sub"></p>
+</div>
+
+<div class="card">
+  <h2>关于本页</h2>
+  <p class="sub">把整张工资表从 Excel 复制粘贴进来，第一行（或前两行）当表头，下面每个人生成一条“表头 + 本人数据”，条与条之间空一行，打印出来沿虚线裁开就是工资条。也可以复制回 Excel 接着用。</p>
+  <div class="safe"><b>工资数据只在你自己的电脑上处理：</b>不上传、不保存，页面不会把表格存到浏览器里。关掉或刷新页面，数据就没了。页面打开后断网也能用。</div>
+</div>
+
+<div class="card">
+  <h2>常见问题</h2>
+  <p><b>Excel 里自己怎么做工资条？</b><br>常见做法是加辅助列排序插行，或者用公式（INDEX / OFFSET）引用表头，步骤多容易错。这里粘贴进来直接出，适合每月赶着发。</p>
+  <p><b>表头有两行（比如“应发工资”下面还分“基本工资、绩效”）？</b><br>选“表头 2 行”。Excel 里合并的单元格粘贴过来只有第一个格有字，打印时会自动合并回去；复制回 Excel 和 CSV 里保持原样，不合并。</p>
+  <p><b>数字格式（千分位、两位小数）会变吗？</b><br>不会改。从 Excel 复制时带的是表格里显示的样子，这里原样照搬。</p>
+  <p><b>最下面有“合计”行？</b><br>默认会去掉第一、二列写着“合计 / 总计 / 小计”的行。如果要保留，取消勾选。</p>
+  <p><b>表里的空行？</b><br>整行都是空的会自动跳过，不会生成空工资条。</p>
+  <p><b>WPS 表格可以吗？</b><br>可以，在 WPS 里选中复制，粘贴方法一样。</p>
+  <p><b>工资数据安全吗？</b><br>表格只在这个网页里临时处理：不上传、不写入浏览器存储。本站只统计页面被打开的次数，不涉及表格内容。</p>
+</div>
+
+<div class="card">
+  <h2>其他常见问题</h2>
+  <ul class="links">
+    <li><a href="/">照片太大传不上去（压到指定KB、改一寸二寸像素）</a></li>
+    <li><a href="/to-jpg/">提示“只支持JPG格式”“图片格式不正确”</a></li>
+    <li><a href="/too-small/">提示“照片不能小于XXK”“文件太小”</a></li>
+    <li><a href="/dpi/">提示“分辨率不符合要求”“要求300dpi”</a></li>
+    <li><a href="/rotate/">照片传上去是横的、倒的（方向不对）</a></li>
+    <li><a href="/to-pdf/">要求上传PDF格式，可只有照片（多张合成一个PDF）</a></li>
+    <li><a href="/idcard-a4/">身份证正反面放在一张纸上（合并成一张图、A4打印）</a></li>
+    <li><a href="/signature/">要求上传手写签名，签名要白底黑字</a></li>
+    <li><a href="/idcard-watermark/">身份证复印件加水印（仅供办理XX使用）</a></li>
+    <li><a href="/pdf-too-big/">PDF太大传不上去（压到2M、5M以内）</a></li>
+    <li><a href="/pdf-pages/">PDF只要其中几页、删掉某一页、几个PDF合成一个</a></li>
+    <li><a href="/csv-luanma/">CSV用Excel打开是乱码</a></li>
+    <li><a href="/jiaozi/">教资报名照片上传不了、审核不通过（JPG、不大于200K）</a></li>
+    <li><a href="/ncre/">计算机二级报名照片上传不了（JPG、20～200KB）</a></li>
+    <li><a href="/zhuopai/">会议桌牌、席卡批量打印（两面有字、对折不倒）</a></li>
+    <li><a href="/jiangzhuang/">奖状批量打印名字（贴名单自动套名字）</a></li>
+    <li><a href="/choujiang/">年会抽奖网页版（不用下载安装）</a></li>
+    <li><a href="/dagongren/">2026年度打工人鉴定（12道题趣味测试）</a></li>
+  </ul>
+</div>
+
+<footer>本页由 AI 自主制作和运营 · 免费使用 · 打印前请先看预览核对<br>本站只统计访问次数（不涉及表格内容）</footer>
+</main>
+<div id="printArea"></div>
+
+<script>
+const $=id=>document.getElementById(id)
+// 解析从 Excel 复制来的文字：Tab 分列，单元格内有换行时 Excel 会加英文引号
+function parseTSV(t){
+  t=t.replace(/^﻿/,'')
+  const rows=[];let row=[],f='',q=false,start=true
+  for(let i=0;i<t.length;i++){
+    const c=t[i]
+    if(q){if(c==='"'){if(t[i+1]==='"'){f+='"';i++}else q=false}else f+=c;continue}
+    if(c==='"'&&start){q=true;start=false;continue}
+    start=false
+    if(c==='\t'){row.push(f);f='';start=true}
+    else if(c==='\n'||c==='\r'){if(c==='\r'&&t[i+1]==='\n')i++;row.push(f);rows.push(row);row=[];f='';start=true}
+    else f+=c
+  }
+  if(f!==''||row.length)row.push(f),rows.push(row)
+  return rows.map(r=>r.map(v=>v.trim()))
+}
+const blank=r=>r.every(v=>!v)
+const SUM=/^(合\s*计|总\s*计|小\s*计|共\s*计)$/
+function opts(){return{hr:+document.querySelector('input[name=hr]:checked').value,gap:$('gap').checked,skipSum:$('skipSum').checked,per:+$('per').value,fs:+$('fs').value,orient:$('orient').value}}
+function build(text,o){
+  let rows=parseTSV(text)
+  while(rows.length&&blank(rows[0]))rows.shift()
+  if(rows.length<o.hr+1)throw new Error(rows.length?'只有表头，没有人员数据。第一行'+(o.hr===2?'和第二行':'')+'是表头，下面每行一个人。':'先把工资表粘贴到上面的框里。')
+  let head=rows.slice(0,o.hr),data=rows.slice(o.hr).filter(r=>!blank(r))
+  let sum=0
+  if(o.skipSum)data=data.filter(r=>{const s=SUM.test(r[0]||'')||SUM.test(r[1]||'');if(s)sum++;return!s})
+  // 列数：表头和数据里最长的一行；去掉末尾整列都空的列
+  let n=Math.max(...head.concat(data).map(r=>r.length))
+  while(n>1&&head.concat(data).every(r=>!r[n-1]))n--
+  const pad=r=>{r=r.slice(0,n);while(r.length<n)r.push('');return r}
+  head=head.map(pad);data=data.map(pad)
+  if(!data.length)throw new Error('没有找到人员数据（表头下面都是空行或合计行）。')
+  return{head,data,n,sum}
+}
+// 表头 HTML：两行表头时把 Excel 合并单元格（只有第一个格有字）合并回去
+function headHtml(head){
+  const tr=document.createDocumentFragment()
+  if(head.length===1){const r=document.createElement('tr');head[0].forEach(v=>r.appendChild(Object.assign(document.createElement('th'),{textContent:v})));tr.appendChild(r);return tr}
+  const [a,b]=head,n=a.length,r1=document.createElement('tr'),r2=document.createElement('tr'),cover=new Array(n).fill(false)
+  for(let j=0;j<n;j++){
+    if(a[j]&&!b[j]&&!(j+1<n&&!a[j+1]&&b[j+1])){const th=Object.assign(document.createElement('th'),{textContent:a[j],rowSpan:2});r1.appendChild(th);cover[j]=true;continue}
+    let k=j+1;if(a[j])while(k<n&&!a[k]&&b[k])k++
+    if(!a[j])k=j+1
+    r1.appendChild(Object.assign(document.createElement('th'),{textContent:a[j],colSpan:k-j}))
+    j=k-1
+  }
+  for(let j=0;j<n;j++)if(!cover[j])r2.appendChild(Object.assign(document.createElement('th'),{textContent:b[j]}))
+  tr.appendChild(r1);tr.appendChild(r2);return tr
+}
+function slipsDom(r,o,limit){
+  const box=document.createElement('div');box.className='slips';box.style.fontSize=o.fs+'pt'
+  const list=limit?r.data.slice(0,limit):r.data
+  list.forEach((row,i)=>{
+    const s=document.createElement('div');s.className='slip'
+    if(!o.gap)s.style.cssText='padding:0;border-bottom:0'
+    if(o.per&&(i+1)%o.per===0&&i<list.length-1)s.classList.add('brk')
+    const t=document.createElement('table');t.appendChild(headHtml(r.head))
+    const tr=document.createElement('tr');row.forEach(v=>tr.appendChild(Object.assign(document.createElement('td'),{textContent:v})));t.appendChild(tr)
+    s.appendChild(t);box.appendChild(s)
+  })
+  return box
+}
+// 复制回 Excel / CSV 的行：每人 = 表头 + 本人 + （空行）
+function outRows(r,o){const out=[];r.data.forEach((row,i)=>{out.push(...r.head,row);if(o.gap&&i<r.data.length-1)out.push(r.head[0].map(()=>''))});return out}
+const tsv=rows=>rows.map(r=>r.map(v=>/[\t\r\n"]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v).join('\t')).join('\r\n')+'\r\n'
+const csv=rows=>rows.map(r=>r.map(v=>/[,\r\n"]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v).join(',')).join('\r\n')+'\r\n'
+
+let res=null,made=false,csvUrl=''
+const PV=60
+function msg(t){$('msg').hidden=!t;$('msg').textContent=t||''}
+function render(){
+  if(!made)return
+  const o=opts()
+  try{res=build($('src').value,o)}catch(e){res=null;msg(e.message);$('out').hidden=true;return}
+  msg('')
+  const pages=o.per?Math.ceil(res.data.length/o.per):0
+  $('info').innerHTML='';$('info').append('共 ',Object.assign(document.createElement('b'),{textContent:res.data.length+' 人'}),'，生成 ',Object.assign(document.createElement('b'),{textContent:res.data.length+' 条'}),
+    '工资条（表头 '+res.head.length+' 行，'+res.n+' 列'+(pages?'，打印 '+pages+' 页':'')+'）。'+(res.sum?' 已去掉 '+res.sum+' 行合计。':''))
+  if(res.n<2)$('info').append(Object.assign(document.createElement('span'),{className:'note',textContent:' 只认出 1 列：请直接从 Excel 选中单元格复制，不要从 Word 或网页复制。'}))
+  const pv=$('pv');pv.replaceWith(Object.assign(slipsDom(res,o,PV),{id:'pv'}))
+  $('pvMore').textContent=res.data.length>PV?'预览只显示前 '+PV+' 条，打印、复制、CSV 里是全部 '+res.data.length+' 条。':''
+  $('pageCss').textContent='@page{size:A4 '+o.orient+';margin:10mm}'
+  $('out').hidden=false
+}
+let tmr=0;const later=()=>{clearTimeout(tmr);tmr=setTimeout(render,250)}
+$('run').onclick=()=>{made=true;render();if(!$('out').hidden)$('out').scrollIntoView({behavior:'smooth',block:'start'})}
+document.querySelectorAll('main input,main select,#src').forEach(e=>{e.addEventListener('input',later);e.addEventListener('change',later)})
+$('demo').onclick=()=>{
+  const two=document.querySelector('input[name=hr]:checked').value==='2'
+  $('src').value=two?
+    '姓名\t部门\t应发工资\t\t\t扣款\t\t实发工资\n\t\t基本工资\t绩效\t补贴\t社保\t个税\t\n张三\t技术部\t6,000.00\t1,500.00\t300.00\t680.00\t95.00\t7,025.00\n李四\t财务部\t5,500.00\t1,200.00\t300.00\t620.00\t62.40\t6,317.60\n王五\t行政部\t5,000.00\t800.00\t300.00\t560.00\t31.20\t5,508.80\n合计\t\t16,500.00\t3,500.00\t900.00\t1,860.00\t188.60\t18,851.40':
+    '姓名\t部门\t基本工资\t绩效\t补贴\t社保\t个税\t实发工资\n张三\t技术部\t6,000.00\t1,500.00\t300.00\t680.00\t95.00\t7,025.00\n李四\t财务部\t5,500.00\t1,200.00\t300.00\t620.00\t62.40\t6,317.60\n王五\t行政部\t5,000.00\t800.00\t300.00\t560.00\t31.20\t5,508.80'
+  made=true;render()
+}
+function buildPrint(){const pa=$('printArea');pa.innerHTML='';if(res)pa.appendChild(slipsDom(res,opts(),0))}
+window.addEventListener('beforeprint',()=>{if(made)render();buildPrint()})
+window.addEventListener('afterprint',()=>{$('printArea').innerHTML=''})
+$('prt').onclick=()=>{if(!res)return;buildPrint();window.print()}
+function copyText(t){
+  if(navigator.clipboard&&window.isSecureContext)return navigator.clipboard.writeText(t)
+  return new Promise((ok,no)=>{const a=document.createElement('textarea');a.value=t;a.style.position='fixed';a.style.opacity='0';document.body.appendChild(a);a.select();try{document.execCommand('copy')?ok():no()}catch(e){no(e)}a.remove()})
+}
+$('copy').onclick=()=>{if(!res)return;copyText(tsv(outRows(res,opts()))).then(()=>{$('copy').textContent='已复制，去 Excel 粘贴';setTimeout(()=>$('copy').textContent='复制（粘回 Excel）',2000)},()=>alert('复制失败，请用“下载 CSV”'))}
+$('csv').onclick=()=>{
+  if(!res)return
+  const blob=new Blob([new Uint8Array([0xEF,0xBB,0xBF]),new TextEncoder().encode(csv(outRows(res,opts())))],{type:'text/csv'})
+  if(csvUrl)URL.revokeObjectURL(csvUrl);csvUrl=URL.createObjectURL(blob)
+  const a=$('dl');a.href=csvUrl;a.download='工资条_'+res.data.length+'人.csv';a.click()
+}
+if(/MicroMessenger/i.test(navigator.userAgent)){
+  const d=document.createElement('div');d.id='wxTop';d.style.cssText='border:2px solid #d97706;background:#fff7e6;color:#7a3e00;border-radius:10px;padding:10px 12px;margin:0 0 4px;line-height:1.5'
+  d.innerHTML='<b>微信里不能打印、存不了文件：点右上角 ··· → 在浏览器打开</b>，再用本页。';document.querySelector('main').insertBefore(d,document.querySelector('main').firstChild)
+}
+</script>
+<script>
+// 访问计数：只发送本页网址，不读取、不发送表格内容；失败不影响使用
+setTimeout(function(){try{
+  if(!/^https?:$/.test(location.protocol))return
+  var u=location.origin+location.pathname,k='vercount_uv_'+location.host.replace(/[^a-zA-Z0-9_-]/g,'_'),nu=document.cookie.indexOf(k+'=1')<0
+  if(nu)document.cookie=k+'=1; path=/; max-age=31536000; samesite=lax'
+  if(window.fetch)fetch('https://events.vercount.one/api/v2/log',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:u,isNewUv:nu})}).catch(function(){})
+  var b=new Image();b.referrerPolicy='no-referrer-when-downgrade';b.src='https://busuanzi.ibruce.info/busuanzi?jsonpCallback=BusuanziCallback_0'
+}catch(e){}},800)
+</script>
+</body>
+</html>
