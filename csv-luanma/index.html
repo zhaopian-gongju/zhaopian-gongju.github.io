@@ -3,9 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>CSV用Excel打开是乱码怎么办？在线一键转成Excel能直接打开的版本（不上传，免费）</title>
-<meta name="description" content="CSV文件用Excel打开中文全是乱码？选CSV文件，自动判断编码（UTF-8、GBK等），预览确认中文正常后，保存成Excel能直接打开的版本（UTF-8带BOM）。文件只在你自己的浏览器里处理，不上传。">
+<title>CSV用Excel打开是乱码怎么办？在线转成Excel能打开的编码</title>
+<meta name="description" content="CSV用Excel打开中文全是乱码？自动判断UTF-8、GBK等编码，预览确认中文正常后，保存成Excel双击就能打开的UTF-8带BOM版本。免费在线使用，文件不上传。">
 <link rel="canonical" href="https://zhaopian-gongju.github.io/csv-luanma/">
+<script type="application/ld+json" id="ld">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"CSV 用 Excel 打开是乱码？转成 Excel 能直接打开的版本","description":"CSV用Excel打开中文全是乱码？自动判断UTF-8、GBK等编码，预览确认中文正常后，保存成Excel双击就能打开的UTF-8带BOM版本。免费在线使用，文件不上传。","url":"https://zhaopian-gongju.github.io/csv-luanma/","inLanguage":"zh-CN","isAccessibleForFree":true,"applicationCategory":"UtilitiesApplication","operatingSystem":"Web 浏览器"},{"@type":"FAQPage","url":"https://zhaopian-gongju.github.io/csv-luanma/","inLanguage":"zh-CN","mainEntity":[{"@type":"Question","name":"不想用网页，Excel 里自己怎么弄？","acceptedAnswer":{"@type":"Answer","text":"新版 Excel：新建空白表格 → “数据” → “从文本/CSV” → 选文件 → “文件原始格式”选“65001: Unicode (UTF-8)” → 加载。或者用记事本打开 CSV，“另存为”时编码选“带有 BOM 的 UTF-8”。"}},{"@type":"Question","name":"自动判断的编码不对怎么办？","acceptedAnswer":{"@type":"Answer","text":"第②步预览里如果还是乱码，点别的编码按钮，直到预览里的中文正常，再生成。简体中文的老文件一般是 GBK；繁体（台湾、香港）的老文件可能是 Big5。"}},{"@type":"Question","name":"身份证号、订单号打开后变成 1.23E+17、最后几位变成 0？","acceptedAnswer":{"@type":"Answer","text":"这不是乱码，是 Excel 把长数字当成了数字。本页不改内容，解决不了这个；可以在 Excel 里用“数据 → 从文本/CSV”导入，把那一列设成“文本”。"}},{"@type":"Question","name":"WPS 打开也乱码能用吗？","acceptedAnswer":{"@type":"Answer","text":"能，转换后的文件 WPS 一般也能直接认出来。"}},{"@type":"Question","name":"几百 MB 的大文件能转吗？","acceptedAnswer":{"@type":"Answer","text":"识别和转换都在你的设备上完成，靠本机内存。文件特别大时手机可能不够用，换电脑更稳。"}}]}]}</script>
 <style>
 :root{--bg:#f6f7f9;--card:#fff;--fg:#1c2330;--sub:#5b6676;--line:#dfe3ea;--main:#1769e0;--mainfg:#fff;--warn:#b45309;--ok:#15803d}
 @media (prefers-color-scheme:dark){:root{--bg:#12151b;--card:#1b2029;--fg:#e8ecf2;--sub:#9aa5b5;--line:#2c3441;--main:#4c8ff5;--mainfg:#0b1220;--warn:#f0b35a;--ok:#4ade80}}
@@ -68,8 +69,15 @@ footer{margin-top:28px;color:var(--sub);font-size:13px;text-align:center}
 </div>
 
 <div class="card">
-  <h2>关于本页</h2>
-  <p class="sub">选 CSV 文件，自动判断它是什么编码，预览里中文正常了，就保存一份 Excel 双击就能正常打开的 CSV。文件只在你自己的浏览器里处理，不上传、不保存。</p>
+  <h2>哪些 CSV 容易乱码</h2>
+  <p>从电商后台、问卷平台、各种管理系统导出的 CSV，或者别人用 Mac 发过来的 CSV，在简体中文 Windows 上用 Excel 双击打开时，经常是中文全变成乱字。数据本身没坏，只是 Excel 认错了编码。</p>
+  <p><b>本页做的事：</b>自动判断原文件的编码（支持 UTF-8、GBK、UTF-16、Big5），预览确认中文正常后，另存一份 UTF-8 带 BOM 的 CSV，内容一个字不改。</p>
+  <p><b>三步用法：</b></p>
+  <ol>
+    <li>选 CSV 文件。</li>
+    <li>看第②步的预览，中文正常就继续；不正常就换一个编码按钮。</li>
+    <li>点“生成 Excel 能打开的 CSV”，保存后用 Excel 双击打开。</li>
+  </ol>
 </div>
 
 <div class="card">
@@ -83,7 +91,7 @@ footer{margin-top:28px;color:var(--sub);font-size:13px;text-align:center}
   <p><b>自动判断的编码不对怎么办？</b><br>第②步预览里如果还是乱码，点别的编码按钮，直到预览里的中文正常，再生成。简体中文的老文件一般是 GBK；繁体（台湾、香港）的老文件可能是 Big5。</p>
   <p><b>身份证号、订单号打开后变成 1.23E+17、最后几位变成 0？</b><br>这不是乱码，是 Excel 把长数字当成了数字。本页不改内容，解决不了这个；可以在 Excel 里用“数据 → 从文本/CSV”导入，把那一列设成“文本”。</p>
   <p><b>WPS 打开也乱码能用吗？</b><br>能，转换后的文件 WPS 一般也能直接认出来。</p>
-  <p><b>文件会被传到网上吗？</b><br>不会。识别和转换都在你的设备上完成。文件特别大（几百 MB）时手机可能内存不够，换电脑更稳。</p>
+  <p><b>几百 MB 的大文件能转吗？</b><br>识别和转换都在你的设备上完成，靠本机内存。文件特别大时手机可能不够用，换电脑更稳。</p>
 </div>
 
 <div class="card">

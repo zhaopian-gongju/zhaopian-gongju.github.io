@@ -3,9 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>参会证、胸牌、工作证批量制作打印：贴名单导入，一张A4排多张带裁切线（免费，不上传）</title>
-<meta name="description" content="开会、培训、活动要做参会证、胸牌、工作证、嘉宾证？把名单贴进来（姓名、单位/职务两列，可直接从 Excel 复制），填活动名称，选胸卡内芯尺寸（90×54 横版、70×100 竖版等，也可自定义毫米数），一张 A4 自动排多张、带裁切虚线，名字长短自动调字号。可直接打印或下载 PDF。名单只在你自己的浏览器里处理，不上传。">
+<title>参会证、胸牌批量制作打印：贴名单，A4排多张带裁切线</title>
+<meta name="description" content="要做参会证、胸牌、工作证？贴名单、填活动名称、选胸卡尺寸，一张A4自动排多张并带裁切虚线，名字长短自动调字号。免费，可打印或下载PDF，名单不上传。">
 <link rel="canonical" href="https://zhaopian-gongju.github.io/xiongpai/">
+<script type="application/ld+json" id="ld">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"参会证、胸牌、工作证批量制作打印","description":"要做参会证、胸牌、工作证？贴名单、填活动名称、选胸卡尺寸，一张A4自动排多张并带裁切虚线，名字长短自动调字号。免费，可打印或下载PDF，名单不上传。","url":"https://zhaopian-gongju.github.io/xiongpai/","inLanguage":"zh-CN","isAccessibleForFree":true,"applicationCategory":"UtilitiesApplication","operatingSystem":"Web 浏览器"},{"@type":"FAQPage","url":"https://zhaopian-gongju.github.io/xiongpai/","inLanguage":"zh-CN","mainEntity":[{"@type":"Question","name":"胸卡尺寸怎么选？","acceptedAnswer":{"@type":"Answer","text":"量卡套里插纸那一层的宽和高。最常见的横版胸卡内芯约 90×54 毫米（名片大小），竖版常见 54×90、70×100 毫米。量出来的数和选项不一样，就选“自定义尺寸”填毫米数。"}},{"@type":"Question","name":"一张 A4 能排几张？","acceptedAnswer":{"@type":"Answer","text":"90×54 毫米一页排 10 张，70×100 毫米一页排 8 张（会自动用 A4 横向）。预览上方会写明每页几张。"}},{"@type":"Question","name":"能放照片吗？","acceptedAnswer":{"@type":"Answer","text":"本页不做照片，只印文字。需要照片的工作证，可以印好后在留白处贴照片。"}},{"@type":"Question","name":"Excel 里的名单怎么粘贴？","acceptedAnswer":{"@type":"Answer","text":"在 Excel 或 WPS 表格里选中“姓名”和“单位/职务”两列，Ctrl+C，到上面的框里 Ctrl+V。单位和职务分成两列也行，会合在一起印在名字下面。"}},{"@type":"Question","name":"用什么纸打印？","acceptedAnswer":{"@type":"Answer","text":"普通 A4 纸就能插卡套；想挺括一些，可以用 120～200 克的卡纸（先确认打印机支持厚纸）。"}},{"@type":"Question","name":"打出来尺寸不对、插不进去？","acceptedAnswer":{"@type":"Answer","text":"打印对话框里“缩放”改成 100%（实际大小）。还是偏大，就用“自定义尺寸”把宽高各减 1～2 毫米。"}},{"@type":"Question","name":"手边没有打印机怎么办？","acceptedAnswer":{"@type":"Answer","text":"在手机或电脑上生成后点“下载 PDF”，发给打印店，提醒对方按 100%（实际大小）打印，裁出来的尺寸才对。"}}]}]}</script>
 <style>
 :root{--bg:#f6f7f9;--card:#fff;--fg:#1c2330;--sub:#5b6676;--line:#dfe3ea;--main:#1769e0;--mainfg:#fff;--warn:#b45309;--ok:#15803d}
 @media (prefers-color-scheme:dark){:root{--bg:#12151b;--card:#1b2029;--fg:#e8ecf2;--sub:#9aa5b5;--line:#2c3441;--main:#4c8ff5;--mainfg:#0b1220;--warn:#f0b35a;--ok:#4ade80}}
@@ -100,9 +101,15 @@ footer{margin-top:28px;color:var(--sub);font-size:13px;text-align:center}
 </div>
 
 <div class="card">
-  <h2>关于本页</h2>
-  <p class="sub">把参会人或工作人员名单贴进来，每人生成一张证件：顶部色条写活动名称，中间是大号姓名，下面是单位或职务，底部色条写证件类别（参会证、工作证、嘉宾证等）。按选好的胸卡尺寸在 A4 纸上自动排满，每张四周有裁切虚线。名字长短不一时字号自动调整，长名字会缩小或分两行，不会超出边框。</p>
-  <div class="safe"><b>名单只在你自己的电脑或手机上处理：</b>不上传、不保存。页面打开后断网也能用。关掉页面，名单就不在这里了。</div>
+  <h2>什么时候要批量做胸牌</h2>
+  <p>举办会议、展会、培训、比赛、校园活动时，参会人员、嘉宾和工作人员常要佩戴胸牌或证件，方便识别身份。几十张证件一张张排版打印很费时，尺寸不对还插不进卡套。</p>
+  <p>本页每人生成一张：顶部色条写活动名称，中间是大号姓名，下面是单位或职务，底部写证件类别。按卡套内芯尺寸在 A4 上自动排满，四周带裁切虚线。名单只在你的设备上处理。</p>
+  <p><b>三步用法：</b></p>
+  <ol>
+    <li>贴名单（姓名、单位/职务两列）。</li>
+    <li>填活动名称和证件类别，选胸卡尺寸和颜色。</li>
+    <li>点“生成胸牌”，按 100% 打印后沿虚线裁开。</li>
+  </ol>
 </div>
 
 <div class="card">
@@ -113,7 +120,7 @@ footer{margin-top:28px;color:var(--sub);font-size:13px;text-align:center}
   <p><b>Excel 里的名单怎么粘贴？</b><br>在 Excel 或 WPS 表格里选中“姓名”和“单位/职务”两列，Ctrl+C，到上面的框里 Ctrl+V。单位和职务分成两列也行，会合在一起印在名字下面。</p>
   <p><b>用什么纸打印？</b><br>普通 A4 纸就能插卡套；想挺括一些，可以用 120～200 克的卡纸（先确认打印机支持厚纸）。</p>
   <p><b>打出来尺寸不对、插不进去？</b><br>打印对话框里“缩放”改成 100%（实际大小）。还是偏大，就用“自定义尺寸”把宽高各减 1～2 毫米。</p>
-  <p><b>手机上能用吗？</b><br>能生成和预览，也能下载 PDF 发到电脑或打印店。手机直接连打印机的情况各不相同，用电脑打印最稳。</p>
+  <p><b>手边没有打印机怎么办？</b><br>在手机或电脑上生成后点“下载 PDF”，发给打印店，提醒对方按 100%（实际大小）打印，裁出来的尺寸才对。</p>
 </div>
 
 <div class="card">

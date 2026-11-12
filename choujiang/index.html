@@ -3,9 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>年会抽奖网页版：不用下载安装，贴名单就能大屏滚动抽奖（免费）</title>
-<meta name="description" content="年会、活动要抽奖，不想下载安装软件？打开网页把名单贴进来，设好奖项和人数，投影全屏滚动名字，按空格开始、停止。中过的不再中，结果可复制、导出 Excel 能直接打开的 CSV，刷新不丢。名单只在本机浏览器里，不上传。">
+<title>年会抽奖网页版：不用下载安装，贴名单大屏滚动抽奖</title>
+<meta name="description" content="年会、活动要抽奖，不想下载软件？网页里贴名单、设奖项，投影全屏滚动名字，空格开始停止，中过的不再中，结果可导出。免费，名单只存在本机，不上传。">
 <link rel="canonical" href="https://zhaopian-gongju.github.io/choujiang/">
+<script type="application/ld+json" id="ld">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"年会抽奖：贴名单就能抽，不用下载安装","description":"年会、活动要抽奖，不想下载软件？网页里贴名单、设奖项，投影全屏滚动名字，空格开始停止，中过的不再中，结果可导出。免费，名单只存在本机，不上传。","url":"https://zhaopian-gongju.github.io/choujiang/","inLanguage":"zh-CN","isAccessibleForFree":true,"applicationCategory":"UtilitiesApplication","operatingSystem":"Web 浏览器"},{"@type":"FAQPage","url":"https://zhaopian-gongju.github.io/choujiang/","inLanguage":"zh-CN","mainEntity":[{"@type":"Question","name":"怎么操作？","acceptedAnswer":{"@type":"Answer","text":"贴名单 → 设奖项 → “进入大屏开始抽奖” → 空格键（或点“开始”）名字开始滚动 → 再按空格停下，显示中奖人。一个奖项抽满后点“下一个奖项”。按 Esc 或点“退出大屏”回到设置页。"}},{"@type":"Question","name":"一次抽好几个人？","acceptedAnswer":{"@type":"Answer","text":"大屏下方“本次抽 N 人”改成想要的数，一次停下就出 N 个名字，比如三等奖 10 个一次抽完。"}},{"@type":"Question","name":"随机公平吗？","acceptedAnswer":{"@type":"Answer","text":"停下那一刻才从还没中奖的人里随机挑，用的是浏览器自带的密码学随机数（crypto.getRandomValues），每个人机会相同。滚动时屏幕上闪过的名字只是动画，不影响结果。"}},{"@type":"Question","name":"中过的人还能再中吗？","acceptedAnswer":{"@type":"Answer","text":"默认不能。想让中过的人还能参加后面的奖项，取消勾选“中过奖的人不再参与后面的抽奖”（同一个奖项里还是不会重复）。"}},{"@type":"Question","name":"抽错了 / 中奖人不在场？","acceptedAnswer":{"@type":"Answer","text":"大屏上点“撤销上一次”，刚才那一批作废，可以重抽。"}},{"@type":"Question","name":"名单里有同名的人？","acceptedAnswer":{"@type":"Answer","text":"完全一样的行只算一次。同名不同人请在逗号后面写上部门，例如“张伟,技术部”和“张伟,财务部”。"}},{"@type":"Question","name":"不小心刷新了 / 关了页面？","acceptedAnswer":{"@type":"Answer","text":"名单、奖项和结果都存在这台电脑的浏览器里，重新打开本页还在。用浏览器的“无痕 / 隐私模式”时关掉就没了。"}}]}]}</script>
 <style>
 :root{--bg:#f6f7f9;--card:#fff;--fg:#1c2330;--sub:#5b6676;--line:#dfe3ea;--main:#1769e0;--mainfg:#fff;--warn:#b45309;--ok:#15803d}
 @media (prefers-color-scheme:dark){:root{--bg:#12151b;--card:#1b2029;--fg:#e8ecf2;--sub:#9aa5b5;--line:#2c3441;--main:#4c8ff5;--mainfg:#0b1220;--warn:#f0b35a;--ok:#4ade80}}
@@ -88,9 +89,15 @@ footer{margin-top:28px;color:var(--sub);font-size:13px;text-align:center}
 </div>
 
 <div class="card">
-  <h2>关于本页</h2>
-  <p class="sub">打开网页就能用的抽奖工具：把名单贴进来，设好奖项（名称、人数），点“进入大屏”接上投影，按空格开始滚动、再按一次停下，名字大字显示。适合年会、活动、班会现场抽奖。</p>
-  <div class="safe"><b>名单只在你自己的电脑上：</b>不上传到任何服务器。名单和结果只存在这台电脑的浏览器里（换电脑、换浏览器就看不到），点“清空全部结果”或清除浏览器数据就删掉了。页面打开后断网也能用。</div>
+  <h2>适合哪些抽奖场合</h2>
+  <p>公司年会、团建、发布会、班会、社群活动常有现场抽奖环节。下载抽奖软件要安装，还担心来路不明；用纸条抽又慢。本页打开浏览器就能用：设好奖项名称和人数，接上投影进入大屏，按空格开始滚动、再按一次停下，中奖名字大字显示。</p>
+  <p>名单和结果只存在这台电脑的浏览器里，不上传；换电脑、换浏览器就看不到，点“清空全部结果”或清除浏览器数据就删掉了。</p>
+  <p><b>三步用法：</b></p>
+  <ol>
+    <li>贴名单，设好每个奖项的名称和人数。</li>
+    <li>点“进入大屏开始抽奖”，接投影或全屏显示。</li>
+    <li>按空格开始、停止，一个奖项抽满后点“下一个奖项”，最后复制或导出结果。</li>
+  </ol>
 </div>
 
 <div class="card">

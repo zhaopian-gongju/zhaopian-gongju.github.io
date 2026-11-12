@@ -3,9 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>工资表怎么做成工资条：每人自动加表头、方便裁开（免费，不上传）</title>
-<meta name="description" content="工资表要给每个人加一行表头再裁开，手工插行太慢？从 Excel 复制整张工资表粘贴进来，自动生成每人一条（表头 + 本人一行 + 裁切空行），支持两行表头。可直接打印，也可复制回 Excel 或下载 CSV。工资数据只在你自己的浏览器里处理，不上传、不保存。">
+<title>工资表怎么做成工资条？粘贴后自动给每人加表头（免费）</title>
+<meta name="description" content="工资表要给每人加表头再裁开？从Excel粘贴整张工资表，自动生成每人一条（表头＋本人数据＋裁切空行），支持两行表头，可打印或复制回Excel。免费，数据不上传。">
 <link rel="canonical" href="https://zhaopian-gongju.github.io/gongzitiao/">
+<script type="application/ld+json" id="ld">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"工资表怎么拆成工资条：每人自动带表头","description":"工资表要给每人加表头再裁开？从Excel粘贴整张工资表，自动生成每人一条（表头＋本人数据＋裁切空行），支持两行表头，可打印或复制回Excel。免费，数据不上传。","url":"https://zhaopian-gongju.github.io/gongzitiao/","inLanguage":"zh-CN","isAccessibleForFree":true,"applicationCategory":"UtilitiesApplication","operatingSystem":"Web 浏览器"},{"@type":"FAQPage","url":"https://zhaopian-gongju.github.io/gongzitiao/","inLanguage":"zh-CN","mainEntity":[{"@type":"Question","name":"Excel 里自己怎么做工资条？","acceptedAnswer":{"@type":"Answer","text":"常见做法是加辅助列排序插行，或者用公式（INDEX / OFFSET）引用表头，步骤多容易错。这里粘贴进来直接出，适合每月赶着发。"}},{"@type":"Question","name":"表头有两行（比如“应发工资”下面还分“基本工资、绩效”）？","acceptedAnswer":{"@type":"Answer","text":"选“表头 2 行”。Excel 里合并的单元格粘贴过来只有第一个格有字，打印时会自动合并回去；复制回 Excel 和 CSV 里保持原样，不合并。"}},{"@type":"Question","name":"数字格式（千分位、两位小数）会变吗？","acceptedAnswer":{"@type":"Answer","text":"不会改。从 Excel 复制时带的是表格里显示的样子，这里原样照搬。"}},{"@type":"Question","name":"最下面有“合计”行？","acceptedAnswer":{"@type":"Answer","text":"默认会去掉第一、二列写着“合计 / 总计 / 小计”的行。如果要保留，取消勾选。"}},{"@type":"Question","name":"表里的空行？","acceptedAnswer":{"@type":"Answer","text":"整行都是空的会自动跳过，不会生成空工资条。"}},{"@type":"Question","name":"WPS 表格可以吗？","acceptedAnswer":{"@type":"Answer","text":"可以，在 WPS 里选中复制，粘贴方法一样。"}},{"@type":"Question","name":"工资数据安全吗？","acceptedAnswer":{"@type":"Answer","text":"表格只在这个网页里临时处理：不上传、不写入浏览器存储。本站只统计页面被打开的次数，不涉及表格内容。"}}]}]}</script>
 <style>
 :root{--bg:#f6f7f9;--card:#fff;--fg:#1c2330;--sub:#5b6676;--line:#dfe3ea;--main:#1769e0;--mainfg:#fff;--warn:#b45309;--ok:#15803d}
 @media (prefers-color-scheme:dark){:root{--bg:#12151b;--card:#1b2029;--fg:#e8ecf2;--sub:#9aa5b5;--line:#2c3441;--main:#4c8ff5;--mainfg:#0b1220;--warn:#f0b35a;--ok:#4ade80}}
@@ -90,9 +91,15 @@ footer{margin-top:28px;color:var(--sub);font-size:13px;text-align:center}
 </div>
 
 <div class="card">
-  <h2>关于本页</h2>
-  <p class="sub">把整张工资表从 Excel 复制粘贴进来，第一行（或前两行）当表头，下面每个人生成一条“表头 + 本人数据”，条与条之间空一行，打印出来沿虚线裁开就是工资条。也可以复制回 Excel 接着用。</p>
-  <div class="safe"><b>工资数据只在你自己的电脑上处理：</b>不上传、不保存，页面不会把表格存到浏览器里。关掉或刷新页面，数据就没了。页面打开后断网也能用。</div>
+  <h2>工资条一般什么时候做</h2>
+  <p>每月发工资后，很多单位要给每位员工一张工资条：上面是表头（姓名、基本工资、绩效、扣款、实发等），下面是本人那一行数据，裁开后分别发放。工资表本身只有一行表头，手工给每个人插表头既慢又容易错行。</p>
+  <p>本页把整张表粘贴进来，第一行（或前两行）当表头，自动生成“表头＋本人数据＋裁切空行”。工资数据不上传，也不存进浏览器，关掉或刷新页面就没了。</p>
+  <p><b>三步用法：</b></p>
+  <ol>
+    <li>在 Excel 或 WPS 里选中整张工资表复制，粘贴到上面的框。</li>
+    <li>选表头行数和打印选项。</li>
+    <li>点“生成工资条”，打印后沿虚线裁开，或复制回 Excel、下载 CSV。</li>
+  </ol>
 </div>
 
 <div class="card">

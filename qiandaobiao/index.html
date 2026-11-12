@@ -3,9 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>会议签到表在线生成：贴名单批量打印，每页带表头和页码（免费，不上传）</title>
-<meta name="description" content="开会、培训、活动要打签到表？把参会名单贴进来（可直接从 Excel 复制姓名、单位两列），填会议名称、时间、地点，勾选序号、姓名、单位/部门、联系电话、签名、备注等列，自动按每页行数分页，每页都带表头和页码，末尾可加空白行给临时来的人。A4 竖版，可直接打印或下载 PDF。名单只在你自己的浏览器里处理，不上传。">
+<title>会议签到表怎么做？贴名单批量生成，每页带表头和页码</title>
+<meta name="description" content="开会、培训要打签到表？贴参会名单，填会议名称、时间、地点，自动分页，每页带表头和页码，A4竖版可直接打印或下载PDF。免费在线使用，名单不上传。">
 <link rel="canonical" href="https://zhaopian-gongju.github.io/qiandaobiao/">
+<script type="application/ld+json" id="ld">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"会议签到表在线生成：贴名单批量打印","description":"开会、培训要打签到表？贴参会名单，填会议名称、时间、地点，自动分页，每页带表头和页码，A4竖版可直接打印或下载PDF。免费在线使用，名单不上传。","url":"https://zhaopian-gongju.github.io/qiandaobiao/","inLanguage":"zh-CN","isAccessibleForFree":true,"applicationCategory":"UtilitiesApplication","operatingSystem":"Web 浏览器"},{"@type":"FAQPage","url":"https://zhaopian-gongju.github.io/qiandaobiao/","inLanguage":"zh-CN","mainEntity":[{"@type":"Question","name":"从 Excel 怎么粘贴？","acceptedAnswer":{"@type":"Answer","text":"在 Excel 或 WPS 表格里选中“姓名”和“单位”两列（第三列可以是电话），Ctrl+C，到上面的框里 Ctrl+V。选中时带上了“序号”列或“姓名、单位”表头行也没关系，会自动去掉。"}},{"@type":"Question","name":"只要一张空白签到表？","acceptedAnswer":{"@type":"Answer","text":"名单留空，在“末尾加 X 行空白”里填行数（比如 20），生成的就是只有表头的空白签到表。"}},{"@type":"Question","name":"每页行数怎么选？","acceptedAnswer":{"@type":"Answer","text":"手写签名要留够位置，一般每页 15～20 行比较合适；人多想省纸可以选 25 或 30 行。"}},{"@type":"Question","name":"联系电话一列是空的？","acceptedAnswer":{"@type":"Answer","text":"名单里第三列有电话就会印上；没有就留空让参会人自己填。不需要这一列，取消勾选“联系电话”。"}},{"@type":"Question","name":"名字按什么顺序排？","acceptedAnswer":{"@type":"Answer","text":"按你贴进来的顺序。想按单位或姓氏排，先在 Excel 里排好序再复制。"}},{"@type":"Question","name":"打印出来表格偏了或被切掉？","acceptedAnswer":{"@type":"Answer","text":"打印对话框里纸张选 A4，“缩放”改成 100%（实际大小）。表格四周离纸边留了 15 毫米，普通打印机都能完整印出。"}},{"@type":"Question","name":"没有电脑，用手机能做吗？","acceptedAnswer":{"@type":"Answer","text":"能。在手机上贴名单、生成后点“下载 PDF”，把文件发到电脑或打印店打印。"}}]}]}</script>
 <style>
 :root{--bg:#f6f7f9;--card:#fff;--fg:#1c2330;--sub:#5b6676;--line:#dfe3ea;--main:#1769e0;--mainfg:#fff;--warn:#b45309;--ok:#15803d}
 @media (prefers-color-scheme:dark){:root{--bg:#12151b;--card:#1b2029;--fg:#e8ecf2;--sub:#9aa5b5;--line:#2c3441;--main:#4c8ff5;--mainfg:#0b1220;--warn:#f0b35a;--ok:#4ade80}}
@@ -109,9 +110,15 @@ footer{margin-top:28px;color:var(--sub);font-size:13px;text-align:center}
 </div>
 
 <div class="card">
-  <h2>关于本页</h2>
-  <p class="sub">把参会人名单贴进来，生成 A4 竖版签到表：标题写会议名称，下面一行写时间、地点和应到人数；表格按设定的行数自动分页，每一页都重复表头、底部印“第几页 / 共几页”。名字太长的格子会自动缩小字号或分两行，不会印出格子。</p>
-  <div class="safe"><b>名单只在你自己的电脑或手机上处理：</b>不上传、不保存。页面打开后断网也能用。关掉页面，名单就不在这里了。</div>
+  <h2>签到表用在哪些场合</h2>
+  <p>会议、培训、讲座、考试、志愿活动等需要留存到场记录的场合，通常要准备纸质签到表，让到场的人手写签名。名单有几十上百人时，在 Word 里画表格、分页、每页重复表头都很费事。</p>
+  <p>本页生成 A4 竖版签到表：标题写会议名称，下面写时间、地点和应到人数；按设定的行数自动分页，每页都重复表头，底部印“第几页／共几页”，名字太长会自动缩小或换行。名单只在你的设备上处理。</p>
+  <p><b>三步用法：</b></p>
+  <ol>
+    <li>贴名单（姓名、单位两列，可以再带一列电话）。</li>
+    <li>填会议名称、时间、地点，勾选需要的列，选每页行数。</li>
+    <li>点“生成签到表”，看过预览后打印或下载 PDF。</li>
+  </ol>
 </div>
 
 <div class="card">
@@ -122,7 +129,7 @@ footer{margin-top:28px;color:var(--sub);font-size:13px;text-align:center}
   <p><b>联系电话一列是空的？</b><br>名单里第三列有电话就会印上；没有就留空让参会人自己填。不需要这一列，取消勾选“联系电话”。</p>
   <p><b>名字按什么顺序排？</b><br>按你贴进来的顺序。想按单位或姓氏排，先在 Excel 里排好序再复制。</p>
   <p><b>打印出来表格偏了或被切掉？</b><br>打印对话框里纸张选 A4，“缩放”改成 100%（实际大小）。表格四周离纸边留了 15 毫米，普通打印机都能完整印出。</p>
-  <p><b>手机上能用吗？</b><br>能生成和预览，也能下载 PDF 发到电脑或打印店。手机直接连打印机的情况各不相同，用电脑打印最稳。</p>
+  <p><b>没有电脑，用手机能做吗？</b><br>能。在手机上贴名单、生成后点“下载 PDF”，把文件发到电脑或打印店打印。</p>
 </div>
 
 <div class="card">
